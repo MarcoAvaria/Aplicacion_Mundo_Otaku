@@ -1,4 +1,5 @@
 //import 'package:aplicacion_mundo_otaku/screens/mangas_screen.dart';
+import 'package:aplicacion_mundo_otaku/screens/configuration_screen.dart';
 import 'package:aplicacion_mundo_otaku/screens/login_screen.dart';
 import 'package:aplicacion_mundo_otaku/screens/mangas_screen.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         "home":(context) => HomeScreen(),
         "login": (context) => LoginScreen(),
         "mangas":(context) => MangaScreen(),
+        "configuracion":(context) => ConfigurationScreen(),
       },
       //home: const MangaScreen(),
       //home: Container(),
