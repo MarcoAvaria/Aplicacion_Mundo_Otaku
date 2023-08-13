@@ -9,11 +9,11 @@ import 'screens/splash_screen.dart';
 
 void main() {
   //runApp(const MyApp());
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  //const MyApp({super.key});
+  const MyApp({super.key});
   //const MyApp({ Key? key}) : super(key: key);
   // This widget is the root of your application.
   @override

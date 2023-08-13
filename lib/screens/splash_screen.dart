@@ -11,7 +11,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     var d = const Duration(seconds: 10);
     Future.delayed(d, () {
@@ -59,6 +58,6 @@ class _SplashScreenState extends State<SplashScreen> {
         ],
       ),
     );
-    ;
+    
   }
 }

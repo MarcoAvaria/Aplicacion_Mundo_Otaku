@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/components/mi_boton.dart';
+//import 'package:aplicacion_mundo_otaku/components/mi_boton.dart';
 import 'package:aplicacion_mundo_otaku/components/mi_campotexto.dart';
 import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
 import 'package:aplicacion_mundo_otaku/screens/mangas_screen.dart';
@@ -90,7 +90,7 @@ class LoginScreen extends StatelessWidget {
                   //String username = usernameController.text;
                   //String password = passwordController.text;
 
-                  if (usernameController == '' && passwordController == '') {
+                  if (usernameController.text == "" && passwordController.text == "") {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
