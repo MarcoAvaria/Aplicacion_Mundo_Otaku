@@ -1,11 +1,11 @@
 //import 'package:aplicacion_mundo_otaku/screens/mangas_screen.dart';
-import 'package:aplicacion_mundo_otaku/screens/configuration_screen.dart';
-import 'package:aplicacion_mundo_otaku/screens/login_screen.dart';
-import 'package:aplicacion_mundo_otaku/screens/mangas_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/mangas_screen.dart';
 import 'package:flutter/material.dart';
 
-import 'screens/home_screen.dart';
-import 'screens/splash_screen.dart';
+import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/splash_screen.dart';
 
 void main() {
   //runApp(const MyApp());
@@ -19,15 +19,21 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Mundo Otaku - Betta',
       debugShowCheckedModeBanner: false,
       initialRoute: "splash",
+      
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Colors.purple[200],
+      ),
+      
       routes: {
-        "splash":(context) => SplashScreen(),
-        "home":(context) => HomeScreen(),
+        "splash":(context) => const SplashScreen(),
+        "home":(context) => const HomeScreen(),
         "login": (context) => LoginScreen(),
-        "mangas":(context) => MangaScreen(),
-        "configuracion":(context) => ConfigurationScreen(),
+        "mangas":(context) => const MangaScreen(),
+        "configuracion":(context) => const ConfigurationScreen(),
       },
       //home: const MangaScreen(),
       //home: Container(),

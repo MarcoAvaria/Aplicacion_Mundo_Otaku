@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/screens/mangas_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/mangas_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
