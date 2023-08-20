@@ -5,64 +5,34 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MangaScreen extends StatefulWidget {
-  //const MangaScreen({super.key}); // ASÍ ESTABA
-  const MangaScreen({Key? key}) : super(key: key); // ASÍ LO ESTOY PROBANDO
+  const MangaScreen({super.key}); // ASÍ ESTABA
+  //const MangaScreen({Key? key}) : super(key: key); // ASÍ LO ESTOY PROBANDO
 
   @override
   State<MangaScreen> createState() => _MangaScreenState();
 }
 
+const List<String> _menus = [
+  "Todos",
+  "Menú 1",
+  "Menú 2",
+  "Menú 3",
+  "Menú 4",
+  "Menú 5",
+  "Menú 6"
+];
+
 class _MangaScreenState extends State<MangaScreen> {
-  List<String> menus = [
-    "Todos",
-    "Menú 1",
-    "Menú 2",
-    "Menú 3",
-    "Menú 4",
-    "Menú 5",
-    "Menú 6"
-  ];
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.grey.shade200,
-        centerTitle: true,
-        title: const Text('Mangas',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        actions: [
-          InkWell(
-            onTap: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const ConfigurationScreen()),
-                (route) => false,
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child:
-                  SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
-            ),
-          ),
-          const SizedBox(width: 15.0),
-        ],
-      ),
 
-      /*
-      appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.grey.shade200,
-        centerTitle: true,
-        title: const Text('Mangas',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        actions: [
-          SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
-          const SizedBox(width: 15.0),
-        ],
-      ),
-      */
+    final colors = Theme.of(context).colorScheme;
+
+    var scaffold = Scaffold(
+
+      appBar: newMethodAppBar(context),
+
       body: Column(
         children: [
           Container(
@@ -73,17 +43,17 @@ class _MangaScreenState extends State<MangaScreen> {
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               //shrinkWrap: true,
-              itemCount: menus.length,
+              itemCount: _menus.length,
               itemBuilder: (context, index) {
                 return Container(
                   width: 100.0,
                   margin: const EdgeInsets.only(left: 15.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: Colors.deepPurple[400],
+                      color: colors.primary,
                       borderRadius: BorderRadius.circular(20.0)),
                   child: Text(
-                    menus[index],
+                    _menus[index],
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 );
@@ -109,30 +79,6 @@ class _MangaScreenState extends State<MangaScreen> {
                         borderRadius: BorderRadius.circular(120.0)),
                     // child: Image.network(src) // EN CASO DE QUERER TRAER ALGÚN RECURSO DE INTERNET
 
-                    /*
-                    child: Column(
-                      children: [
-                        Image.asset(products[index].path??""),
-                        SizedBox(height: 10.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "${products[index].franquicia}",
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25.0),
-                            ),
-
-                            const SizedBox(width: 4.0),
-                            Text(
-                              "${products[index].precio.toString()} CLP",
-                              style: TextStyle(fontSize: 20.0,),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),// Los signos ??"" es en caso de index=null
-                    */
                     child: Column(
                       children: [
                         Image.asset(products[index].path ?? ""),
@@ -152,15 +98,55 @@ class _MangaScreenState extends State<MangaScreen> {
                         ),
                       ],
                     ),
-
-                    //color: Colors.orange,
                   );
                 }),
           )),
         ],
       ),
     );
+    return scaffold;
     //return const Placeholder(); // ASÍ ESTABA
     //return Container(); // ASÍ LO ESTOY PROBANDO
+  }
+
+  AppBar newMethodAppBar(BuildContext context) {
+    return AppBar(
+      elevation: 0.0,
+      backgroundColor: Colors.grey.shade400,
+      centerTitle: true,
+      title: const Text('Mangas',
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+      actions: [
+        InkWell(
+          onTap: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const ConfigurationScreen()),
+              (route) => false,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
+          ),
+        ),
+        const SizedBox(width: 15.0),
+      ],
+    );
+
+    /*
+      appBar: AppBar(
+        elevation: 0.0,
+        backgroundColor: Colors.grey.shade200,
+        centerTitle: true,
+        title: const Text('Mangas',
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+        actions: [
+          SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
+          const SizedBox(width: 15.0),
+        ],
+      ),
+    */
   }
 }

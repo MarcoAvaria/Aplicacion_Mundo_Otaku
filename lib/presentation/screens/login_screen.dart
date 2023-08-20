@@ -1,6 +1,7 @@
 //import 'package:aplicacion_mundo_otaku/components/mi_boton.dart';
 import 'package:aplicacion_mundo_otaku/components/mi_campotexto.dart';
 import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/mangas_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -224,7 +225,10 @@ class NewWidgetElevatedButton extends StatelessWidget {
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (context) => const MangaScreen()),
+            //MaterialPageRoute(builder: (context) => const MangaScreen()),
+            //MaterialPageRoute(builder: (context) => const ChatScreen()),
+            MaterialPageRoute(builder: (context) => const UserListScreen()),
+            //MaterialPageRoute(builder: (context) => const AllChatsScreen()),
             (route) => false,
           );
         }
