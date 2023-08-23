@@ -1,3 +1,5 @@
+import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'mangas_screen.dart';
@@ -17,6 +19,41 @@ class ConfigurationScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
+              'Social',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 16.0),
+            ListTile(
+              leading: const Icon(Icons.book_online_outlined),
+              title: const Text('Mangas'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MangaScreen(),
+                  ),
+                );
+                // Acción al hacer clic en "Editar Perfil"
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Mensajeria'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const UserListScreen(),
+                  ),
+                );
+                // Acción al hacer clic en "Editar Perfil"
+              },
+            ),
+            const SizedBox(height: 16.0),
+            const Text(
               'Perfil de Usuario',
               style: TextStyle(
                 fontSize: 20.0,
@@ -28,6 +65,12 @@ class ConfigurationScreen extends StatelessWidget {
               leading: const Icon(Icons.person),
               title: const Text('Editar Perfil'),
               onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MangaScreen(),
+                  ),
+                );
                 // Acción al hacer clic en "Editar Perfil"
               },
             ),
@@ -49,6 +92,12 @@ class ConfigurationScreen extends StatelessWidget {
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Cerrar Sesión'),
               onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                );
                 // Acción al hacer clic en "Cerrar Sesión"
               },
             ),

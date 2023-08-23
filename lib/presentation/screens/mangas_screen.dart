@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/models/objetos_modelos.dart';
+import 'package:aplicacion_mundo_otaku/domain/entities/objetos_modelos.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 //import 'package:aplicacion_mundo_otaku/screens/login_screen.dart';
 import 'package:flutter/material.dart';
