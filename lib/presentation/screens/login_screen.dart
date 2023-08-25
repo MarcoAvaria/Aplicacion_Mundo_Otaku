@@ -1,7 +1,7 @@
 //import 'package:aplicacion_mundo_otaku/components/mi_boton.dart';
 import 'package:aplicacion_mundo_otaku/components/mi_campotexto.dart';
 import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
+//import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/mangas_screen.dart';
 import 'package:flutter/material.dart';
 
