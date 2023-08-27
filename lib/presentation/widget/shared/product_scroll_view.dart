@@ -17,6 +17,14 @@ class ProductScrollView extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       itemCount: products.length,
       itemBuilder: (context, index){
+
+        final ProductModel productModel = products[index];
+
+        return const Stack(
+          children: [
+             
+          ],
+        );
         
         //final ProductModel productModel = products[index];
       }
