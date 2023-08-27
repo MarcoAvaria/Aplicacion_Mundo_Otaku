@@ -2,7 +2,7 @@ import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_scree
 import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
-import 'mangas_screen.dart';
+import 'discover/mangas_screen.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});

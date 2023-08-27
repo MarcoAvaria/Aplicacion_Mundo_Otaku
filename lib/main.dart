@@ -4,7 +4,7 @@ import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_scree
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/chat_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/mangas_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

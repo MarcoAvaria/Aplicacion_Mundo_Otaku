@@ -4,7 +4,7 @@
 import 'package:aplicacion_mundo_otaku/config/theme/app_theme.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/mangas_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'presentation/screens/home_screen.dart';

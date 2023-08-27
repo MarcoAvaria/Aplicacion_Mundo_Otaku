@@ -1,8 +1,9 @@
+import 'package:aplicacion_mundo_otaku/components/custom_appbar.dart';
 import 'package:aplicacion_mundo_otaku/domain/entities/objetos_modelos.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
+//import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 //import 'package:aplicacion_mundo_otaku/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
 
 class MangaScreen extends StatefulWidget {
   const MangaScreen({super.key}); // ASÍ ESTABA
@@ -13,13 +14,13 @@ class MangaScreen extends StatefulWidget {
 }
 
 const List<String> _menus = [
-  "Todos",
-  "Menú 1",
-  "Menú 2",
-  "Menú 3",
-  "Menú 4",
-  "Menú 5",
-  "Menú 6"
+  "Toditos",
+  "Mangas",
+  "Figuras",
+  "Shonen",
+  "Shojo",
+  "Seinen",
+  "Josei"
 ];
 
 class _MangaScreenState extends State<MangaScreen> {
@@ -31,7 +32,8 @@ class _MangaScreenState extends State<MangaScreen> {
 
     var scaffold = Scaffold(
 
-      appBar: newMethodAppBar(context),
+      //appBar: newMethodAppBar(context),
+      appBar: CustomAppBar.myOwnMethodAppBar(context, 'Mangas'),
 
       body: Column(
         children: [
@@ -107,46 +109,5 @@ class _MangaScreenState extends State<MangaScreen> {
     return scaffold;
     //return const Placeholder(); // ASÍ ESTABA
     //return Container(); // ASÍ LO ESTOY PROBANDO
-  }
-
-  AppBar newMethodAppBar(BuildContext context) {
-    return AppBar(
-      elevation: 0.0,
-      backgroundColor: Colors.grey.shade400,
-      centerTitle: true,
-      title: const Text('Mangas',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-      actions: [
-        InkWell(
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const ConfigurationScreen()),
-              (route) => false,
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
-          ),
-        ),
-        const SizedBox(width: 15.0),
-      ],
-    );
-
-    /*
-      appBar: AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.grey.shade200,
-        centerTitle: true,
-        title: const Text('Mangas',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-        actions: [
-          SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
-          const SizedBox(width: 15.0),
-        ],
-      ),
-    */
   }
 }

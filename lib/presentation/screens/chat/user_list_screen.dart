@@ -3,6 +3,8 @@ import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../components/custom_appbar.dart';
+
 class UserListScreen extends StatelessWidget {
   const UserListScreen({super.key});
 
@@ -15,8 +17,8 @@ class UserListScreen extends StatelessWidget {
         title: const Text('Mensajes | Contactos'),
       ),
       */
+      appBar: CustomAppBar.myOwnMethodAppBar(context, 'Mensajes | Contactos'),
 
-      appBar: newMethodAppBar(context),
       
       body: ListView.builder(
         itemCount: userList.length,
@@ -36,33 +38,6 @@ class UserListScreen extends StatelessWidget {
           );
         },
       ),
-    );
-  }
-
-  AppBar newMethodAppBar(BuildContext context) {
-    return AppBar(
-      elevation: 0.0,
-      backgroundColor: Colors.grey.shade400,
-      centerTitle: true,
-      title: const Text('Mensajes | Contactos',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-      actions: [
-        InkWell(
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const ConfigurationScreen()),
-              (route) => false,
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SvgPicture.asset("assets/anime_and_manga.svg", width: 30.0),
-          ),
-        ),
-        const SizedBox(width: 15.0),
-      ],
     );
   }
 }
