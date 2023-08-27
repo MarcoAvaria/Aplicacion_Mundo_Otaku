@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/home/login_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {

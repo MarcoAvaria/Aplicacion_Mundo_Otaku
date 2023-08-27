@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/presentation/screens/home_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {

@@ -1,8 +1,9 @@
 //import 'package:aplicacion_mundo_otaku/components/mi_boton.dart';
+import 'package:aplicacion_mundo_otaku/components/button_login.dart';
 import 'package:aplicacion_mundo_otaku/components/mi_campotexto.dart';
 import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
 //import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
+//import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -18,10 +19,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const icon = Icon(
-      Icons.lock,
-      size: 50,
-    );
+    const icon = Icon( Icons.lock, size: 50);
 
     var text = Text(
       '¡Bienvenid@! Te hemos extrañado :(',
@@ -96,7 +94,10 @@ class LoginScreen extends StatelessWidget {
               // olvidaste la pass?
               const NewWidgetRecuperarPass(),
               const SizedBox(height: 25),
-              NewWidgetElevatedButton( uCtrl: usernameController, pCtrl: passwordController),
+
+
+              ButtonLogin.myOwnMethodElevatedButton( context, usernameController , passwordController ),
+
               const SizedBox(height: 50),
               continuarconTexto, const SizedBox(height: 50),
               const GoogleOutlookSignIn(),
@@ -151,58 +152,6 @@ class NewWidgetRecuperarPass extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class NewWidgetElevatedButton extends StatelessWidget {
-  const NewWidgetElevatedButton({
-    super.key,
-    required this.uCtrl,
-    required this.pCtrl,
-  });
-
-  final TextEditingController uCtrl;
-  final TextEditingController pCtrl;
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        // Validar el usuario y la contraseña aquí
-        //String username = usernameController.text;
-        //String password = passwordController.text;
-
-        if (uCtrl.text == "" && pCtrl.text == "") {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Error'),
-                content: const Text('Usuario o contraseña incorrectos.'),
-                actions: [
-                  TextButton(
-                    child: const Text('OK'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-        } else {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MangaScreen()),
-            //MaterialPageRoute(builder: (context) => const ChatScreen()),
-            //MaterialPageRoute(builder: (context) => const UserListScreen()),
-            //MaterialPageRoute(builder: (context) => const AllChatsScreen()),
-            (route) => false,
-          );
-        }
-      },
-      child: const Text('Iniciar sesión'),
     );
   }
 }

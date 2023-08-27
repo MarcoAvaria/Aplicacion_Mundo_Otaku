@@ -1,9 +1,9 @@
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/discover/discover_screen.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/home/login_screen.dart';
 import 'package:flutter/material.dart';
 
-import 'discover/mangas_screen.dart';
+import '../discover/mangas_screen.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
@@ -19,14 +19,19 @@ class ConfigurationScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Social',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
+            // const Text(
+            //   'Social',
+            //   style: TextStyle(
+            //     fontSize: 20.0,
+            //     fontWeight: FontWeight.bold,
+            //   ),
+            // ),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text('Social',
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))
             ),
-            const SizedBox(height: 16.0),
+            //const SizedBox(height: 16.0),
             ListTile(
               leading: const Icon(Icons.book_online_outlined),
               title: const Text('Mangas'),
@@ -66,15 +71,11 @@ class ConfigurationScreen extends StatelessWidget {
                 // Acción al hacer clic en "Editar Perfil"
               },
             ),
-            const SizedBox(height: 16.0),
-            const Text(
-              'Perfil de Usuario',
-              style: TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
+            const ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text('Perfil de Usuario',
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))
             ),
-            const SizedBox(height: 16.0),
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Editar Perfil'),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../presentation/screens/configuration_screen.dart';
+import '../presentation/screens/configuration/configuration_screen.dart';
 
 class CustomAppBar {
   static AppBar myOwnMethodAppBar(BuildContext context, String title) {
