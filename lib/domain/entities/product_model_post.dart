@@ -4,7 +4,7 @@ class ProductModel {
   String? franquicia;
   int? volumen;
   String? descripcion;
-  double? precio;
+  int? precio;
   String? path;
 
   ProductModel({

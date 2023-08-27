@@ -3,6 +3,7 @@ import 'package:aplicacion_mundo_otaku/components/mi_campotexto.dart';
 import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
 //import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
+//import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -19,7 +20,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const icon = Icon(
       Icons.lock,
-      size: 100,
+      size: 50,
     );
 
     var text = Text(
@@ -78,60 +79,28 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[300],
       body: SafeArea(
-        child: Center(
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            //mainAxisSize: D,
             children: [
               const SizedBox(height: 50),
-
-              // logo
               icon,
-
               const SizedBox(height: 30),
-
-              //bienvenido!
               text,
-
               const SizedBox(height: 25),
-
-              // texto de user
-              NewWidgetMiCampoTexto(
-                  variabletextController: usernameController,
-                  hintText: "Nombre de usuari@",
-                  obscureText: false),
-
+              NewWidgetMiCampoTexto( varTextCtrl: usernameController, hintText: "Nombre de usuari@", darkText: false),
               const SizedBox(height: 10),
-
-              // campo de pass
-              NewWidgetMiCampoTexto(
-                  variabletextController: passwordController,
-                  hintText: "Contraseña",
-                  obscureText: true),
-
+              NewWidgetMiCampoTexto( varTextCtrl: passwordController, hintText: "Contraseña", darkText: true),
               const SizedBox(height: 10),
-
               // olvidaste la pass?
               const NewWidgetRecuperarPass(),
-
               const SizedBox(height: 25),
-
-              NewWidgetElevatedButton(
-                  usernameController: usernameController,
-                  passwordController: passwordController),
-
+              NewWidgetElevatedButton( uCtrl: usernameController, pCtrl: passwordController),
               const SizedBox(height: 50),
-
-              // o continuar con...
-              continuarconTexto,
-
-              const SizedBox(height: 50),
-
-              // Botones: Google & Outlook
+              continuarconTexto, const SizedBox(height: 50),
               const GoogleOutlookSignIn(),
-
               const SizedBox(height: 50),
-
-              // "¿No tienes registro?"
               textoSinRegistro
             ],
           ),
@@ -189,12 +158,12 @@ class NewWidgetRecuperarPass extends StatelessWidget {
 class NewWidgetElevatedButton extends StatelessWidget {
   const NewWidgetElevatedButton({
     super.key,
-    required this.usernameController,
-    required this.passwordController,
+    required this.uCtrl,
+    required this.pCtrl,
   });
 
-  final TextEditingController usernameController;
-  final TextEditingController passwordController;
+  final TextEditingController uCtrl;
+  final TextEditingController pCtrl;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +173,7 @@ class NewWidgetElevatedButton extends StatelessWidget {
         //String username = usernameController.text;
         //String password = passwordController.text;
 
-        if (usernameController.text == "" && passwordController.text == "") {
+        if (uCtrl.text == "" && pCtrl.text == "") {
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -240,23 +209,23 @@ class NewWidgetElevatedButton extends StatelessWidget {
 
 class NewWidgetMiCampoTexto extends StatelessWidget {
   final String hintText;
-  final bool obscureText;
+  final bool darkText;
 
   const NewWidgetMiCampoTexto({
     super.key,
-    required this.variabletextController,
+    required this.varTextCtrl,
     required this.hintText,
-    required this.obscureText,
+    required this.darkText,
   });
 
-  final TextEditingController variabletextController;
+  final TextEditingController varTextCtrl;
 
   @override
   Widget build(BuildContext context) {
     return MiCampoTexto(
-      controller: variabletextController,
+      controller: varTextCtrl,
       hintText: hintText,
-      obscureText: obscureText,
+      obscureText: darkText,
     );
   }
 }

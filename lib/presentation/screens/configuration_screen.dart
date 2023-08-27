@@ -1,4 +1,5 @@
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/discover/discover_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -40,7 +41,20 @@ class ConfigurationScreen extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.person),
+              leading: const Icon(Icons.airline_stops_rounded),
+              title: const Text('Descubre'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DiscoverScreen(),
+                  ),
+                );
+                // Acción al hacer clic en "Editar Perfil"
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.chat),
               title: const Text('Mensajeria'),
               onTap: () {
                 Navigator.push(

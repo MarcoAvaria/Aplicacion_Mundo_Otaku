@@ -1,4 +1,4 @@
-List<Map<String, dynamic>> products = [
+List<Map<String, dynamic>> productsPosts = [
   {
     'id': 1,
     'tipo': "Manga",

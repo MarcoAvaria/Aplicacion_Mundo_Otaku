@@ -60,7 +60,30 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-    - assets/
+    - assets/icon/anime_and_manga.svg
+    - assets/icon/google_image.png
+    - assets/icon/outlook_image.png
+    - assets\images\degradado_morado.png
+    - assets\images\degradado-difuminado-morado_1360x2400_xtrafondos.com.jpg
+    - assets\mangas\Ao_no_Hako_Vol_01.png
+    - assets\mangas\Bleach_Vol_01.jpg
+    - assets\mangas\Bleach_Vol_01.png
+    - assets\mangas\Blue_Lock_Vol_01.jpg
+    - assets\mangas\Blue_Lock_Vol_01.png
+    - assets\mangas\Boku_no_Hero_Vol_29.jpg
+    - assets\mangas\Boku_no_Hero_Vol_29.png
+    - assets\mangas\Claymore_Vol_09.jpg
+    - assets\mangas\Claymore_Vol_09.png
+    - assets\mangas\Dr_Stone_Vol_10.jpg
+    - assets\mangas\Dr_Stone_Vol_10.png
+    - assets\mangas\Hajime_no_Ippo_Vol_01.jpg
+    - assets\mangas\Hajime_no_Ippo_Vol_01.png
+    - assets\mangas\image_icon_app.png
+    - assets\mangas\Jujutsu_Kaisen_Vol_04.jpg
+    - assets\mangas\Jujutsu_Kaisen_Vol_04.png
+    - assets\mangas\Kimetsu_no_Yaiba_Vol_01.png
+    - assets\mangas\Komi_san_wa_Komyoshou_Desu_Vol_23.jpg
+    - assets\mangas\Komi_san_wa_Komyoshou_Desu_Vol_23.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
   # For details regarding adding assets from package dependencies, see

@@ -11,10 +11,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     //var d = const Duration(seconds: 4);
-    Future.delayed( const Duration( seconds: 7), () {
+    Future.delayed( const Duration( seconds: 4), () {
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -29,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     
     return const Scaffold(
       body: Center(
-        child: Text("Esto es Mundo Otaku", style: TextStyle(fontSize: 35),))
+        child: Text("Esto es Mundo Otaku", style: TextStyle(fontSize: 15),))
     );
   } 
 }

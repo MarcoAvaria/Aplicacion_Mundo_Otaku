@@ -1,8 +1,10 @@
 import 'package:aplicacion_mundo_otaku/config/theme/app_theme.dart';
 import 'package:aplicacion_mundo_otaku/presentation/providers/chat_provider.dart';
+import 'package:aplicacion_mundo_otaku/presentation/providers/discover_provider.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/chat_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
+//import 'package:aplicacion_mundo_otaku/presentation/screens/discover/discover_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/login_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +22,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ChatProvider() )
+        ChangeNotifierProvider(create: (_) => ChatProvider() ),
+        ChangeNotifierProvider(lazy: false, create: (_) => DiscoverProvider()..loadNextPage() )
       ],
       child: MaterialApp(
           title: 'Mundo Otaku - Betta',
@@ -61,7 +64,7 @@ class MyApp extends StatelessWidget {
               return MaterialPageRoute(
                 builder: (context) => const SplashScreen(),
               );
-            }
+            } 
             // Handle other routes here
     
             return null; // Return null if the route is not handled

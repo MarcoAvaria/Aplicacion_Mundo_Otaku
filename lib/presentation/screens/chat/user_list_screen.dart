@@ -1,7 +1,7 @@
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/chat_screen.dart';
-import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
+//import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../components/custom_appbar.dart';
 

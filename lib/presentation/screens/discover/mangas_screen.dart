@@ -1,5 +1,5 @@
 import 'package:aplicacion_mundo_otaku/components/custom_appbar.dart';
-import 'package:aplicacion_mundo_otaku/domain/entities/objetos_modelos.dart';
+import 'package:aplicacion_mundo_otaku/domain/entities/product_model_post.dart';
 //import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 //import 'package:aplicacion_mundo_otaku/screens/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +31,7 @@ class _MangaScreenState extends State<MangaScreen> {
     final colors = Theme.of(context).colorScheme;
 
     var scaffold = Scaffold(
+      //backgroundColor: Color(colors.c),
 
       //appBar: newMethodAppBar(context),
       appBar: CustomAppBar.myOwnMethodAppBar(context, 'Mangas'),
@@ -78,27 +79,29 @@ class _MangaScreenState extends State<MangaScreen> {
                     padding: const EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
                         color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(120.0)),
+                        borderRadius: BorderRadius.circular(300.0)),
                     // child: Image.network(src) // EN CASO DE QUERER TRAER ALGÚN RECURSO DE INTERNET
 
-                    child: Column(
-                      children: [
-                        Image.asset(products[index].path ?? ""),
-                        //const SizedBox(height: 30.0),
-                        Column(
-                          children: [
-                            Text(
-                              "${products[index].franquicia}",
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 25.0),
-                            ),
-                            Text(
-                              "${products[index].precio.toString()} CLP",
-                              style: const TextStyle(fontSize: 20.0),
-                            ),
-                          ],
-                        ),
-                      ],
+                    child: SingleChildScrollView(
+                      child: Column( 
+                        children: [
+                          Image.asset(products[index].path ?? ""),
+                          //const SizedBox(height: 30.0),
+                          Column(
+                            children: [
+                              Text(
+                                "${products[index].franquicia}",
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 25.0),
+                              ),
+                              Text(
+                                "${products[index].precio.toString()} CLP",
+                                style: const TextStyle(fontSize: 20.0),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 }),
