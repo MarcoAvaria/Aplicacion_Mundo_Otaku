@@ -33,7 +33,7 @@ class ConfigurationScreen extends StatelessWidget {
             ),
             //const SizedBox(height: 16.0),
             ListTile(
-              leading: const Icon(Icons.book_online_outlined),
+              leading: const Icon(Icons.book_online_outlined ),
               title: const Text('Mangas'),
               onTap: () {
                 Navigator.push(

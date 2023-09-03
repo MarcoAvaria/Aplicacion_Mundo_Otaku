@@ -4,11 +4,12 @@ import 'package:aplicacion_mundo_otaku/presentation/providers/discover_provider.
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/chat/chat_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/configuration/configuration_screen.dart';
-//import 'package:aplicacion_mundo_otaku/presentation/screens/discover/discover_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/home/login_screen.dart';
 import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+//import 'package:dcdg/dcdg.dart';
 
 import 'presentation/screens/home/home_screen.dart';
 import 'presentation/screens/home/splash_screen.dart';
