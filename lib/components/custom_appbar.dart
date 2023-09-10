@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
-import '../presentation/screens/configuration/configuration_screen_legacy.dart';
+import '../presentation/screens/screens.dart';
 
 class CustomAppBar {
   static AppBar myOwnMethodAppBar(BuildContext context, String title) {

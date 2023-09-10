@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "779829280027",
+    "project_id": "mundo-otaku-crud",
+    "storage_bucket": "mundo-otaku-crud.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779829280027:android:b3e2cd5162602fd10727be",
+        "android_client_info": {
+          "package_name": "com.example.aplicacion_mundo_otaku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyfgreLjNt-205z_pSi-tMi1lDp0dITm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

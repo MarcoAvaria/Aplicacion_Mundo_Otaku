@@ -1,10 +1,5 @@
-//import 'dart:js';
-
 import 'package:aplicacion_mundo_otaku/presentation/screens/screens.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-//import '../../presentation/screens/discover/mangas_screen.dart';
 
 class MenuItemOption {
   final String title;
