@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 //import 'package:flutter_svg/flutter_svg.dart';
 
 class MangaScreen extends StatefulWidget {
+  static const String name = 'mangas_screen';
+
   const MangaScreen({super.key}); // ASÍ ESTABA
   //const MangaScreen({Key? key}) : super(key: key); // ASÍ LO ESTOY PROBANDO
 
@@ -24,10 +26,8 @@ const List<String> _menus = [
 ];
 
 class _MangaScreenState extends State<MangaScreen> {
-
   @override
   Widget build(BuildContext context) {
-
     final colors = Theme.of(context).colorScheme;
 
     var scaffold = Scaffold(
@@ -83,7 +83,7 @@ class _MangaScreenState extends State<MangaScreen> {
                     // child: Image.network(src) // EN CASO DE QUERER TRAER ALGÚN RECURSO DE INTERNET
 
                     child: SingleChildScrollView(
-                      child: Column( 
+                      child: Column(
                         children: [
                           Image.asset(products[index].path ?? ""),
                           //const SizedBox(height: 30.0),
@@ -92,7 +92,8 @@ class _MangaScreenState extends State<MangaScreen> {
                               Text(
                                 "${products[index].franquicia}",
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 25.0),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25.0),
                               ),
                               Text(
                                 "${products[index].precio.toString()} CLP",

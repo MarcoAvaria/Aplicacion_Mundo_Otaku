@@ -8,6 +8,9 @@ import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatelessWidget {
+  
+  static const String name = 'login_screen';
+
   LoginScreen({super.key});
 
   //Controladores de edición de texto

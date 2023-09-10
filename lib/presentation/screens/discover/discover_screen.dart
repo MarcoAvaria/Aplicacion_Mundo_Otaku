@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DiscoverScreen extends StatelessWidget {
+
+  static const String name = 'discover_screen';
+
   const DiscoverScreen({super.key});
 
   @override

@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import '../../../components/custom_appbar.dart';
 
 class UserListScreen extends StatelessWidget {
+
+  static const String name = 'user_list_screen';
+
   const UserListScreen({super.key});
 
   @override

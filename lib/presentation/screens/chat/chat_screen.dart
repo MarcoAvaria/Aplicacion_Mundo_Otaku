@@ -5,11 +5,15 @@ import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_scree
 import 'package:aplicacion_mundo_otaku/presentation/widget/chat/my_message_bubble.dart';
 import 'package:aplicacion_mundo_otaku/presentation/widget/shared/message_field_box.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
 //import 'all_chats_screen_second.dart';
 
 class ChatScreen extends StatelessWidget {
+
+  static const String name = 'chat_screen';
+
   const ChatScreen({super.key, required this.user});
 
   final User user;

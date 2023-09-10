@@ -2,22 +2,30 @@ import 'package:aplicacion_mundo_otaku/presentation/screens/home/home_screen.dar
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
+  
+  static const String name = 'splash_screen';
+
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
     //var d = const Duration(seconds: 3);
     Future.delayed( const Duration (seconds: 3) , () {
-      Navigator.pushAndRemoveUntil(
+      /*Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false);
+          (route) => false);*/
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen()),
+      );
+      //context.go(location )
     });
   }
 

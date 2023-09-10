@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
-import '../presentation/screens/configuration/configuration_screen.dart';
+import '../presentation/screens/configuration/configuration_screen_legacy.dart';
 
 class CustomAppBar {
   static AppBar myOwnMethodAppBar(BuildContext context, String title) {
@@ -15,12 +16,13 @@ class CustomAppBar {
       actions: [
         InkWell(
           onTap: () {
-            Navigator.pushAndRemoveUntil(
+            /*Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
                   builder: (context) => const ConfigurationScreen()),
               (route) => false,
-            );
+            );*/
+            context.pushNamed( ConfigurationScreen.name );
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),

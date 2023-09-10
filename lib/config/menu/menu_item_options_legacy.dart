@@ -1,38 +1,29 @@
 import 'package:flutter/material.dart';
 
-import '../../presentation/screens/discover/mangas_screen.dart';
-
 class MenuItemOption {
   final String title;
   final String? subTitle;
   final String? link;
   final IconData? icon;
-  void Function(BuildContext context)? customOnTap;
 
+  const MenuItemOption({
+    required this.title,
+    this.subTitle,
+    this.link,
+    this.icon,
+  });
+}
+
+const appMenuItems = <MenuItemOption>[
   MenuItemOption(
-      {required this.title,
-      this.subTitle,
-      this.link,
-      this.icon,
-      this.customOnTap});
-}
-
-void customOnTap(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const MangaScreen(),
-    ),
-  );
-  // Acción al hacer clic en "Editar Perfil"
-}
-
-List<MenuItemOption> appMenuItems = <MenuItemOption>[
-  MenuItemOption(title: 'Social', subTitle: null, link: null, icon: null),
+      title: 'Social',
+      subTitle: null,
+      link: null,
+      icon: null),
   MenuItemOption(
       title: 'Mangas',
       subTitle: '¡Ve los mangas disponibles!',
-      link: 'Aquí va el link...?',
+      link: 'Aquí va el link...?holi',
       icon: Icons.book_online_outlined),
   MenuItemOption(
       title: 'Descubre',
@@ -45,7 +36,10 @@ List<MenuItemOption> appMenuItems = <MenuItemOption>[
       link: 'Aquí va el link...?',
       icon: Icons.chat),
   MenuItemOption(
-      title: 'Perfil de Usuario', subTitle: null, link: null, icon: null),
+      title: 'Perf',
+      subTitle: null,
+      link: null,
+      icon: null),
   MenuItemOption(
       title: 'Editar perfil',
       subTitle: 'Configura y personaliza tus datos',

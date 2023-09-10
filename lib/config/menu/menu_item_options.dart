@@ -1,68 +1,68 @@
+//import 'dart:js';
+
+import 'package:aplicacion_mundo_otaku/presentation/screens/screens.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+//import '../../presentation/screens/discover/mangas_screen.dart';
 
 class MenuItemOption {
   final String title;
   final String? subTitle;
-  final String? link;
+  final String link;
   final IconData? icon;
+  final String? contexto;
 
-  const MenuItemOption({
-    required this.title,
-    this.subTitle,
-    this.link,
-    this.icon,
-  });
+  MenuItemOption(
+      {required this.title,
+      this.subTitle,
+      required this.link,
+      this.icon,
+      this.contexto,});
 }
 
-const appMenuItems = <MenuItemOption>[
+List<MenuItemOption> appMenuItems = <MenuItemOption>[
+  MenuItemOption(title: 'Social', subTitle: null, link: '', icon: null),
   MenuItemOption(
-      title: 'Social',
-      subTitle: null,
-      link: null,
-      icon: null),
-  MenuItemOption(
-      title: 'Mangas',
+      title: 'Mangaaaas',
       subTitle: '¡Ve los mangas disponibles!',
-      link: 'Aquí va el link...?',
+      link: MangaScreen.name,
       icon: Icons.book_online_outlined),
   MenuItemOption(
       title: 'Descubre',
       subTitle: 'Descubre sorpresas cerca de ti',
-      link: 'Aquí va el link...?',
+      link: DiscoverScreen.name,
       icon: Icons.airline_stops_rounded),
   MenuItemOption(
       title: 'Mensajeria',
       subTitle: 'Escribe a tus contactos',
-      link: 'Aquí va el link...?',
+      link: UserListScreen.name,
       icon: Icons.chat),
   MenuItemOption(
-      title: 'Perf',
-      subTitle: null,
-      link: null,
-      icon: null),
+      title: 'Perfil de Usuario', subTitle: null, link: '', icon: null),
   MenuItemOption(
       title: 'Editar perfil',
       subTitle: 'Configura y personaliza tus datos',
-      link: 'Aquí va el link...?',
+      link: '',
       icon: Icons.person),
   MenuItemOption(
       title: 'Cambiar contraseña',
       subTitle: 'Modifica tu contraseña',
-      link: 'Aquí va el link...?',
+      link: '',
       icon: Icons.lock),
   MenuItemOption(
       title: 'Notificaciones',
       subTitle: '¿Que mensajes emergentes quieres ver?',
-      link: 'Aquí va el link...?',
+      link: '',
       icon: Icons.notifications),
   MenuItemOption(
       title: 'Cerrar Sesión',
       subTitle: 'Recomendable si no es tu propio dispositvo',
-      link: 'Aquí va el link...?',
+      link: LoginScreen.name,
       icon: Icons.exit_to_app),
   MenuItemOption(
       title: 'Volver',
       subTitle: '¿Que mensajes emergentes quieres ver?',
-      link: 'Aquí va el link...?',
+      link: MangaScreen.name,
       icon: Icons.arrow_back),
 ];

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../presentation/screens/discover/mangas_screen.dart';
 
@@ -30,11 +31,12 @@ class ButtonLogin {
           );
         }
         if (uCtrl.text == "Marco" && pCtrl.text == "123") {
-          Navigator.pushAndRemoveUntil(
+          /*Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const MangaScreen()),
             (route) => false,
-          );
+          );*/
+          context.goNamed( MangaScreen.name );
         }
       },
       child: const Text('Iniciar sesión'),

@@ -1,7 +1,11 @@
 import 'package:aplicacion_mundo_otaku/presentation/screens/home/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatefulWidget {
+
+  static const String name = 'home_screen';
+
   const HomeScreen({super.key});
   
   @override
@@ -14,11 +18,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     //var d = const Duration(seconds: 4);
     Future.delayed( const Duration( seconds: 4), () {
-      Navigator.pushAndRemoveUntil(
+      /*Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
           (route) => false,
-        );
+        );*/
+      context.goNamed( LoginScreen.name );
       }
     );
   }

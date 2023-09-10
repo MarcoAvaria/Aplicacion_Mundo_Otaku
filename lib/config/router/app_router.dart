@@ -3,44 +3,54 @@ import 'package:go_router/go_router.dart';
 import '../../presentation/screens/screens.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/splash',
+  initialLocation: '/',
   routes: [
-
     GoRoute(
       path: '/',
-      builder: (context, state) => const HomeScreen()
-    ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => LoginScreen()
-    ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const MangaScreen()
-    ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const ConfigurationScreen()
-    ),
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const UserListScreen()
-    ),
-    GoRoute(
-      path: '/',
+      name: SplashScreen.name,
       builder: (context, state) => const SplashScreen()
     ),
     GoRoute(
-      path: '/',
+      path: '/home',
+      name: HomeScreen.name,
       builder: (context, state) => const HomeScreen()
     ),
     GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen()
+      path: '/login',
+      name: LoginScreen.name,
+      builder: (context, state) => LoginScreen()
     ),
     GoRoute(
-      path: '/',
-      builder: (context, state) => const HomeScreen()
+      path: '/mangas',
+      name: MangaScreen.name,
+      builder: (context, state) => const MangaScreen()
     ),
+    GoRoute(
+      path: '/discover',
+      name: DiscoverScreen.name,
+      builder: (context, state) => const DiscoverScreen()
+    ),
+    GoRoute(
+      path: '/configuracion',
+      name: ConfigurationScreen.name,
+      builder: (context, state) => const ConfigurationScreen()
+    ),
+    GoRoute(
+      path: '/userList',
+      name: UserListScreen.name,
+      builder: (context, state) => const UserListScreen()
+    ),
+    GoRoute(
+      path: '/users',
+      name: ChatScreen.name,
+      builder: (context, state) { 
+        final User user = state.extra as User;
+        return ChatScreen(user: user);
+      }
+    ),
+    /*GoRoute(
+      path: '/users',
+      builder: (context, state) => const ChatScreen(user: user)
+    ),*/
   ]
 );
