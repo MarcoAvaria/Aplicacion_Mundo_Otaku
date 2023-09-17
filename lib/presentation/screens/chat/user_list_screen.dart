@@ -1,8 +1,6 @@
-import 'package:aplicacion_mundo_otaku/presentation/screens/chat/chat_screen.dart';
-//import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:aplicacion_mundo_otaku/presentation/screens/screens.dart';
 import '../../../components/custom_appbar.dart';
 
 class UserListScreen extends StatelessWidget {
@@ -47,6 +45,9 @@ class UserListScreen extends StatelessWidget {
 
 class User {
   final String username;
+  late String lastName;
+  late String email;
+  late int age;
   final String profileImage;
 
   User({
@@ -56,7 +57,12 @@ class User {
 }
 
 final List<User> userList = [
-  User(username: 'Han Yoo Hyun', profileImage: 'https://vietotaku.com/wp-content/uploads/2021/11/cot-truyen-manhwa-real-man.jpg'),
-  User(username: 'Bell Cranel', profileImage: 'https://cdn.myanimelist.net/images/characters/15/508889.jpg'),
+  
+  User(
+    username: 'Han Yoo Hyun', 
+    profileImage: 'https://vietotaku.com/wp-content/uploads/2021/11/cot-truyen-manhwa-real-man.jpg'),
+  
+  User(
+    username: 'Bell Cranel', profileImage: 'https://cdn.myanimelist.net/images/characters/15/508889.jpg'),
   // Add more users here
 ];

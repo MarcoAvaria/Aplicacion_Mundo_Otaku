@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -49,6 +43,15 @@ class DefaultFirebaseOptions {
     }
   }
 
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBM7cPf57OW8uqXhg64m_S9VRMuU1Wo6iw',
+    appId: '1:779829280027:web:1ee26c806e9cf47f0727be',
+    messagingSenderId: '779829280027',
+    projectId: 'mundo-otaku-crud',
+    authDomain: 'mundo-otaku-crud.firebaseapp.com',
+    storageBucket: 'mundo-otaku-crud.appspot.com',
+  );
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDyfgreLjNt-205z_pSi-tMi1lDp0dITm8',
     appId: '1:779829280027:android:b3e2cd5162602fd10727be',
@@ -64,5 +67,14 @@ class DefaultFirebaseOptions {
     projectId: 'mundo-otaku-crud',
     storageBucket: 'mundo-otaku-crud.appspot.com',
     iosBundleId: 'com.example.aplicacionMundoOtaku',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyB8_lgTEFkC6Wc10kxYF8KSt3ULoE2_qYA',
+    appId: '1:779829280027:ios:464f14dd2c45c3e60727be',
+    messagingSenderId: '779829280027',
+    projectId: 'mundo-otaku-crud',
+    storageBucket: 'mundo-otaku-crud.appspot.com',
+    iosBundleId: 'com.example.aplicacionMundoOtaku.RunnerTests',
   );
 }

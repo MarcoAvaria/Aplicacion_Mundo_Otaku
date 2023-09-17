@@ -48,6 +48,16 @@ final appRouter = GoRouter(
         return ChatScreen(user: user);
       }
     ),
+    GoRoute(
+      path: '/cubits',
+      name: CubitCounterScreen.name,
+      builder: (context, state) => const CubitCounterScreen(),
+    ),
+    GoRoute(
+      path: '/counter-bloc',
+      name: BlocCounterScreen.name,
+      builder: (context, state) => const BlocCounterScreen(),
+    ),
     /*GoRoute(
       path: '/users',
       builder: (context, state) => const ChatScreen(user: user)

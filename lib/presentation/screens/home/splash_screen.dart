@@ -34,8 +34,8 @@ class SplashScreenState extends State<SplashScreen> {
     return const Scaffold(
       body: Stack(
         children: [
-          NewWidgetContainer(),
-          NewWidgetPositioned(),
+          ContainerBackground(),
+          SplashScreenPositioned(),
         ],
       ),
     );
@@ -43,8 +43,8 @@ class SplashScreenState extends State<SplashScreen> {
   }
 }
 
-class NewWidgetContainer extends StatelessWidget {
-  const NewWidgetContainer({
+class ContainerBackground extends StatelessWidget {
+  const ContainerBackground({
     super.key,
   });
 
@@ -68,8 +68,8 @@ class NewWidgetContainer extends StatelessWidget {
   }
 }
 
-class NewWidgetPositioned extends StatelessWidget {
-  const NewWidgetPositioned({
+class SplashScreenPositioned extends StatelessWidget {
+  const SplashScreenPositioned({
     super.key,
   });
 

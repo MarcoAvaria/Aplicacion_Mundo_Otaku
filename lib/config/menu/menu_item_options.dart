@@ -8,12 +8,13 @@ class MenuItemOption {
   final IconData? icon;
   final String? contexto;
 
-  MenuItemOption(
-      {required this.title,
-      this.subTitle,
-      required this.link,
-      this.icon,
-      this.contexto,});
+  MenuItemOption({
+    required this.title,
+    this.subTitle,
+    required this.link,
+    this.icon,
+    this.contexto,
+  });
 }
 
 List<MenuItemOption> appMenuItems = <MenuItemOption>[
@@ -50,6 +51,16 @@ List<MenuItemOption> appMenuItems = <MenuItemOption>[
       subTitle: '¿Que mensajes emergentes quieres ver?',
       link: '',
       icon: Icons.notifications),
+  MenuItemOption(
+      title: 'Counter',
+      subTitle: 'Gestor de estado simple',
+      link: CubitCounterScreen.name,
+      icon: Icons.plus_one_rounded),
+  MenuItemOption(
+      title: 'BloC',
+      subTitle: 'Gestor de estado compuesto',
+      link: BlocCounterScreen.name,
+      icon: Icons.published_with_changes_sharp),
   MenuItemOption(
       title: 'Cerrar Sesión',
       subTitle: 'Recomendable si no es tu propio dispositvo',

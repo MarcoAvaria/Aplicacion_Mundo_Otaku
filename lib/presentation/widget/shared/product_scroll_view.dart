@@ -1,9 +1,9 @@
-import 'package:aplicacion_mundo_otaku/domain/entities/product_model_post.dart';
+import 'package:aplicacion_mundo_otaku/domain/entities/product.dart';
 import 'package:flutter/material.dart';
 
 class ProductScrollView extends StatelessWidget {
   
-  final List<ProductModel> products;
+  final List<Product> products;
   
   const ProductScrollView({
     super.key, 
@@ -18,7 +18,7 @@ class ProductScrollView extends StatelessWidget {
       itemCount: products.length,
       itemBuilder: (context, index){
 
-        final ProductModel productModel = products[index];
+        final Product productModel = products[index];
 
         return const Stack(
           children: [

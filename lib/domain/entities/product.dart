@@ -1,4 +1,4 @@
-class ProductModel {
+class Product {
   int? id;
   String? tipo;
   String? franquicia;
@@ -7,7 +7,7 @@ class ProductModel {
   int? precio;
   String? path;
 
-  ProductModel({
+  Product({
     this.id,
     this.tipo,
     this.franquicia,
@@ -18,8 +18,8 @@ class ProductModel {
   });
 }
 
-List<ProductModel> products = [
-  ProductModel(
+List<Product> products = [
+  Product(
     id: 1,
     tipo: "Manga",
     franquicia: "Bleach",
@@ -28,7 +28,7 @@ List<ProductModel> products = [
     precio: 6500,
     path: "assets/Bleach_Vol_01.png",
   ),
-  ProductModel(
+  Product(
     id: 2,
     tipo: "Manga",
     franquicia: "Blue Lock",
@@ -37,7 +37,7 @@ List<ProductModel> products = [
     precio: 7400,
     path: "assets/Blue_Lock_Vol_01.png",
   ),
-  ProductModel(
+  Product(
     id: 3,
     tipo: "Manga",
     franquicia: "Boku no Hero",
@@ -46,7 +46,7 @@ List<ProductModel> products = [
     precio: 9800,
     path: "assets/Boku_no_Hero_Vol_29.png",
   ),
-  ProductModel(
+  Product(
     id: 4,
     tipo: "Manga",
     franquicia: "Claymore",
@@ -55,7 +55,7 @@ List<ProductModel> products = [
     precio: 8800,
     path: "assets/Claymore_Vol_09.png",
   ),
-  ProductModel(
+  Product(
     id: 5,
     tipo: "Manga",
     franquicia: "Dr.Stone",
@@ -64,7 +64,7 @@ List<ProductModel> products = [
     precio: 7700,
     path: "assets/Dr_Stone_Vol_10.png",
   ),
-  ProductModel(
+  Product(
     id: 6,
     tipo: "Manga",
     franquicia: "Hajime no Ippo",
@@ -73,7 +73,7 @@ List<ProductModel> products = [
     precio: 16500,
     path: "assets/Hajime_no_Ippo_Vol_01.png",
   ),
-  ProductModel(
+  Product(
     id: 7,
     tipo: "Manga",
     franquicia: "Jujutsu Kaisen",
@@ -82,7 +82,7 @@ List<ProductModel> products = [
     precio: 9800,
     path: "assets/Jujutsu_Kaisen_Vol_04.png",
   ),
-  ProductModel(
+  Product(
     id: 8,
     tipo: "Manga",
     franquicia: "Kimetsu no Yaiba",
@@ -91,7 +91,7 @@ List<ProductModel> products = [
     precio: 9400,
     path: "assets/Kimetsu_no_Yaiba_Vol_01.png",
   ),
-  ProductModel(
+  Product(
     id: 9,
     tipo: "Manga",
     franquicia: "Komi-san wa Komyoshou Desu",
@@ -100,7 +100,7 @@ List<ProductModel> products = [
     precio: 11800,
     path: "assets/Komi_san_wa_Komyoshou_Desu_Vol_23.png",
   ),
-  ProductModel(
+  Product(
     id: 10,
     tipo: "Manga",
     franquicia: "Ao no Hako",

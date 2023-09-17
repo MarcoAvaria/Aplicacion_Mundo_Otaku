@@ -1,4 +1,4 @@
-import '../../domain/entities/product_model_post.dart';
+import '../../domain/entities/product.dart';
 
 class LocalProductModel {
   final int id;
@@ -29,7 +29,7 @@ class LocalProductModel {
     path: json['path']
   );
 
-  ProductModel toProductModelEntity() => ProductModel(
+  Product toProductModelEntity() => Product(
     id: id,
     tipo: tipo,
     franquicia: franquicia,
