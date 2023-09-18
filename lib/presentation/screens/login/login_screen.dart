@@ -2,10 +2,13 @@
 import 'package:aplicacion_mundo_otaku/components/button_login.dart';
 import 'package:aplicacion_mundo_otaku/components/mi_campotexto.dart';
 import 'package:aplicacion_mundo_otaku/components/square_tile.dart';
+import 'package:aplicacion_mundo_otaku/presentation/screens/register/register_screen.dart';
+//import 'package:aplicacion_mundo_otaku/presentation/screens/screens.dart';
 //import 'package:aplicacion_mundo_otaku/presentation/screens/chat/user_list_screen.dart';
 //import 'package:aplicacion_mundo_otaku/presentation/screens/discover/mangas_screen.dart';
 //import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
   
@@ -67,12 +70,17 @@ class LoginScreen extends StatelessWidget {
           style: TextStyle(color: Colors.grey[700]),
         ),
         const SizedBox(width: 4),
-        const Text(
-          '¡Puedes crear una ahora!',
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.bold,
+        InkWell(
+          child: const Text(
+            '¡Puedes crear una ahora!',
+            style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          onTap: () {
+            context.goNamed(RegisterScreen.name);
+          },
         ),
       ],
     );

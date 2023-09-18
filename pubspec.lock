@@ -485,6 +485,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  formz:
+    dependency: "direct main"
+    description:
+      name: formz
+      sha256: "412842c4d6eaa7617b693226c2f5785b0d3be2fc26210efd32c82d1a2547ecd5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.0"
   glob:
     dependency: transitive
     description:

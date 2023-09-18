@@ -2,7 +2,7 @@ import 'package:aplicacion_mundo_otaku/components/custom_appbar.dart';
 import 'package:aplicacion_mundo_otaku/presentation/blocs/counter_bloc/counter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
+//import 'package:provider/provider.dart';
 
 class BlocCounterScreen extends StatelessWidget {
   
