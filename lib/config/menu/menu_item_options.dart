@@ -57,6 +57,11 @@ List<MenuItemOption> appMenuItems = <MenuItemOption>[
       link: CubitCounterScreen.name,
       icon: Icons.plus_one_rounded),
   MenuItemOption(
+      title: 'Permisos',
+      subTitle: '¿Permisos...?',
+      link: PermisosScreen.name,
+      icon: Icons.switch_access_shortcut_add_rounded),
+  MenuItemOption(
       title: 'BloC',
       subTitle: 'Gestor de estado compuesto',
       link: BlocCounterScreen.name,

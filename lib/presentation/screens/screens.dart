@@ -12,6 +12,7 @@ export 'package:aplicacion_mundo_otaku/presentation/screens/discover/discover_sc
 export 'package:aplicacion_mundo_otaku/presentation/screens/cubit/cubit_counter_screen.dart';
 export 'package:aplicacion_mundo_otaku/presentation/screens/bloc/bloc_counter_screen.dart';
 export 'package:aplicacion_mundo_otaku/presentation/screens/register/register_screen.dart';
+export 'package:aplicacion_mundo_otaku/presentation/screens/permisos_screen.dart';
 
 //export 'package:aplicacion_mundo_otaku/presentation/providers/chat_provider.dart';
 //export 'package:aplicacion_mundo_otaku/presentation/providers/discover_provider.dart';

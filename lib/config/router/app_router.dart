@@ -63,6 +63,11 @@ final appRouter = GoRouter(
       name: BlocCounterScreen.name,
       builder: (context, state) => const BlocCounterScreen(),
     ),
+    GoRoute(
+      path: '/permisos',
+      name: PermisosScreen.name,
+      builder: (context, state) => const PermisosScreen(),
+    ),
     /*GoRoute(
       path: '/users',
       builder: (context, state) => const ChatScreen(user: user)

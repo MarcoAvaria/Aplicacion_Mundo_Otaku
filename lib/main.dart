@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:aplicacion_mundo_otaku/config/router/app_router.dart';
 import 'package:aplicacion_mundo_otaku/config/theme/app_theme.dart';
+import 'package:aplicacion_mundo_otaku/config/router/app_router.dart';
+
+import 'package:aplicacion_mundo_otaku/presentation/blocs/notifications/notifications_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:aplicacion_mundo_otaku/presentation/providers/chat_provider.dart';
 import 'package:aplicacion_mundo_otaku/presentation/providers/discover_provider.dart';
@@ -16,7 +19,20 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  runApp(const MyApp());
+  runApp((
+    MultiBlocProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ChatProvider() ),
+        ChangeNotifierProvider(lazy: false, create: (_) => DiscoverProvider()..loadNextPage() ),
+        BlocProvider(
+          create: (_) => NotificationsBloc(),
+        ),
+      ],
+      child: const MyApp(),
+    )
+  ));
+
+  //runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -24,10 +40,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
+    /*return MultiBlocProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ChatProvider() ),
-        ChangeNotifierProvider(lazy: false, create: (_) => DiscoverProvider()..loadNextPage() )
+        ChangeNotifierProvider(lazy: false, create: (_) => DiscoverProvider()..loadNextPage() ),
+        BlocProvider(
+          create: (_) => NotificationsBloc(),
+        ),
       ],
     
     child: MaterialApp.router(
@@ -35,6 +54,11 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme(selectedColor: 0).getTheme(),
       )
+    );*/
+    return MaterialApp.router(
+      routerConfig: appRouter,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme(selectedColor: 0).getTheme(),
     );
   }
 }
