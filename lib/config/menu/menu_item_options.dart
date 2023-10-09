@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/presentation/screens/screens.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
 import 'package:flutter/material.dart';
 
 class MenuItemOption {

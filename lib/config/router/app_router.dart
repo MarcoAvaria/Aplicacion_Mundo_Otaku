@@ -1,6 +1,7 @@
+import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/details_screen.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../presentation/screens/screens.dart';
+import '../../feautures/auth/presentation/screens/screens.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/',
@@ -67,6 +68,12 @@ final appRouter = GoRouter(
       path: '/permisos',
       name: PermisosScreen.name,
       builder: (context, state) => const PermisosScreen(),
+    ),
+    GoRoute(
+      path: '/push-details/:messageId',
+      //print('${ messageId }'),
+      //name: PermisosScreen.name,
+      builder: (context, state) => DetailsScreen( pushMessageId: state.pathParameters['messageId'] ?? ''),
     ),
     /*GoRoute(
       path: '/users',

@@ -10,9 +10,9 @@ Future<List> getUsers() async {
 
   QuerySnapshot queryUser = await collectionReferenceUsers.get();
 
-  queryUser.docs.forEach( (document)  {
+  for (var document in queryUser.docs) {
     usersDB.add(document.data());
-  });
+  }
 
   return usersDB;
 }

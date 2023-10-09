@@ -17,15 +17,24 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      throw UnsupportedError(
+        'DefaultFirebaseOptions have not been configured for web - '
+        'you can reconfigure this by running the FlutterFire CLI again.',
+      );
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -43,38 +52,11 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBM7cPf57OW8uqXhg64m_S9VRMuU1Wo6iw',
-    appId: '1:779829280027:web:1ee26c806e9cf47f0727be',
-    messagingSenderId: '779829280027',
-    projectId: 'mundo-otaku-crud',
-    authDomain: 'mundo-otaku-crud.firebaseapp.com',
-    storageBucket: 'mundo-otaku-crud.appspot.com',
-  );
-
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDyfgreLjNt-205z_pSi-tMi1lDp0dITm8',
-    appId: '1:779829280027:android:b3e2cd5162602fd10727be',
+    appId: '1:779829280027:android:36f1c8c8f31ec5440727be',
     messagingSenderId: '779829280027',
     projectId: 'mundo-otaku-crud',
     storageBucket: 'mundo-otaku-crud.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB8_lgTEFkC6Wc10kxYF8KSt3ULoE2_qYA',
-    appId: '1:779829280027:ios:aa2d56705182df490727be',
-    messagingSenderId: '779829280027',
-    projectId: 'mundo-otaku-crud',
-    storageBucket: 'mundo-otaku-crud.appspot.com',
-    iosBundleId: 'com.example.aplicacionMundoOtaku',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyB8_lgTEFkC6Wc10kxYF8KSt3ULoE2_qYA',
-    appId: '1:779829280027:ios:464f14dd2c45c3e60727be',
-    messagingSenderId: '779829280027',
-    projectId: 'mundo-otaku-crud',
-    storageBucket: 'mundo-otaku-crud.appspot.com',
-    iosBundleId: 'com.example.aplicacionMundoOtaku.RunnerTests',
   );
 }
