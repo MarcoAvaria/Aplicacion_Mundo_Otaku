@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
-import 'package:aplicacion_mundo_otaku/feautures/components/custom_appbar.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
 
 class UserListScreen extends StatelessWidget {
 

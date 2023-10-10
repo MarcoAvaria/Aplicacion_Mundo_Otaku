@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../../feautures/auth/presentation/screens/discover/mangas_screen.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
 
 class ButtonLogin {
   static ElevatedButton myOwnMethodElevatedButton(BuildContext context,

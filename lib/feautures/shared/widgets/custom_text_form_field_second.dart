@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTextFormField extends StatelessWidget {
+class CustomTextFormFieldSecond extends StatelessWidget {
 
   final String? label;
   final String? hint;
@@ -9,7 +9,7 @@ class CustomTextFormField extends StatelessWidget {
   final Function(String)? onChanged;
   final String? Function(String?)? validator; 
   
-  const CustomTextFormField({
+  const CustomTextFormFieldSecond({
     super.key, 
     this.label, 
     this.hint,

@@ -1,8 +1,8 @@
 import 'package:aplicacion_mundo_otaku/domain/entities/message.dart';
-import 'package:aplicacion_mundo_otaku/feautures/shared/widget/chat/other_message_bubble.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/chat/other_message_bubble.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
-import 'package:aplicacion_mundo_otaku/feautures/shared/widget/chat/my_message_bubble.dart';
-import 'package:aplicacion_mundo_otaku/feautures/shared/widget/shared/message_field_box.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/chat/my_message_bubble.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/message_field_box.dart';
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';

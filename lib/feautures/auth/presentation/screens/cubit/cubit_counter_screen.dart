@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/feautures/components/custom_appbar.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/blocs/counter_cubit/counter_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

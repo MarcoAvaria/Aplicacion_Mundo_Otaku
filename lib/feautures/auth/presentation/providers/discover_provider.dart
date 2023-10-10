@@ -1,5 +1,5 @@
 import 'package:aplicacion_mundo_otaku/domain/entities/product.dart';
-import 'package:aplicacion_mundo_otaku/infrastructure/models/local_product_model.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/infrastructure/models/local_product_model.dart';
 import 'package:aplicacion_mundo_otaku/feautures/data/local_manga_posts.dart';
 import 'package:flutter/material.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-import 'package:aplicacion_mundo_otaku/infrastructure/inputs/inputs.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/infrastructure/inputs/inputs.dart';
 import 'package:formz/formz.dart';
 
 part 'register_state.dart';

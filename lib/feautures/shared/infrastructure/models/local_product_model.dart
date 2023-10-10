@@ -1,4 +1,4 @@
-import '../../domain/entities/product.dart';
+import '../../../../domain/entities/product.dart';
 
 class LocalProductModel {
   final int id;

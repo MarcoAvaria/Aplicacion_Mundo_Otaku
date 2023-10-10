@@ -1,7 +1,5 @@
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
-import 'package:aplicacion_mundo_otaku/feautures/components/button_login.dart';
-import 'package:aplicacion_mundo_otaku/feautures/components/mi_campotexto.dart';
-import 'package:aplicacion_mundo_otaku/feautures/components/square_tile.dart';
+import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
