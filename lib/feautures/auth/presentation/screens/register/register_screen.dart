@@ -6,7 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 //import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatelessWidget {
-  static const String name = 'register_screen';
+  //static const String name = 'register_screen';
 
   const RegisterScreen({super.key});
 

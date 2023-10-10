@@ -5,11 +5,11 @@ import 'package:aplicacion_mundo_otaku/feautures/components/square_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class LoginScreen extends StatelessWidget {
+class RegisterScreen extends StatelessWidget {
   
-  static const String name = 'login_screen';
+  static const String name = 'register_screen';
 
-  LoginScreen({super.key});
+  RegisterScreen({super.key});
 
   //Controladores de edición de texto
   final usernameController = TextEditingController();
@@ -20,10 +20,10 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const icon = Icon( Icons.lock, size: 50);
+    //const icon = Icon( Icons.lock, size: 50);
 
     var text = Text(
-      '¡Bienvenid@! Te hemos extrañado :(',
+      '¿Qué esperas? ¡Crea tu cuenta ahora!',
       style: TextStyle(
         color: Colors.grey[700],
         fontSize: 16,
@@ -43,7 +43,7 @@ class LoginScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Text(
-              'O puede ingresar con...',
+              'Puedes crear una cuenta con:',
               style: TextStyle(color: Colors.grey[700]),
             ),
           ),
@@ -61,20 +61,20 @@ class LoginScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '¿No tienes cuenta?',
+          '¿Ya tienes contraseña?',
           style: TextStyle(color: Colors.grey[700]),
         ),
         const SizedBox(width: 4),
         InkWell(
           child: const Text(
-            '¡Puedes crear una ahora!',
+            '¡Pincha aquí para ingresar!',
             style: TextStyle(
               color: Colors.blue,
               fontWeight: FontWeight.bold,
             ),
           ),
           onTap: () {
-            context.goNamed(RegisterScreen.name);
+            context.goNamed(LoginScreen.name);
           },
         ),
       ],
@@ -89,25 +89,25 @@ class LoginScreen extends StatelessWidget {
             //mainAxisSize: D,
             children: [
               const SizedBox(height: 50),
-              icon,
+              //icon,
               const SizedBox(height: 30),
               text,
               const SizedBox(height: 25),
-              NewWidgetMiCampoTexto( varTextCtrl: usernameController, hintText: "Nombre de usuari@", darkText: false),
+              NewWidgetMiCampoTextoRecover( varTextCtrl: usernameController, hintText: "Nombre completo", darkText: false),
               const SizedBox(height: 10),
-              NewWidgetMiCampoTexto( varTextCtrl: passwordController, hintText: "Contraseña", darkText: true),
+              NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Correo electrónico", darkText: true),
               const SizedBox(height: 10),
-              // olvidaste la pass?
-              const NewWidgetRecuperarPass(),
-              const SizedBox(height: 25),
-
+              NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Crea tu contraseña", darkText: true),
+              const SizedBox(height: 10),
+              NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Vuelva a ingresar la contraseña", darkText: true),
+              const SizedBox(height: 15),
 
               ButtonLogin.myOwnMethodElevatedButton( context, usernameController , passwordController ),
 
-              const SizedBox(height: 50),
-              continuarconTexto, const SizedBox(height: 50),
-              const GoogleOutlookSignIn(),
-              const SizedBox(height: 50),
+              const SizedBox(height: 15),
+              continuarconTexto, const SizedBox(height: 30),
+              const GoogleOutlookSignUp(),
+              const SizedBox(height: 15),
               textoSinRegistro
             ],
           ),
@@ -117,8 +117,8 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class GoogleOutlookSignIn extends StatelessWidget {
-  const GoogleOutlookSignIn({
+class GoogleOutlookSignUp extends StatelessWidget {
+  const GoogleOutlookSignUp({
     super.key,
   });
 
@@ -140,33 +140,11 @@ class GoogleOutlookSignIn extends StatelessWidget {
   }
 }
 
-class NewWidgetRecuperarPass extends StatelessWidget {
-  const NewWidgetRecuperarPass({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(
-            "¿Olvidaste la contraseña?",
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NewWidgetMiCampoTexto extends StatelessWidget {
+class NewWidgetMiCampoTextoRecover extends StatelessWidget {
   final String hintText;
   final bool darkText;
 
-  const NewWidgetMiCampoTexto({
+  const NewWidgetMiCampoTextoRecover({
     super.key,
     required this.varTextCtrl,
     required this.hintText,

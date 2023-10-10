@@ -7,13 +7,10 @@ export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/chat/
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/chat/chat_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/configuration/configuration_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/login/login_screen.dart';
+export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/login/register_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/discover/mangas_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/discover/discover_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/cubit/cubit_counter_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/bloc/bloc_counter_screen.dart';
-export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/register/register_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/permisos_screen.dart';
-
-//export 'package:aplicacion_mundo_otaku/presentation/providers/chat_provider.dart';
-//export 'package:aplicacion_mundo_otaku/presentation/providers/discover_provider.dart';
-//export 'package:provider/provider.dart';
+//export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/register/register_screen.dart';
