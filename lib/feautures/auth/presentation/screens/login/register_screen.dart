@@ -4,114 +4,62 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatelessWidget {
-  
   static const String name = 'register_screen';
 
-  RegisterScreen({super.key});
-
-  //Controladores de edición de texto
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  const RegisterScreen({super.key});
 
   // Iniciar sesión
   void signUserIn() {}
 
   @override
   Widget build(BuildContext context) {
-    //const icon = Icon( Icons.lock, size: 50);
-
-    var text = Text(
-      '¿Qué esperas? ¡Crea tu cuenta ahora!',
-      style: TextStyle(
-        color: Colors.grey[700],
-        fontSize: 16,
-      ),
-    );
-
-    var continuarconTexto = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Divider(
-              thickness: 0.5,
-              color: Colors.grey[400],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: Text(
-              'Puedes crear una cuenta con:',
-              style: TextStyle(color: Colors.grey[700]),
-            ),
-          ),
-          Expanded(
-            child: Divider(
-              thickness: 0.5,
-              color: Colors.grey[400],
-            ),
-          ),
-        ],
-      ),
-    );
 
     var textoSinRegistro = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-          '¿Ya tienes contraseña?',
+          '¿No tienes cuenta?',
           style: TextStyle(color: Colors.grey[700]),
         ),
         const SizedBox(width: 4),
         InkWell(
           child: const Text(
-            '¡Pincha aquí para ingresar!',
+            '¡Puedes crear una ahora!',
             style: TextStyle(
               color: Colors.blue,
               fontWeight: FontWeight.bold,
             ),
           ),
           onTap: () {
-            context.goNamed(LoginScreen.name);
+            context.goNamed(RegisterScreen.name);
           },
         ),
       ],
     );
 
+    final size = MediaQuery.of(context).size;
+    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
+
     return Scaffold(
-      backgroundColor: Colors.grey[300],
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            //mainAxisSize: D,
-            children: [
-              const SizedBox(height: 50),
-              //icon,
-              const SizedBox(height: 30),
-              text,
-              const SizedBox(height: 25),
-              NewWidgetMiCampoTextoRecover( varTextCtrl: usernameController, hintText: "Nombre completo", darkText: false),
-              const SizedBox(height: 10),
-              NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Correo electrónico", darkText: true),
-              const SizedBox(height: 10),
-              NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Crea tu contraseña", darkText: true),
-              const SizedBox(height: 10),
-              NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Vuelva a ingresar la contraseña", darkText: true),
-              const SizedBox(height: 15),
-
-              ButtonLogin.myOwnMethodElevatedButton( context, usernameController , passwordController ),
-
-              const SizedBox(height: 15),
-              continuarconTexto, const SizedBox(height: 30),
-              const GoogleOutlookSignUp(),
-              const SizedBox(height: 15),
-              textoSinRegistro
-            ],
-          ),
-        ),
-      ),
-    );
+        body: SafeArea(
+            child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 50),
+                      const Icon(Icons.lock, size: 40),
+                      Container(
+                        height: size.height - 130, // 80 los dos sizebox y 100 el ícono
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: scaffoldBackgroundColor,
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(100)),
+                        ),
+                        child: _LoginForm(),
+                      )
+                    ]))));
   }
 }
 
@@ -138,25 +86,98 @@ class GoogleOutlookSignUp extends StatelessWidget {
   }
 }
 
-class NewWidgetMiCampoTextoRecover extends StatelessWidget {
-  final String hintText;
-  final bool darkText;
-
-  const NewWidgetMiCampoTextoRecover({
-    super.key,
-    required this.varTextCtrl,
-    required this.hintText,
-    required this.darkText,
-  });
-
-  final TextEditingController varTextCtrl;
+class _LoginForm extends StatelessWidget {
+  _LoginForm();
+  
+  //Controladores de edición de texto
+  final usernameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final secondPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return MiCampoTexto(
-      controller: varTextCtrl,
-      hintText: hintText,
-      obscureText: darkText,
+    //final textStyles = Theme.of(context).textTheme;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          //Text('Login', style: textStyles.titleLarge ),
+          Text(
+            '¿Qué esperas? ¡Crea tu cuenta ahora!',
+            style: TextStyle(
+              color: Colors.grey[700],
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          MyFieldText2( varTextCtrl: usernameController, label: "Nombre completo", darkText: false),
+          const SizedBox(height: 10),
+          MyFieldText2( varTextCtrl: emailController, label: "Correo electrónico", darkText: true),
+          const SizedBox(height: 10),
+          MyFieldText2( varTextCtrl: passwordController, label: "Crea tu contraseña", darkText: true),
+          const SizedBox(height: 10),
+          MyFieldText2( varTextCtrl: secondPasswordController, label: "Vuelva a ingresar la contraseña", darkText: true),
+
+          const SizedBox(height: 30),
+
+          SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: ButtonLogin.myOwnMethodElevatedButton(
+                context, usernameController, passwordController),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Divider(
+                    thickness: 0.5,
+                    color: Colors.grey[400],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Text(
+                    'Puedes crear una cuenta con:',
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                ),
+                Expanded(
+                  child: Divider(
+                    thickness: 0.5,
+                    color: Colors.grey[400],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          const GoogleOutlookSignIn(),
+
+          //const Spacer(flex: 2),
+          const SizedBox(height: 8),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              //const Text('\n'),
+              TextButton(
+                  onPressed: () => context.goNamed(LoginScreen.name),
+                  child: const Text('¡O pincha aquí si ya tienes cuenta!'))
+            ],
+
+          ),
+          //const Spacer(flex: 1),
+        ],
+      ),
     );
   }
 }

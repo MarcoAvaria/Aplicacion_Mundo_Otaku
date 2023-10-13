@@ -38,7 +38,14 @@ class ButtonLogin {
           context.goNamed( MangaScreen.name );
         }
       },
-      child: const Text('Iniciar sesión'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.purple[50],
+        foregroundColor: Colors.purple[800], 
+        side: BorderSide(color: Colors.purpleAccent.shade200, width: 0.10)
+        //side: BorderSide(color: Colors.purpleAccent[300], width: 3)
+      ),
+      child: 
+        const Text('Iniciar sesión'),
     );
   }
 }
