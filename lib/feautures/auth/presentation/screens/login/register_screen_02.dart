@@ -99,7 +99,7 @@ class RegisterScreen extends StatelessWidget {
               NewWidgetMiCampoTextoRecover( varTextCtrl: passwordController, hintText: "Vuelva a ingresar la contraseña", darkText: true),
               const SizedBox(height: 15),
 
-              ButtonLogin.myOwnMethodElevatedButton( context, usernameController , passwordController ),
+              //ButtonLogin.myOwnMethodElevatedButton( context, usernameController , passwordController ),
 
               const SizedBox(height: 15),
               continuarconTexto, const SizedBox(height: 30),

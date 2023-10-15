@@ -114,21 +114,22 @@ class _LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          MyFieldText2( varTextCtrl: usernameController, label: "Nombre completo", darkText: false),
+          MyFieldText( varTextCtrl: usernameController, label: "Nombre completo", darkText: false),
           const SizedBox(height: 10),
-          MyFieldText2( varTextCtrl: emailController, label: "Correo electrónico", darkText: true),
+          MyFieldText( varTextCtrl: emailController, label: "Correo electrónico", darkText: true),
           const SizedBox(height: 10),
-          MyFieldText2( varTextCtrl: passwordController, label: "Crea tu contraseña", darkText: true),
+          MyFieldText( varTextCtrl: passwordController, label: "Crea tu contraseña", darkText: true),
           const SizedBox(height: 10),
-          MyFieldText2( varTextCtrl: secondPasswordController, label: "Vuelva a ingresar la contraseña", darkText: true),
+          MyFieldText( varTextCtrl: secondPasswordController, label: "Vuelva a ingresar la contraseña", darkText: true),
 
           const SizedBox(height: 30),
 
-          SizedBox(
+          const SizedBox(
             width: double.infinity,
             height: 60,
-            child: ButtonLogin.myOwnMethodElevatedButton(
-                context, usernameController, passwordController),
+            // child: ButtonLogin(
+            //     text: 'Crea tu cuenta',
+            //     onPressed: ()),
           ),
           const SizedBox(height: 20),
           Padding(

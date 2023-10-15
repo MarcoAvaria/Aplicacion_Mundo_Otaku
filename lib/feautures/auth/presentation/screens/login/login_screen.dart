@@ -1,6 +1,9 @@
-import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
+//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/register_form_provider.dart';
+//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -13,7 +16,6 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     var textoSinRegistro = Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -50,7 +52,8 @@ class LoginScreen extends StatelessWidget {
                       const SizedBox(height: 50),
                       const Icon(Icons.lock, size: 40),
                       Container(
-                        height: size.height - 130, // 80 los dos sizebox y 100 el ícono
+                        height: size.height -
+                            130, // 80 los dos sizebox y 100 el ícono
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: scaffoldBackgroundColor,
@@ -107,16 +110,18 @@ class NewWidgetRecuperarPass extends StatelessWidget {
   }
 }
 
-class _LoginForm extends StatelessWidget {
+class _LoginForm extends ConsumerWidget {
   _LoginForm();
-  
+
   //Controladores de edición de texto
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     //final textStyles = Theme.of(context).textTheme;
+
+    final loginForm = ref.watch(loginFormProvider);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -133,8 +138,11 @@ class _LoginForm extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          MyFieldText2(
+          MyFieldText(
               varTextCtrl: usernameController,
+              onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
+              errorMessage: loginForm.isFormPosted ?
+                loginForm.email.errorMessage : null,
               label: "Nombre de usuari@",
               darkText: false),
 
@@ -149,10 +157,14 @@ class _LoginForm extends StatelessWidget {
           //   obscureText: true,
           // ),
 
-          MyFieldText2(
-              varTextCtrl: passwordController,
-              label: "Contraseña",
-              darkText: true),
+          MyFieldText(
+            varTextCtrl: passwordController,
+            label: "Contraseña",
+            darkText: true,
+            onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
+            errorMessage: loginForm.isFormPosted ?
+                loginForm.password.errorMessage : null,
+          ),
           const SizedBox(height: 15),
           const NewWidgetRecuperarPass(),
 
@@ -161,8 +173,12 @@ class _LoginForm extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             height: 60,
-            child: ButtonLogin.myOwnMethodElevatedButton(
-                context, usernameController, passwordController),
+            child: ButtonLogin(
+              text: 'Iniciar sesión', 
+              onPressed: () {
+                ref.read(loginFormProvider.notifier).onFormSubmit();
+              },
+              ),
           ),
           const SizedBox(height: 30),
           Padding(

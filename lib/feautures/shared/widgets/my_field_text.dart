@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MyFieldText2 extends StatelessWidget {
+class MyFieldText extends StatelessWidget {
   
   final TextEditingController? varTextCtrl;
   final String? label;
@@ -11,7 +11,7 @@ class MyFieldText2 extends StatelessWidget {
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
 
-  const MyFieldText2({
+  const MyFieldText({
     super.key,
     this.varTextCtrl,
     this.label,
@@ -76,8 +76,10 @@ class MyFieldText2 extends StatelessWidget {
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey.shade400),
           ),
-          errorBorder: border.copyWith( borderSide: BorderSide( color: Colors.red.shade800 )),
-          focusedErrorBorder: border.copyWith( borderSide: BorderSide( color: Colors.red.shade800 )),
+          //errorBorder: border.copyWith( borderSide: BorderSide( color: Colors.red.shade800 )),
+          errorBorder: border.copyWith( borderSide: BorderSide( color: Colors.transparent)),
+          //focusedErrorBorder: border.copyWith( borderSide: BorderSide( color: Colors.red.shade800 )),
+          focusedErrorBorder: border.copyWith( borderSide: BorderSide( color: Colors.transparent)),
           isDense: true,
           fillColor: Colors.grey.shade100,
           filled: true,

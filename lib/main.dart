@@ -5,6 +5,7 @@ import 'package:aplicacion_mundo_otaku/config/router/app_router.dart';
 
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/blocs/notifications/notifications_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/chat_provider.dart';
@@ -18,18 +19,23 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationsBloc.initializeFCM();
 
-  runApp((MultiBlocProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => ChatProvider()),
-      ChangeNotifierProvider(
-          lazy: false, create: (_) => DiscoverProvider()..loadNextPage()),
-      BlocProvider(
-        create: (_) => NotificationsBloc(),
-      ),
-    ],
-    //child: const ProviderScope(child: MyApp())
-    child: const MyApp(),
-  )));
+  // runApp((MultiBlocProvider(
+  //   providers: [
+  //     ChangeNotifierProvider(create: (_) => ChatProvider()),
+  //     ChangeNotifierProvider(
+  //         lazy: false, create: (_) => DiscoverProvider()..loadNextPage()),
+  //     BlocProvider(
+  //       create: (_) => NotificationsBloc(),
+  //     ),
+  //   ],
+  //   //child: const ProviderScope(child: MyApp())
+  //   child: const MyApp(),
+  // )));
+  runApp(
+    ProviderScope(
+      child: MyApp(),
+    )
+    );
 
   //runApp(const MyApp());
 }
