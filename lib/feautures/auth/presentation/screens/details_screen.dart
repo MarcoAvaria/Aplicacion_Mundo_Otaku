@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
-import 'package:aplicacion_mundo_otaku/domain/entities/push_message.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/domain/entities/push_message.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/blocs/notifications/notifications_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

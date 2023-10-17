@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:aplicacion_mundo_otaku/domain/entities/message.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/domain/entities/message.dart';
 
 
 class ChatProvider extends ChangeNotifier {

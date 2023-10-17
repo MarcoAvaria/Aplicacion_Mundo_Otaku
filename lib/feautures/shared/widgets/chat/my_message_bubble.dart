@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../domain/entities/message.dart';
+import '../../../auth/domain/entities/message.dart';
 
 class MyMessageBuble extends StatelessWidget {
 

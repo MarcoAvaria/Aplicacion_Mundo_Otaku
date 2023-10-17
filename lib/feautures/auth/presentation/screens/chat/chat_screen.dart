@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/domain/entities/message.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/domain/entities/message.dart';
 import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/chat/other_message_bubble.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
 import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/chat/my_message_bubble.dart';

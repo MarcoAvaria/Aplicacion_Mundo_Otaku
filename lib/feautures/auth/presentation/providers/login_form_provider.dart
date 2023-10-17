@@ -33,7 +33,7 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
     if( !state.isValid ) return;
     
-    print(state);
+    //print(state);
   }
 
   _touchEveryField() {

@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/domain/entities/product.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/domain/entities/product.dart';
 import 'package:flutter/material.dart';
 
 class ProductScrollView extends StatelessWidget {

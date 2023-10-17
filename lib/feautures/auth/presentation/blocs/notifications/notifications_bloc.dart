@@ -7,7 +7,7 @@ import 'package:equatable/equatable.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'package:aplicacion_mundo_otaku/domain/entities/push_message.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/domain/entities/push_message.dart';
 import 'package:aplicacion_mundo_otaku/firebase_options.dart';
 
 part 'notifications_event.dart';
@@ -26,7 +26,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     // });
   });
 
-  print("Handling a background message: ${message.messageId}");
+  //print("Handling a background message: ${message.messageId}");
 }
 
 class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
@@ -82,8 +82,8 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     //final setting = await messaging.getNotificationSettings();
     if ( state.status != AuthorizationStatus.authorized ) return ;
 
-    final token = await messaging.getToken();
-    print(token);
+    //final token = await messaging.getToken();
+    //print(token);
   }
 
   void handleRemoteMessage( RemoteMessage message ) {

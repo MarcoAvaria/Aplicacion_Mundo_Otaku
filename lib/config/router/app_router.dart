@@ -19,12 +19,12 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/login',
       name: LoginScreen.name,
-      builder: (context, state) => LoginScreen()
+      builder: (context, state) => const LoginScreen()
     ),
     GoRoute(
       path: '/register',
       name: RegisterScreen.name,
-      builder: (context, state) => RegisterScreen()
+      builder: (context, state) => const RegisterScreen()
     ),
     GoRoute(
       path: '/mangas',

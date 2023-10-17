@@ -1,20 +1,22 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:aplicacion_mundo_otaku/config/theme/app_theme.dart';
-import 'package:aplicacion_mundo_otaku/config/router/app_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/blocs/notifications/notifications_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
-import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/chat_provider.dart';
-import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/discover_provider.dart';
+//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/chat_provider.dart';
+//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/discover_provider.dart';
 //import 'package:dcdg/dcdg.dart';
 //import 'package:firebase_core/firebase_core.dart';
 //import 'firebase_options.dart';
 
 void main() async {
+
+  await Enviroment.initEnviroment();
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationsBloc.initializeFCM();
@@ -32,7 +34,7 @@ void main() async {
   //   child: const MyApp(),
   // )));
   runApp(
-    ProviderScope(
+    const ProviderScope(
       child: MyApp(),
     )
     );
@@ -60,6 +62,8 @@ class MyApp extends StatelessWidget {
       theme: AppTheme(selectedColor: 0).getTheme(),
       )
     );*/
+
+    print( Enviroment.apiUrl );
     return MaterialApp.router(
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,

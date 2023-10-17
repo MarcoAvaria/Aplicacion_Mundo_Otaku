@@ -14,29 +14,6 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    var textoSinRegistro = Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          '¿No tienes cuenta?',
-          style: TextStyle(color: Colors.grey[700]),
-        ),
-        const SizedBox(width: 4),
-        InkWell(
-          child: const Text(
-            '¡Puedes crear una ahora!',
-            style: TextStyle(
-              color: Colors.blue,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          onTap: () {
-            context.goNamed(RegisterScreen.name);
-          },
-        ),
-      ],
-    );
-
     final size = MediaQuery.of(context).size;
     final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
