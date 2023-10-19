@@ -1,13 +1,9 @@
 import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/domain/entities/product.dart';
-//import 'package:aplicacion_mundo_otaku/presentation/screens/configuration_screen.dart';
-//import 'package:aplicacion_mundo_otaku/screens/login_screen.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_svg/flutter_svg.dart';
 
 class MangaScreen extends StatefulWidget {
   static const String name = 'mangas_screen';
-
   const MangaScreen({super.key}); // ASÍ ESTABA
   //const MangaScreen({Key? key}) : super(key: key); // ASÍ LO ESTOY PROBANDO
 
@@ -28,12 +24,12 @@ const List<String> _menus = [
 class _MangaScreenState extends State<MangaScreen> {
   @override
   Widget build(BuildContext context) {
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+
     final colors = Theme.of(context).colorScheme;
 
-    var scaffold = Scaffold(
-      //backgroundColor: Color(colors.c),
-
-      //appBar: newMethodAppBar(context),
+    return Scaffold(
+      drawer: ConfigurationMenu( scaffoldKey: scaffoldKey ),
       appBar: CustomAppBar.myOwnMethodAppBar(context, 'Mangas'),
 
       body: Column(
@@ -110,8 +106,5 @@ class _MangaScreenState extends State<MangaScreen> {
         ],
       ),
     );
-    return scaffold;
-    //return const Placeholder(); // ASÍ ESTABA
-    //return Container(); // ASÍ LO ESTOY PROBANDO
   }
 }

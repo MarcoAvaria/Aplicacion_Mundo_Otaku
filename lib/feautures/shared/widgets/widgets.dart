@@ -9,4 +9,5 @@ export 'product_scroll_view.dart';
 export 'custom_text_form_field.dart';
 export 'square_tile.dart';
 export 'geometrical_background.dart';
+export 'configuration_menu.dart';
 //export 'side_menu.dart';

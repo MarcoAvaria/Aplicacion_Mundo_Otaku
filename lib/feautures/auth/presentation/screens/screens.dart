@@ -13,4 +13,5 @@ export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/disco
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/cubit/cubit_counter_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/bloc/bloc_counter_screen.dart';
 export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/permisos_screen.dart';
+export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/login/check_auth_status_screen.dart';
 //export 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/register/register_screen.dart';

@@ -1,59 +1,57 @@
+import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/details_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
 
-import '../../feautures/auth/presentation/screens/screens.dart';
+final goRouterProvider = Provider((ref) {
+  
+  final goRouterNotifier = ref.read(goRouterNotifierProvider);
 
-final appRouter = GoRouter(
-  initialLocation: '/',
-  routes: [
+  return GoRouter(
+    initialLocation: '/login',
+    refreshListenable: goRouterNotifier, 
+    routes: [
     GoRoute(
-      path: '/',
-      name: SplashScreen.name,
-      builder: (context, state) => const SplashScreen()
-    ),
+        path: '/',
+        name: SplashScreen.name,
+        builder: (context, state) => const SplashScreen()),
     GoRoute(
-      path: '/home',
-      name: HomeScreen.name,
-      builder: (context, state) => const HomeScreen()
-    ),
+        path: '/home',
+        name: HomeScreen.name,
+        builder: (context, state) => const HomeScreen()),
     GoRoute(
-      path: '/login',
-      name: LoginScreen.name,
-      builder: (context, state) => const LoginScreen()
-    ),
+        path: '/login',
+        name: LoginScreen.name,
+        builder: (context, state) => const LoginScreen()),
     GoRoute(
-      path: '/register',
-      name: RegisterScreen.name,
-      builder: (context, state) => const RegisterScreen()
-    ),
+        path: '/register',
+        name: RegisterScreen.name,
+        builder: (context, state) => const RegisterScreen()),
     GoRoute(
-      path: '/mangas',
-      name: MangaScreen.name,
-      builder: (context, state) => const MangaScreen()
-    ),
+        path: '/mangas',
+        name: MangaScreen.name,
+        builder: (context, state) => const MangaScreen()),
     GoRoute(
-      path: '/discover',
-      name: DiscoverScreen.name,
-      builder: (context, state) => const DiscoverScreen()
-    ),
+        path: '/discover',
+        name: DiscoverScreen.name,
+        builder: (context, state) => const DiscoverScreen()),
     GoRoute(
-      path: '/configuracion',
-      name: ConfigurationScreen.name,
-      builder: (context, state) => const ConfigurationScreen()
-    ),
+        path: '/configuracion',
+        name: ConfigurationScreen.name,
+        builder: (context, state) => const ConfigurationScreen()),
     GoRoute(
-      path: '/userList',
-      name: UserListScreen.name,
-      builder: (context, state) => const UserListScreen()
-    ),
+        path: '/userList',
+        name: UserListScreen.name,
+        builder: (context, state) => const UserListScreen()),
     GoRoute(
-      path: '/users',
-      name: ChatScreen.name,
-      builder: (context, state) { 
-        final User user = state.extra as User;
-        return ChatScreen(user: user);
-      }
-    ),
+        path: '/users',
+        name: ChatScreen.name,
+        builder: (context, state) {
+          final User user = state.extra as User;
+          return ChatScreen(user: user);
+        }),
     GoRoute(
       path: '/cubits',
       name: CubitCounterScreen.name,
@@ -73,11 +71,46 @@ final appRouter = GoRouter(
       path: '/push-details/:messageId',
       //print('${ messageId }'),
       //name: PermisosScreen.name,
-      builder: (context, state) => DetailsScreen( pushMessageId: state.pathParameters['messageId'] ?? ''),
+      builder: (context, state) =>
+          DetailsScreen(pushMessageId: state.pathParameters['messageId'] ?? ''),
+    ),
+    GoRoute(
+      path: '/splash_status',
+      //name: CheckAuthStatusScreen.name,
+      builder: (context, state) => const CheckAuthStatusScreen(),
     ),
     /*GoRoute(
       path: '/users',
       builder: (context, state) => const ChatScreen(user: user)
     ),*/
-  ]
-);
+  ],
+
+  redirect: (context, state){
+    
+    final isGoingTo = state.matchedLocation;
+    final authStatus = goRouterNotifier.authStatus;
+
+    if ( isGoingTo == '/splash_status' && authStatus == AuthStatus.checking) return null;
+
+    if ( authStatus == AuthStatus.notAuthenticated) { 
+      if( isGoingTo == '/login' || isGoingTo =='/register') return null;
+      return '/login';
+    }
+
+    if ( authStatus == AuthStatus.authenticated ) {
+      if ( isGoingTo == '/login' || isGoingTo == '/register' || isGoingTo == '/splash_status') { 
+        return '/mangas';
+      }
+    }
+
+    return null;
+
+    //print(state);
+    //print(state.matchedLocation);
+    //return '/login';
+    return null;
+  },
+  
+  );
+
+});

@@ -1,18 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
-
 import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/blocs/notifications/notifications_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-//import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
-//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/chat_provider.dart';
-//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/discover_provider.dart';
-//import 'package:dcdg/dcdg.dart';
-//import 'package:firebase_core/firebase_core.dart';
-//import 'firebase_options.dart';
 
 void main() async {
 
@@ -21,59 +13,33 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationsBloc.initializeFCM();
 
-  // runApp((MultiBlocProvider(
-  //   providers: [
-  //     ChangeNotifierProvider(create: (_) => ChatProvider()),
-  //     ChangeNotifierProvider(
-  //         lazy: false, create: (_) => DiscoverProvider()..loadNextPage()),
-  //     BlocProvider(
-  //       create: (_) => NotificationsBloc(),
-  //     ),
-  //   ],
-  //   //child: const ProviderScope(child: MyApp())
-  //   child: const MyApp(),
-  // )));
   runApp(
     const ProviderScope(
-      child: MyApp(),
+      child: MainApp(),
     )
     );
-
   //runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainApp extends ConsumerWidget {
+  const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    /*return MultiBlocProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => ChatProvider() ),
-        ChangeNotifierProvider(lazy: false, create: (_) => DiscoverProvider()..loadNextPage() ),
-        BlocProvider(
-          create: (_) => NotificationsBloc(),
-        ),
-      ],
-    
-    child: MaterialApp.router(
-      routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme(selectedColor: 0).getTheme(),
-      )
-    );*/
+  Widget build(BuildContext context, WidgetRef ref ) {
 
-    print( Enviroment.apiUrl );
+    final appRouter = ref.watch( goRouterProvider );
+    //print( Enviroment.apiUrl );
     return MaterialApp.router(
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
       theme: AppTheme(selectedColor: 0).getTheme(),
-      builder: (context, child) =>
-          HandleNotificationInteractions(child: child!),
+      // builder: (context, child) =>
+      //     HandleNotificationInteractions(child: child!),
     );
   }
 }
 
+/*
 class HandleNotificationInteractions extends StatefulWidget {
   final Widget child;
   const HandleNotificationInteractions({super.key, required this.child});
@@ -132,3 +98,4 @@ class _HandleNotificationInteractionsState
     return widget.child;
   }
 }
+*/

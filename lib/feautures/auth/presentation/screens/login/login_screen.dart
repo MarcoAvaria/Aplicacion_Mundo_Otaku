@@ -1,5 +1,3 @@
-//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/providers/register_form_provider.dart';
-//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
 import 'package:aplicacion_mundo_otaku/feautures/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/feautures/shared/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -89,24 +87,31 @@ class NewWidgetRecuperarPass extends StatelessWidget {
 }
 
 class _LoginForm extends ConsumerWidget {
-  _LoginForm();
+  
+  const _LoginForm();
 
-  //Controladores de edición de texto
-  final usernameController = TextEditingController();
-  final passwordController = TextEditingController();
+  void showSnackbar ( BuildContext context, String message ){
+    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message))
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    //final textStyles = Theme.of(context).textTheme;
 
     final loginForm = ref.watch(loginFormProvider);
+
+    ref.listen(authProvider, ((previous, next) {
+      if ( next.errorMessage.isEmpty ) return;
+      showSnackbar( context, next.errorMessage );
+    }));
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
         children: [
           const SizedBox(height: 20),
-          //Text('Login', style: textStyles.titleLarge ),
           Text(
             '¡Bienvenid@! Te hemos extrañado :(',
             style: TextStyle(
@@ -115,28 +120,15 @@ class _LoginForm extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 20),
-
           MyFieldText(
-              varTextCtrl: usernameController,
+              keyboardType: TextInputType.emailAddress,
               onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
               errorMessage: loginForm.isFormPosted ?
                 loginForm.email.errorMessage : null,
               label: "Nombre de usuari@",
               darkText: false),
-
-          // const CustomTextFormField(
-          //   label: 'Correo',
-          //   keyboardType: TextInputType.emailAddress,
-          // ),
           const SizedBox(height: 15),
-
-          // const CustomTextFormField(
-          //   label: 'Contraseña',
-          //   obscureText: true,
-          // ),
-
           MyFieldText(
-            varTextCtrl: passwordController,
             label: "Contraseña",
             darkText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
@@ -153,11 +145,11 @@ class _LoginForm extends ConsumerWidget {
             height: 60,
             child: ButtonLogin(
               text: 'Iniciar sesión', 
-              onPressed: () {
-                ref.read(loginFormProvider.notifier).onFormSubmit();
-              },
-              ),
-          ),
+              onPressed: loginForm.isPosting
+                ? null
+                : ref.read(loginFormProvider.notifier).onFormSubmit
+              )
+            ),
           const SizedBox(height: 30),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -190,8 +182,6 @@ class _LoginForm extends ConsumerWidget {
 
           const GoogleOutlookSignIn(),
 
-          //const Spacer(flex: 2),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -201,7 +191,6 @@ class _LoginForm extends ConsumerWidget {
                   child: const Text('Crea una aquí'))
             ],
           ),
-          //const Spacer(flex: 1),
         ],
       ),
     );
