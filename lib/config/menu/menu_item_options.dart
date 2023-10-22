@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
 import 'package:flutter/material.dart';
 
 class MenuItemOption {
@@ -27,7 +27,7 @@ List<MenuItemOption> appMenuItems = <MenuItemOption>[
   MenuItemOption(
       title: 'Descubre',
       subTitle: 'Descubre sorpresas cerca de ti',
-      link: DiscoverScreen.name,
+      link: ProductsScreen.name,
       icon: Icons.airline_stops_rounded),
   MenuItemOption(
       title: 'Mensajeria',

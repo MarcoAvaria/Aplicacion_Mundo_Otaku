@@ -1,0 +1,2 @@
+export 'package:aplicacion_mundo_otaku/features/products/presentation/providers/products_provider.dart';
+export 'package:aplicacion_mundo_otaku/features/products/presentation/providers/products_repository_provider.dart';

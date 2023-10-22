@@ -1,9 +1,9 @@
 import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
-import 'package:aplicacion_mundo_otaku/feautures/auth/auth.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/details_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/details_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
+//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
 
 final goRouterProvider = Provider((ref) {
   
@@ -35,8 +35,8 @@ final goRouterProvider = Provider((ref) {
         builder: (context, state) => const MangaScreen()),
     GoRoute(
         path: '/discover',
-        name: DiscoverScreen.name,
-        builder: (context, state) => const DiscoverScreen()),
+        name: ProductsScreen.name,
+        builder: (context, state) => const ProductsScreen()),
     GoRoute(
         path: '/configuracion',
         name: ConfigurationScreen.name,
@@ -103,7 +103,7 @@ final goRouterProvider = Provider((ref) {
       }
     }
 
-    return null;
+    
 
     //print(state);
     //print(state.matchedLocation);

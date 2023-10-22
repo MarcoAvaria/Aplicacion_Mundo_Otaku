@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/feautures/auth/auth.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
