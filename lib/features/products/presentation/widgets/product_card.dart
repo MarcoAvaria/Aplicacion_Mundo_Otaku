@@ -34,7 +34,7 @@ class _ImageViewer extends StatelessWidget {
     if( images.isEmpty ){
       return ClipRRect(
         borderRadius: BorderRadius.circular(20),
-        child: Image.asset('assets/Ao_no_Hako_Vol_01.png', 
+        child: Image.asset('assets/images/no-image.jpg', 
           fit:BoxFit.cover,
           height: 250,),
       );
@@ -44,10 +44,10 @@ class _ImageViewer extends StatelessWidget {
         child: FadeInImage(
           fit: BoxFit.cover,
           height: 250,
-          fadeOutDuration: const Duration(milliseconds: 300),
-          fadeInDuration: const Duration(milliseconds: 300),
+          fadeOutDuration: const Duration(milliseconds: 100),
+          fadeInDuration: const Duration(milliseconds: 200),
           image: NetworkImage( images.first ),
-          placeholder: const AssetImage('assets/Komi_san_wa_Komyoshou_Desu_Vol_23.png'),
+          placeholder: const AssetImage('assets/images/no-image.jpg'),
         )
       );
   }

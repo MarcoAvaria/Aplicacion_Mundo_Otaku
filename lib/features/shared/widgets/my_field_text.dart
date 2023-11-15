@@ -1,6 +1,6 @@
-import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
+//import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+//import 'package:provider/provider.dart';
 
 class MyFieldText extends StatelessWidget {
   

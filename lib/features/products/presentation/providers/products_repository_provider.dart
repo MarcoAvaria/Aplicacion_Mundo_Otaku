@@ -9,7 +9,7 @@ final productsRepositoryProvider = Provider<ProductsRepository>((ref) {
 
   final accessToken = ref.watch( authProvider ).user?.token ?? '';
 
-  final productsRepository = ProductRepositoryImpl(
+  final productsRepository = ProductsRepositoryImpl(
     ProductsDatasourceImpl( accessToken: accessToken )
   );
   return productsRepository;

@@ -1,5 +1,6 @@
 import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/product_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/details_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -78,6 +79,12 @@ final goRouterProvider = Provider((ref) {
       path: '/splash_status',
       //name: CheckAuthStatusScreen.name,
       builder: (context, state) => const CheckAuthStatusScreen(),
+    ),
+    GoRoute(
+      path: '/product/:id',
+      builder: (context, state) => ProductScreen(
+        productId: state.pathParameters['id'] ?? 'no-id',
+      ),
     ),
     /*GoRoute(
       path: '/users',

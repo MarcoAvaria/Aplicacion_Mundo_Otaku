@@ -1,20 +1,21 @@
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 //import 'package:aplicacion_mundo_otaku/feautures/products/infrastructure/datasources/products_datasource_impl.dart';
 
-class ProductRepositoryImpl extends ProductsRepository{
+class ProductsRepositoryImpl extends ProductsRepository{
 
   final ProductDatasource datasource;
 
-  ProductRepositoryImpl( this.datasource );
+  ProductsRepositoryImpl( this.datasource );
+  
 
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) {
-    return createUpdateProduct(productLike);
+    return datasource.createUpdateProduct(productLike);
   }
 
   @override
   Future<Product> getProductById(String id) {
-    return getProductById(id);
+    return datasource.getProductById(id);
   }
 
   @override

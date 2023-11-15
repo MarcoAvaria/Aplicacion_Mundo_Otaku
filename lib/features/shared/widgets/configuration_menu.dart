@@ -84,7 +84,7 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(
             onPressed: () {
-              context.goNamed( DiscoverScreen.name );
+              context.goNamed( ProductsScreen.name );
             },
             text: '¡Descubre!'
           ),

@@ -7,6 +7,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductsScreen extends StatelessWidget {
   
@@ -34,7 +35,9 @@ class ProductsScreen extends StatelessWidget {
       floatingActionButton: FloatingActionButton.extended(
         label: const Text('Nuevo producto'),
         icon: const Icon( Icons.add ),
-        onPressed: () {},
+        onPressed: () {
+          context.push('/product/new');
+        },
       ),
     );
   }
@@ -88,11 +91,11 @@ class _ProductsViewState extends ConsumerState {
         itemCount: productsState.products.length,
         itemBuilder: (context, index) {
           final product = productsState.products[index];
-          return ProductCard(product: product);
-          // return GestureDetector(
-          //   onTap: () =>  context.push('/product/${ product.id }'),
-          //   child: ProductCard(product: product)
-          // );
+          //return ProductCard(product: product);
+          return GestureDetector(
+            onTap: () =>  context.push('/product/${ product.id }'),
+            child: ProductCard(product: product)
+          );
         },
       ),
     );
