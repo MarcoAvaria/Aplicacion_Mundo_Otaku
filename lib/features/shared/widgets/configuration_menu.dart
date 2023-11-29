@@ -120,28 +120,10 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(
             onPressed: () {
-              context.goNamed( CubitCounterScreen.name );
-            },
-            text: 'Counter'
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: CustomFilledButton(
-            onPressed: () {
               
               context.goNamed( PermisosScreen.name );
             },
             text: 'Permisos'
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: CustomFilledButton(
-            onPressed: () {
-              context.goNamed( BlocCounterScreen.name );
-            },
-            text: 'BloC'
           ),
         ),
         Padding(

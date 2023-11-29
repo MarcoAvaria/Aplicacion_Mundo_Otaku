@@ -30,7 +30,16 @@ class _MangaScreenState extends State<MangaScreen> {
 
     return Scaffold(
       drawer: ConfigurationMenu( scaffoldKey: scaffoldKey ),
-      appBar: CustomAppBar.myOwnMethodAppBar(context, 'Mangas'),
+      appBar: CustomAppBar.customAppBar(context, 'Mangas'),
+      /*appBar: AppBar(
+        title: const Text('Mangas'),
+        actions: [
+          IconButton(
+            onPressed: (){}, 
+            icon: const Icon( Icons.search_rounded)
+          )
+        ],
+      ),*/
 
       body: Column(
         children: [

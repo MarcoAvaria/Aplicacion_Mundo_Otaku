@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "http-parser": "^1.0.3",
+    "http-parser-version": "^1.0.1"
+  }
+}

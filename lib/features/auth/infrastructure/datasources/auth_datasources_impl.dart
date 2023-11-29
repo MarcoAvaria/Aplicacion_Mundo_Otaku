@@ -26,8 +26,8 @@ class AuthDataSourceImpl extends AuthDataSource {
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisa la conexión de internet :O');
       }
-      throw Exception();
-    } catch (e) {
+     throw Exception();
+     } catch (e) {
       throw CustomError('Something wrong happend :O 222!');
     }
   }

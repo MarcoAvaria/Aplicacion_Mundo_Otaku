@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
+//import 'package:flutter_svg/flutter_svg.dart';
+//import 'package:go_router/go_router.dart';
 
-import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
+//import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
+
 
 class CustomAppBar {
+  static AppBar customAppBar(BuildContext context, String title ) {
+
+    return AppBar(
+      title: Text( title ),
+      actions: [
+        IconButton(
+          onPressed: (){}, 
+          icon: const Icon( Icons.search_rounded)
+        )
+      ],
+    );
+  }
+}
+
+/*class CustomAppBar {
   static AppBar myOwnMethodAppBar(BuildContext context, String title) {
 
     return AppBar(
@@ -22,7 +38,7 @@ class CustomAppBar {
                   builder: (context) => const ConfigurationScreen()),
               (route) => false,
             );*/
-            context.pushNamed( ConfigurationScreen.name );
+            //context.pushNamed( ConfigurationScreen.name );
           },
           child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -33,4 +49,4 @@ class CustomAppBar {
       ],
     );
   }
-}
+} */

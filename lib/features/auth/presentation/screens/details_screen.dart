@@ -1,5 +1,6 @@
+
 import 'package:flutter/material.dart';
-import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
+//import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/domain/entities/push_message.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/blocs/notifications/notifications_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,8 +18,9 @@ class DetailsScreen extends StatelessWidget {
       .getMessageById( pushMessageId );
 
     return Scaffold(
-      appBar: CustomAppBar.myOwnMethodAppBar(context, 
+      /*appBar: CustomAppBar.myOwnMethodAppBar(context, 
         'Detalles Push'),
+      */
       body: (message != null)
         ? _DetailsView(message: message)
         : const Center ( child: Text('Notificación no existe') )

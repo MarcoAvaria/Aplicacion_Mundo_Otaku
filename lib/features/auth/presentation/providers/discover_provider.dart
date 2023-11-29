@@ -1,4 +1,4 @@
-import 'package:aplicacion_mundo_otaku/features/products/domain/entities/product_final.dart';
+/*import 'package:aplicacion_mundo_otaku/features/products/domain/entities/product_final.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/infrastructure/models/local_product_model.dart';
 import 'package:aplicacion_mundo_otaku/features/data/local_manga_posts.dart';
 import 'package:flutter/material.dart';
@@ -26,3 +26,5 @@ class DiscoverProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+*/
+//TODO: PARA BORRAR X2 !

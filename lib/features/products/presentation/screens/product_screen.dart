@@ -53,8 +53,10 @@ class ProductScreen extends ConsumerWidget {
           ? const FullScreenLoader()
           : _ProductView(product: productState.product!),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {            
+          onPressed: () {
+
             if ( productState.product == null ) return;
+
             ref.read( 
               productFormProvider( productState.product!).notifier 
             ).onFormSubmit()
@@ -133,12 +135,15 @@ class _ProductInformation extends ConsumerWidget {
             onChanged: ref.read( productFormProvider(product).notifier).onTitleChanged,
             errorMessage: productForm.title.errorMessage,
           ),
+          /* YA NO VA EL "SLUG"
           CustomProductField( 
             label: 'Slug',
-            initialValue: productForm.title.value,
+            initialValue: productForm.slug.value,
             onChanged: ref.read( productFormProvider(product).notifier).onSlugChanged,
             errorMessage: productForm.slug.errorMessage,
           ),
+          */
+          /*
           CustomProductField( 
             isBottomField: true,
             label: 'Precio',
@@ -146,9 +151,10 @@ class _ProductInformation extends ConsumerWidget {
             initialValue: productForm.price.value.toString(),
             onChanged: (value) 
               => ref.read( productFormProvider(product).notifier)
-              .onPriceChanged( double.tryParse(value) ?? -1 ),
+              .onPriceChanged( int.tryParse(value) ?? -1 ),
             errorMessage: productForm.price.errorMessage,
           ),
+          */
 
           const SizedBox(height: 15 ),
           const Text('Extras'),
@@ -167,13 +173,14 @@ class _ProductInformation extends ConsumerWidget {
           const SizedBox(height: 15 ),
           CustomProductField( 
             isTopField: true,
-            label: 'Existencias',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: productForm.inStock.value.toString(),
+            label: 'Volumen | Tomo',
+            keyboardType: const TextInputType.numberWithOptions(decimal: false),
+            //initialValue: productForm.tomo.toString(),
+            initialValue: productForm.tomo.value.toString(),
             onChanged: (value) 
               => ref.read( productFormProvider(product).notifier)
               .onStockChanged( int.tryParse( value ) ?? -1 ),
-            errorMessage: productForm.inStock.errorMessage,
+            errorMessage: productForm.tomo.errorMessage,
           ),
 
           CustomProductField( 
@@ -206,7 +213,7 @@ class _SizeSelector extends StatelessWidget {
   final List<String> selectedSizes;
   final List<String> sizes = const['XS','S','M','L','XL','XXL','XXXL'];
 
-  final Function(List<String> selectedSizes) onSizesChanged;
+  final void Function(List<String> selectedSizes) onSizesChanged;
 
   const _SizeSelector({
     required this.selectedSizes,
@@ -227,9 +234,9 @@ class _SizeSelector extends StatelessWidget {
       }).toList(), 
       selected: Set.from( selectedSizes ),
       onSelectionChanged: (newSelection) {
-        print(newSelection);
-        FocusScope.of(context).unfocus();
+        //print(newSelection);
         onSizesChanged( List.from(newSelection) );
+        FocusScope.of(context).unfocus();
       },
       multiSelectionEnabled: true,
     );
@@ -242,12 +249,14 @@ class _GenderSelector extends StatelessWidget {
   final void Function( String selectedGender ) onGenderChanged;
 
 
-  final List<String> genders = const['men','women','kid'];
+  final List<String> genders = const['shonen','seinen','josei','shojo'];
+  /*
   final List<IconData> genderIcons = const[
     Icons.man,
     Icons.woman,
     Icons.boy,
   ];
+  */
 
   const _GenderSelector({
     required this.selectedGender, 
@@ -265,16 +274,16 @@ class _GenderSelector extends StatelessWidget {
         style: const ButtonStyle(visualDensity: VisualDensity.compact ),
         segments: genders.map((size) {
           return ButtonSegment(
-            icon: Icon( genderIcons[ genders.indexOf(size) ] ),
+            //icon: Icon( genderIcons[ genders.indexOf(size) ] ),
             value: size, 
             label: Text(size, style: const TextStyle(fontSize: 12))
           );
         }).toList(), 
         selected: { selectedGender },
         onSelectionChanged: (newSelection) {
-          FocusScope.of(context).unfocus();
           onGenderChanged(newSelection.first);
-          print(newSelection);
+          FocusScope.of(context).unfocus();
+          //print(newSelection);
         },
       ),
     );
@@ -301,12 +310,12 @@ class _ImageGallery extends StatelessWidget {
       controller: PageController(
         viewportFraction: 0.7
       ),
-      children: images.map( (image) {
+      children: images.map((image) {
 
         late ImageProvider imageProvider;
 
-        if ( image.startsWith( 'http' ) ) {
-          imageProvider = NetworkImage( image );
+        if ( image.startsWith('http') ) {
+          imageProvider = NetworkImage(image);
         } else {
           imageProvider = FileImage( File(image) );
         }

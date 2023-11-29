@@ -1,22 +1,26 @@
-import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
-import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
+
+import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 
 
 final productProvider = StateNotifierProvider.autoDispose.family<ProductNotifier, ProductState, String>(
   ( ref, productId ) {
 
-  final productsRepository = ref.watch(productsRepositoryProvider);
+    final productsRepository = ref.watch(productsRepositoryProvider);
 
-  return ProductNotifier(
-    productsRepository: productsRepository, 
-    productId: productId);
+    return ProductNotifier(
+      productsRepository: productsRepository, 
+      productId: productId
+    );
 });
+
 
 
 class ProductNotifier extends StateNotifier<ProductState> {
 
   final ProductsRepository productsRepository;
+
 
   ProductNotifier({
     required this.productsRepository,
@@ -28,13 +32,14 @@ class ProductNotifier extends StateNotifier<ProductState> {
   Product newEmptyProduct() {
     return Product(
       id: 'new', 
-      title: '', 
-      price: 0, 
+      title: '',
+      type: '', 
+      //price: 0, 
       description: '', 
       slug: '', 
-      stock: 0, 
+      tomo: 0, 
       sizes: [], 
-      gender: 'men', 
+      gender: 'shonen', 
       tags: [], 
       images: [], 
     ); 
@@ -45,7 +50,6 @@ class ProductNotifier extends StateNotifier<ProductState> {
     try {
 
       if( state.id == 'new' ){
-
         state = state.copyWith(
           isLoading: false,
           product: newEmptyProduct(),
@@ -68,6 +72,7 @@ class ProductNotifier extends StateNotifier<ProductState> {
 
 
 class ProductState{
+
   final String id;
   final Product? product;
   final bool isLoading;
@@ -77,11 +82,10 @@ class ProductState{
     required this.id, 
     this.product, 
     this.isLoading = true, 
-    this.isSaving = false
+    this.isSaving = false,
   });
 
   ProductState copyWith({
-
     String? id,
     Product? product,
     bool? isLoading,

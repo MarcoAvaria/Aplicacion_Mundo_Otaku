@@ -29,9 +29,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     ProductFormState(
       id: product.id,
       title: Title.dirty(product.title),
-      slug: Slug.dirty(product.slug), 
-      price: Price.dirty(product.price),
-      inStock: Stock.dirty(product.stock),
+      tomo: Tomo.dirty(product.tomo),
       sizes: product.sizes,
       gender: product.gender,
       description: product.description,
@@ -40,7 +38,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     )
   );
 
-  Future<bool> onFormSubmit() async {
+  Future<bool> onFormSubmit() async { 
     _touchedEverything();
     if ( !state.isFormValid ) return false;
     
@@ -49,10 +47,9 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     final productLike = {
       'id': (state.id == 'new') ? null : state.id,
       'title': state.title.value,
-      'price': state.price.value,
+      //'price': state.price.value,
       'description': state.description,
-      'slug': state.slug.value,
-      'stock': state.inStock.value,
+      'tomo': state.tomo.value,
       'sizes': state.sizes,
       'gender': state.gender,
       'tags': state.tags.split(','),
@@ -68,20 +65,19 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     }
   }
 
+
   void _touchedEverything() {
     state = state.copyWith(
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(state.price.value),
-        Stock.dirty(state.inStock.value),
+        Tomo.dirty(state.tomo.value),
       ]),
     );
   }
 
   void updateProductImage( String path ) {
     state = state.copyWith(
-      images: [ ...state.images, path ]
+      images: [...state.images, path ]
     );
   }
 
@@ -90,13 +86,12 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
       title: Title.dirty(value),
       isFormValid: Formz.validate([
         Title.dirty(value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(state.price.value),
-        Stock.dirty(state.inStock.value),
+        Tomo.dirty(state.tomo.value),
       ])
     );
   }
 
+  /*
   void onSlugChanged( String value ){
     state = state.copyWith(
       slug: Slug.dirty(value),
@@ -104,31 +99,31 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
         Title.dirty(state.title.value),
         Slug.dirty(value),
         Price.dirty(state.price.value),
-        Stock.dirty(state.inStock.value),
+        Tomo.dirty(state.tomo.value),
       ])
     );
   }
+  */
   
-  void onPriceChanged( double value ){
+  /*
+  void onPriceChanged( int value ){
     state = state.copyWith(
       price: Price.dirty(value),
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
-        Slug.dirty(state.slug.value),
         Price.dirty(value),
-        Stock.dirty(state.inStock.value),
+        Tomo.dirty(state.tomo.value),
       ])
     );
   }
+  */
   
   void onStockChanged( int value ){
     state = state.copyWith(
-      inStock: Stock.dirty(value),
+      tomo: Tomo.dirty(value),
       isFormValid: Formz.validate([
         Title.dirty(state.title.value),
-        Slug.dirty(state.slug.value),
-        Price.dirty(state.price.value),
-        Stock.dirty(value),
+        Tomo.dirty(state.tomo.value),
       ])
     );
   }
@@ -166,11 +161,11 @@ class ProductFormState {
   final bool isFormValid;
   final String? id;
   final Title title;
-  final Slug slug; 
-  final Price price;
+  //final Price price;
   final List<String> sizes;
   final String gender;
-  final Stock inStock;
+  final Tomo tomo;
+  //final Tomo? inStock;
   final String description;
   final String tags;
   final List<String> images;
@@ -178,12 +173,12 @@ class ProductFormState {
   ProductFormState({
     this.isFormValid = false, 
     this.id, 
-    this.title = const Title.dirty(''), 
-    this.slug = const Slug.dirty(''), 
-    this.price = const Price.dirty(0), 
+    this.title = const Title.dirty(''),
+    //this.price = const Price.dirty(0), 
     this.sizes = const [], 
-    this.gender = 'men', 
-    this.inStock = const Stock.dirty(0), 
+    this.gender = 'shonen', 
+    //this.tomo = const Tomo.dirty(0),
+    this.tomo = const Tomo.dirty(0), 
     this.description = '', 
     this.tags = '', 
     this.images = const [],
@@ -193,11 +188,10 @@ class ProductFormState {
     bool? isFormValid,
     String? id,
     Title? title,
-    Slug? slug,
-    Price? price,
+    //Price? price,
     List<String>? sizes,
     String? gender,
-    Stock? inStock,
+    Tomo? tomo,
     String? description,
     String? tags,
     List<String>? images,
@@ -205,11 +199,10 @@ class ProductFormState {
     isFormValid: isFormValid ?? this.isFormValid,
     id: id ?? this.id,
     title: title ?? this.title,
-    slug: slug ?? this.slug, 
-    price: price ?? this.price,
+    //price: price ?? this.price,
     sizes: sizes ?? this.sizes,
     gender: gender ?? this.gender,
-    inStock: inStock ?? this.inStock,
+    tomo: tomo ?? this.tomo,
     description: description ?? this.description,
     tags: tags ?? this.tags,
     images: images ?? this.images,

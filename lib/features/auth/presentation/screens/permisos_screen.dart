@@ -1,4 +1,6 @@
-import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
+
+
+//import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/blocs/notifications/notifications_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,9 +14,10 @@ class PermisosScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar.myOwnMethodAppBar(context, 
+      /*appBar: CustomAppBar.myOwnMethodAppBar(context, 
         (context.select(( NotificationsBloc bloc ) => ('${ bloc.state.status }') ))
         ),
+      */
       body:Stack(
         children: [
           // Center(

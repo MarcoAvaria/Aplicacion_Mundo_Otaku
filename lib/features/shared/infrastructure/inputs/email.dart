@@ -6,7 +6,7 @@ enum EmailError { empty, format }
 // Extend FormzInput and provide the input type and error type.
 class Email extends FormzInput<String, EmailError> {
   
-  static final emailRegExp = RegExp(
+  static final RegExp emailRegExp = RegExp(
     r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
   );
 

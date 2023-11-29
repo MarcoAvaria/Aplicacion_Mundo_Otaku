@@ -4,10 +4,11 @@ import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 class Product {
   String id;
   String title;
-  double price;
+  String type;
+  int tomo;
+  //int price;
   String description;
-  String slug;
-  int stock;
+  String? slug;
   List<String> sizes;
   String gender;
   List<String> tags;
@@ -17,10 +18,11 @@ class Product {
   Product({
     required this.id,
     required this.title,
-    required this.price,
+    required this.type,
+    //required this.price,
     required this.description,
-    required this.slug,
-    required this.stock,
+    this.slug,
+    required this.tomo,
     required this.sizes,
     required this.gender,
     required this.tags,

@@ -38,10 +38,12 @@ final goRouterProvider = Provider((ref) {
         path: '/discover',
         name: ProductsScreen.name,
         builder: (context, state) => const ProductsScreen()),
+    /*
     GoRoute(
         path: '/configuracion',
         name: ConfigurationScreen.name,
         builder: (context, state) => const ConfigurationScreen()),
+    */
     GoRoute(
         path: '/userList',
         name: UserListScreen.name,
@@ -53,16 +55,6 @@ final goRouterProvider = Provider((ref) {
           final User user = state.extra as User;
           return ChatScreen(user: user);
         }),
-    GoRoute(
-      path: '/cubits',
-      name: CubitCounterScreen.name,
-      builder: (context, state) => const CubitCounterScreen(),
-    ),
-    GoRoute(
-      path: '/counter-bloc',
-      name: BlocCounterScreen.name,
-      builder: (context, state) => const BlocCounterScreen(),
-    ),
     GoRoute(
       path: '/permisos',
       name: PermisosScreen.name,
@@ -106,7 +98,8 @@ final goRouterProvider = Provider((ref) {
 
     if ( authStatus == AuthStatus.authenticated ) {
       if ( isGoingTo == '/login' || isGoingTo == '/register' || isGoingTo == '/splash_status') { 
-        return '/mangas';
+        //return '/mangas';
+        return '/discover';
       }
     }
 

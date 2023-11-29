@@ -11,6 +11,9 @@ class UserListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final scaffoldKey = GlobalKey<ScaffoldState>();
+    
     return Scaffold(
       
       /*
@@ -18,7 +21,8 @@ class UserListScreen extends StatelessWidget {
         title: const Text('Mensajes | Contactos'),
       ),
       */
-      appBar: CustomAppBar.myOwnMethodAppBar(context, 'Mensajes | Contactos'),
+      drawer: ConfigurationMenu( scaffoldKey: scaffoldKey ),
+      appBar: CustomAppBar.customAppBar(context, 'Mensajes | Contactos'),
 
       
       body: ListView.builder(

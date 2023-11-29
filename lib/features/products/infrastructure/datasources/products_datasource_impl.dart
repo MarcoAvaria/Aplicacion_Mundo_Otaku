@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:aplicacion_mundo_otaku/features/products/infrastructure/infrastructure.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProductsDatasourceImpl extends ProductDatasource {
   
@@ -23,17 +24,25 @@ class ProductsDatasourceImpl extends ProductDatasource {
   Future<String> _uploadFile( String path ) async {
     
     try {
-
       final fileName = path.split('/').last;
+      final contentType = path.split('.').last;
+      /*
       final FormData data = FormData.fromMap( {
         'file': MultipartFile.fromFileSync( path, filename: fileName)
+      });
+      */
+      final FormData data = FormData.fromMap( {
+        'file': MultipartFile.fromFileSync(
+          path, 
+          filename: fileName,
+          contentType: MediaType('image', contentType),
+        ),
       });
       final response = await dio.post('/files/product', data: data );
 
       return response.data['image'];
 
     } catch (e) {
-      print(e);
       throw Exception(); 
     }
 
@@ -41,28 +50,34 @@ class ProductsDatasourceImpl extends ProductDatasource {
 
 
   Future<List<String>> _uploadPhotos( List<String> photos ) async {
+
     final photosToUpload = photos.where((element) => element.contains('/') ).toList();
     final photosToIgnore = photos.where((element) => !element.contains('/') ).toList();
 
-    //TODO: crear una serie de Futures de carga de imagenes
-    final List<Future<String>> uploadJob = photosToUpload.map(
-      (e) => _uploadFile(e)
-      ).toList();
+    final List<Future<String>> uploadJob = photosToUpload.map(_uploadFile).toList();
     final newImages = await Future.wait(uploadJob); 
 
     return [...photosToIgnore, ...newImages ];
   }
-  
 
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async {
     
     try {
+
       final String? productId = productLike['id'];
+      //print(productId);
       final String method = (productId == null) ? 'POST':'PATCH';
-      final String url = (productId == null ) ? '/products/':'/products/$productId';
+      //print(method);
+      final String url = (productId == null ) ? '/products':'/products/$productId';
+      //print(url);
+
+
       productLike.remove('id');
-      productLike['images'] = await _uploadPhotos( productLike['Images'] );
+      productLike['images'] = await _uploadPhotos( productLike['images'] );
+
+      //throw Exception();
+
       final response = await dio.request(
         url,
         data: productLike,
@@ -71,9 +86,11 @@ class ProductsDatasourceImpl extends ProductDatasource {
         )
       );
       final product = ProductMapper.jsonToEntity(response.data);
+      //print(product);
       return product;
+
     } catch (e) {
-      print(e);
+      //print(e);
       throw Exception();
     }
 

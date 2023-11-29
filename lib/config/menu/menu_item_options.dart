@@ -1,3 +1,4 @@
+/*
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
 import 'package:flutter/material.dart';
 
@@ -52,20 +53,10 @@ List<MenuItemOption> appMenuItems = <MenuItemOption>[
       link: '',
       icon: Icons.notifications),
   MenuItemOption(
-      title: 'Counter',
-      subTitle: 'Gestor de estado simple',
-      link: CubitCounterScreen.name,
-      icon: Icons.plus_one_rounded),
-  MenuItemOption(
       title: 'Permisos',
       subTitle: '¿Permisos...?',
       link: PermisosScreen.name,
       icon: Icons.switch_access_shortcut_add_rounded),
-  MenuItemOption(
-      title: 'BloC',
-      subTitle: 'Gestor de estado compuesto',
-      link: BlocCounterScreen.name,
-      icon: Icons.published_with_changes_sharp),
   MenuItemOption(
       title: 'Cerrar Sesión',
       subTitle: 'Recomendable si no es tu propio dispositvo',
@@ -77,3 +68,6 @@ List<MenuItemOption> appMenuItems = <MenuItemOption>[
       link: MangaScreen.name,
       icon: Icons.arrow_back),
 ];
+*/
+
+// TODO: Borrar x5 !
