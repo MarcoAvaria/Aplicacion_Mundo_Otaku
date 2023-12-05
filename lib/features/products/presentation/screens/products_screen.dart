@@ -2,12 +2,13 @@ import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/pr
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-//import 'package:go_router/go_router.dart';
 
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../auth/auth.dart';
 
 class ProductsScreen extends StatelessWidget {
   
@@ -80,6 +81,9 @@ class _ProductsViewState extends ConsumerState {
 
     final productsState = ref.watch( productsProvider );
 
+    //final container = ProviderContainer();
+    final authState = ref.watch(authProvider);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: MasonryGridView.count(
@@ -90,12 +94,20 @@ class _ProductsViewState extends ConsumerState {
         crossAxisSpacing: 35,
         itemCount: productsState.products.length,
         itemBuilder: (context, index) {
+
           final product = productsState.products[index];
+          
+          if( authState.user?.id == product.user?.id ){
+            
+            return GestureDetector(
+
+              onTap: () =>  context.push('/product/${ product.id }'),
+              child: ProductCard(product: product)
+            );
+          } else {
+            return Container();
+          }
           //return ProductCard(product: product);
-          return GestureDetector(
-            onTap: () =>  context.push('/product/${ product.id }'),
-            child: ProductCard(product: product)
-          );
         },
       ),
     );

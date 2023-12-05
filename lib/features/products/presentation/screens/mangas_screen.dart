@@ -3,7 +3,9 @@ import 'package:aplicacion_mundo_otaku/features/products/domain/entities/product
 import 'package:flutter/material.dart';
 
 class MangaScreen extends StatefulWidget {
+
   static const String name = 'mangas_screen';
+  
   const MangaScreen({super.key}); // ASÍ ESTABA
   //const MangaScreen({Key? key}) : super(key: key); // ASÍ LO ESTOY PROBANDO
 
@@ -24,22 +26,14 @@ const List<String> _menus = [
 class _MangaScreenState extends State<MangaScreen> {
   @override
   Widget build(BuildContext context) {
+    
     final scaffoldKey = GlobalKey<ScaffoldState>();
-
-    final colors = Theme.of(context).colorScheme;
+    final customColor = Theme.of(context).primaryColor;
+    //final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
       drawer: ConfigurationMenu( scaffoldKey: scaffoldKey ),
       appBar: CustomAppBar.customAppBar(context, 'Mangas'),
-      /*appBar: AppBar(
-        title: const Text('Mangas'),
-        actions: [
-          IconButton(
-            onPressed: (){}, 
-            icon: const Icon( Icons.search_rounded)
-          )
-        ],
-      ),*/
 
       body: Column(
         children: [
@@ -58,7 +52,7 @@ class _MangaScreenState extends State<MangaScreen> {
                   margin: const EdgeInsets.only(left: 15.0),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                      color: colors.primary,
+                      color: customColor.withAlpha(50),
                       borderRadius: BorderRadius.circular(20.0)),
                   child: Text(
                     _menus[index],

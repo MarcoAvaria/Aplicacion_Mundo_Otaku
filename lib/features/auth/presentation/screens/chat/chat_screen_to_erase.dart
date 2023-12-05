@@ -9,11 +9,11 @@ import 'package:provider/provider.dart';
 
 //import 'all_chats_screen_second.dart';
 
-class ChatScreen extends StatelessWidget {
+class AnotherChatScreen extends StatelessWidget {
 
-  static const String name = 'chat_screen';
+  //static const String name = 'chat_screen';
 
-  const ChatScreen({super.key, required this.user});
+  const AnotherChatScreen({super.key, required this.user});
 
   final User user;
   //const UserScreen({super.key});

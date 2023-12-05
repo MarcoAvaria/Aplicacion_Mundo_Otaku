@@ -4,13 +4,14 @@ import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 class Product {
   String id;
   String title;
-  String type;
+  String typeOf;
   int tomo;
   //int price;
   String description;
   String? slug;
-  List<String> sizes;
+  String sizeOf;
   String gender;
+  String demographic;
   List<String> tags;
   List<String> images;
   User? user;
@@ -18,13 +19,14 @@ class Product {
   Product({
     required this.id,
     required this.title,
-    required this.type,
+    required this.typeOf,
     //required this.price,
     required this.description,
-    this.slug,
+    //this.slug,
     required this.tomo,
-    required this.sizes,
+    required this.sizeOf,
     required this.gender,
+    required this.demographic,
     required this.tags,
     required this.images,
     this.user,

@@ -1,9 +1,11 @@
+/*
+import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-final productsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>((ref) {
+final othersproductsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>((ref) {
 
   final productsRepository = ref.watch( productsRepositoryProvider );
 
@@ -29,6 +31,8 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
 
     try {
       final product = await productsRepository.createUpdateProduct(productLike);
+      //if(product.user.id == aut)
+      
 
       final isProductInList = state.products.any((element) => element.id == product.id);
 
@@ -109,3 +113,4 @@ class ProductsState {
 
 }
 
+*/

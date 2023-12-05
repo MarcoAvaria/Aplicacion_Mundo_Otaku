@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
+//import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 
 class UserListScreen extends StatelessWidget {
@@ -33,12 +33,12 @@ class UserListScreen extends StatelessWidget {
             leading: CircleAvatar(backgroundImage: NetworkImage(user.profileImage)),
             title: Text(user.username),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(user: user),
-                ),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => ChatScreen(user: user),
+              //   ),
+              // );
             },
           );
         },

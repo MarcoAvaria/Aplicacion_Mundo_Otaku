@@ -5,6 +5,7 @@ import 'package:aplicacion_mundo_otaku/features/auth/infrastructure/infraestruct
 import 'package:dio/dio.dart';
 
 class AuthDataSourceImpl extends AuthDataSource {
+  
   final dio = Dio(BaseOptions(
     baseUrl: Environment.apiUrl,
   ));
@@ -64,5 +65,18 @@ class AuthDataSourceImpl extends AuthDataSource {
   @override
   Future<User> register(String email, String password, String fullName) {
     throw WrongCredentials();
+  }
+
+  Future<String> getUserId(String token) async {
+    try {
+      final response = await dio.get('/auth/check-auth-status',
+          options: Options(headers: {'Authorization': 'Bearer $token'}));
+
+      final user = UserMapper.userJsonToEntity(response.data);
+      return user.id;
+    } catch (e) {
+      // Maneja los errores según tus necesidades
+      throw CustomError('No se pudo obtener el ID del usuario');
+    }
   }
 }

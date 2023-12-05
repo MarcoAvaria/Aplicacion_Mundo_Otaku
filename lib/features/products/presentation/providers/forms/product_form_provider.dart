@@ -29,9 +29,11 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     ProductFormState(
       id: product.id,
       title: Title.dirty(product.title),
+      typeOf: product.typeOf,
       tomo: Tomo.dirty(product.tomo),
-      sizes: product.sizes,
+      sizeOf: product.sizeOf,
       gender: product.gender,
+      demographic: product.demographic,
       description: product.description,
       tags: product.tags.join(', '),
       images: product.images,      
@@ -49,9 +51,11 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
       'title': state.title.value,
       //'price': state.price.value,
       'description': state.description,
+      'typeOf': state.typeOf,
       'tomo': state.tomo.value,
-      'sizes': state.sizes,
+      'sizeOf': state.sizeOf,
       'gender': state.gender,
+      'demographic': state.demographic,
       'tags': state.tags.split(','),
       'images': state.images.map(
         (image) => image.replaceAll('${ Environment.apiUrl }/files/product/',''))
@@ -117,6 +121,12 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
   */
+
+  void onTypeChanged( String typeOf ){
+    state = state.copyWith(
+      typeOf: typeOf
+    );
+  }
   
   void onStockChanged( int value ){
     state = state.copyWith(
@@ -128,15 +138,21 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
 
-  void onSizeChanged( List<String> sizes ){
+  void onSizeChanged( String sizeOf ){
     state = state.copyWith(
-      sizes: sizes
+      sizeOf: sizeOf
     );
   }
 
   void onGenderChanged( String gender ){
     state = state.copyWith(
       gender: gender
+    );
+  }
+
+  void onDemographicChanged( String demographic ){
+    state = state.copyWith(
+      demographic: demographic
     );
   }
 
@@ -162,8 +178,10 @@ class ProductFormState {
   final String? id;
   final Title title;
   //final Price price;
-  final List<String> sizes;
+  final String typeOf;
+  final String sizeOf;
   final String gender;
+  final String demographic;
   final Tomo tomo;
   //final Tomo? inStock;
   final String description;
@@ -174,9 +192,11 @@ class ProductFormState {
     this.isFormValid = false, 
     this.id, 
     this.title = const Title.dirty(''),
-    //this.price = const Price.dirty(0), 
-    this.sizes = const [], 
-    this.gender = 'shonen', 
+    //this.price = const Price.dirty(0),
+    this.typeOf = 'Otros', 
+    this.sizeOf = 'Ninguno', 
+    this.gender = 'Ninguno',
+    this.demographic = 'Shonen',
     //this.tomo = const Tomo.dirty(0),
     this.tomo = const Tomo.dirty(0), 
     this.description = '', 
@@ -188,9 +208,11 @@ class ProductFormState {
     bool? isFormValid,
     String? id,
     Title? title,
+    String? typeOf,
     //Price? price,
-    List<String>? sizes,
+    String? sizeOf,
     String? gender,
+    String? demographic,
     Tomo? tomo,
     String? description,
     String? tags,
@@ -199,9 +221,11 @@ class ProductFormState {
     isFormValid: isFormValid ?? this.isFormValid,
     id: id ?? this.id,
     title: title ?? this.title,
+    typeOf: typeOf ?? this.typeOf,
     //price: price ?? this.price,
-    sizes: sizes ?? this.sizes,
+    sizeOf: sizeOf ?? this.sizeOf,
     gender: gender ?? this.gender,
+    demographic: demographic ?? this.demographic,
     tomo: tomo ?? this.tomo,
     description: description ?? this.description,
     tags: tags ?? this.tags,

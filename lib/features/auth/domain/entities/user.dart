@@ -4,12 +4,6 @@ class User {
   final String fullName;
   final List<String> roles;
   final String token;
-  //final String username;
-  //final String profileImage;
-  //final String lastName;
-  //final int age;
-  //final List<String> productosPropios;
-  //final List<User> contactosUser;
 
   User({
     required this.id,
@@ -22,4 +16,10 @@ class User {
   bool get isAdmin {
     return roles.contains('admin');
   } 
+  //final String username;
+  //final String profileImage;
+  //final String lastName;
+  //final int age;
+  //final List<String> productosPropios;
+  //final List<User> contactosUser;
 }

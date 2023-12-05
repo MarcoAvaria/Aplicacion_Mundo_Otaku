@@ -68,7 +68,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = state.copyWith(
       user:user,
       authStatus: AuthStatus.authenticated,
-      errorMessage: ''
+      errorMessage: 'hola?'
     );
   }
 
@@ -96,7 +96,7 @@ class AuthState {
   AuthState({
     this.authStatus = AuthStatus.checking, 
     this.user , 
-    this.errorMessage = '',
+    this.errorMessage = 'error checking!',
   });
 
   AuthState copyWith({

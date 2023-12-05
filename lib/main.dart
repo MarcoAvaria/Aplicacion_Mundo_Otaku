@@ -2,9 +2,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/blocs/notifications/notifications_bloc.dart';
-//import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-//import 'package:provider/provider.dart';
 
 void main() async {
 

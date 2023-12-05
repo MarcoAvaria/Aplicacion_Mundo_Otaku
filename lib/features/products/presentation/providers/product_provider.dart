@@ -33,13 +33,13 @@ class ProductNotifier extends StateNotifier<ProductState> {
     return Product(
       id: 'new', 
       title: '',
-      type: '', 
-      //price: 0, 
+      typeOf: 'Otros', 
       description: '', 
-      slug: '', 
       tomo: 0, 
-      sizes: [], 
-      gender: 'shonen', 
+      sizeOf: 'Ninguno', 
+      //gender: 'shonen',
+      gender: 'Ninguno',
+      demographic: 'Shonen', 
       tags: [], 
       images: [], 
     ); 
