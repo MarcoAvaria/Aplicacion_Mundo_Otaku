@@ -14,4 +14,6 @@ export 'full_screen_loader.dart';
 export 'custom_product_field.dart';
 export 'chat/my_message_bubble.dart';
 export 'chat/other_message_bubble.dart';
+export 'chat/message.dart';
+export 'chat/chat_controller.dart';
 //export 'side_menu.dart';
