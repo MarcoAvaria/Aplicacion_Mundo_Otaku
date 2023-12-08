@@ -1,3 +1,5 @@
+/*
+
 class Product {
   int? id;
   String? tipo;
@@ -110,3 +112,7 @@ List<Product> products = [
     path: "assets/Ao_no_Hako_Vol_01.png",
   ),
 ];
+
+*/
+
+//TODO: PARA BORRAR !!!!

@@ -1,5 +1,3 @@
-
-
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/infrastructure/infraestructure.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/entities/product.dart';

@@ -95,33 +95,6 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
 
-  /*
-  void onSlugChanged( String value ){
-    state = state.copyWith(
-      slug: Slug.dirty(value),
-      isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Slug.dirty(value),
-        Price.dirty(state.price.value),
-        Tomo.dirty(state.tomo.value),
-      ])
-    );
-  }
-  */
-  
-  /*
-  void onPriceChanged( int value ){
-    state = state.copyWith(
-      price: Price.dirty(value),
-      isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Price.dirty(value),
-        Tomo.dirty(state.tomo.value),
-      ])
-    );
-  }
-  */
-
   void onTypeChanged( String typeOf ){
     state = state.copyWith(
       typeOf: typeOf

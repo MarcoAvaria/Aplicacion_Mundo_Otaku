@@ -1,4 +1,5 @@
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
@@ -70,7 +71,8 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
           child: Text('Otras opciones'),
         ),
 
-        
+        //TODO: ELIMINAR ESTA PARTE, SCREEN DEPRECATED
+        /*
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: ButtonLogin(
@@ -80,6 +82,7 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
             text: 'Mangas'
           ),
         ),
+        */
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: ButtonLogin(
@@ -96,6 +99,15 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
               context.goNamed( DiscoverScreen.name );
             },
             text: '¡Descubre!'
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: CustomFilledButton(
+            onPressed: () {
+              context.goNamed( ChatListScreen.name );
+            },
+            text: 'Chats de intercambio :)'
           ),
         ),
         Padding(

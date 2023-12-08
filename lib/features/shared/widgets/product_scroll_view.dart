@@ -1,3 +1,4 @@
+/*
 import 'package:aplicacion_mundo_otaku/features/products/domain/entities/product_final.dart';
 import 'package:flutter/material.dart';
 
@@ -31,3 +32,6 @@ class ProductScrollView extends StatelessWidget {
     );
   }
 }
+*/
+
+//TODO: PARA BORRAR TAMBIÉN !!!

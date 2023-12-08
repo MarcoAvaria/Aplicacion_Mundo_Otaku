@@ -1,5 +1,6 @@
 import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/details_screen.dart';
@@ -29,10 +30,13 @@ final goRouterProvider = Provider((ref) {
           path: '/register',
           name: RegisterScreen.name,
           builder: (context, state) => const RegisterScreen()),
+      //TODO: PARA ELIMINAR ESTA PARTE!!
+      /*
       GoRoute(
           path: '/mangas',
           name: MangaScreen.name,
           builder: (context, state) => const MangaScreen()),
+      */
       GoRoute(
           path: '/productos',
           name: ProductsScreen.name,
@@ -42,11 +46,15 @@ final goRouterProvider = Provider((ref) {
           name: DiscoverScreen.name,
           builder: (context, state) => const DiscoverScreen()),
       /*
-    GoRoute(
+      GoRoute(
         path: '/configuracion',
         name: ConfigurationScreen.name,
         builder: (context, state) => const ConfigurationScreen()),
-    */
+      */
+      GoRoute(
+          path: '/chatList',
+          name: ChatListScreen.name,
+          builder: (context, state) => const ChatListScreen()),
       GoRoute(
           path: '/userList',
           name: UserListScreen.name,

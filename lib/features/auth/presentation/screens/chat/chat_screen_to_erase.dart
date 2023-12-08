@@ -1,3 +1,4 @@
+/*
 import 'package:aplicacion_mundo_otaku/features/auth/domain/entities/message.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/chat/other_message_bubble.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
@@ -77,3 +78,7 @@ class _ChatView extends StatelessWidget {
     );
   }
 }
+
+*/
+
+//TODO: PARA BORRAR !!!

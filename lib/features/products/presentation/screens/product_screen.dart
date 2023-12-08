@@ -126,28 +126,7 @@ class _ProductInformation extends ConsumerWidget {
                 ref.read(productFormProvider(product).notifier).onTitleChanged,
             errorMessage: productForm.title.errorMessage,
           ),
-          /* YA NO VA EL "SLUG"
-          CustomProductField( 
-            label: 'Slug',
-            initialValue: productForm.slug.value,
-            onChanged: ref.read( productFormProvider(product).notifier).onSlugChanged,
-            errorMessage: productForm.slug.errorMessage,
-          ),
-          */
-          /*
-          CustomProductField( 
-            isBottomField: true,
-            label: 'Precio',
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            initialValue: productForm.price.value.toString(),
-            onChanged: (value) 
-              => ref.read( productFormProvider(product).notifier)
-              .onPriceChanged( int.tryParse(value) ?? -1 ),
-            errorMessage: productForm.price.errorMessage,
-          ),
-          */
 
-          
           const SizedBox(height: 15),
           const Text('Demografía'),
           const SizedBox(height: 5),

@@ -1,3 +1,4 @@
+/*
 enum FromWho { me, other }
 
 class Message {
@@ -11,3 +12,6 @@ class Message {
     required this.fromWho
   });
 }
+*/
+
+//TODO: PARA BORRAR !!!!

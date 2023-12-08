@@ -1,0 +1,1 @@
+class ChatExchangeNotFound implements Exception {}

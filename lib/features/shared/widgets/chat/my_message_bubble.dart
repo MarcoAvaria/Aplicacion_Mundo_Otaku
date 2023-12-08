@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../../auth/domain/entities/message.dart';
+//import '../../../auth/domain/entities/message.dart';
 
 class MyMessageBuble extends StatelessWidget {
 
-  final Message message;
+  final String message;
 
   const MyMessageBuble({
     super.key,
@@ -27,7 +27,7 @@ class MyMessageBuble extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Text(
-              message.text, 
+              message, 
               style: const TextStyle( color: Colors.white),),
           ),
         ),
@@ -37,3 +37,5 @@ class MyMessageBuble extends StatelessWidget {
     );
   }
 }
+
+//TODO: PARA TENER EN CUENTA!!!

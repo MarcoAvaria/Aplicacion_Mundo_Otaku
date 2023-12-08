@@ -6,7 +6,6 @@ class Product {
   String title;
   String typeOf;
   int tomo;
-  //int price;
   String description;
   String? slug;
   String sizeOf;
@@ -20,9 +19,7 @@ class Product {
     required this.id,
     required this.title,
     required this.typeOf,
-    //required this.price,
     required this.description,
-    //this.slug,
     required this.tomo,
     required this.sizeOf,
     required this.gender,
@@ -32,29 +29,3 @@ class Product {
     this.user,
   });
 }
-
-//enum Size { XS, S, M, L, XL, XXL }
-
-//enum Tag { SWEATSHIRT, SHIRT, HOODIE }
-
-// class User {
-//   String id;
-//   Email email;
-//   FullName fullName;
-//   bool isActive;
-//   List<Role> roles;
-
-//   User({
-//     this.id,
-//     this.email,
-//     this.fullName,
-//     this.isActive,
-//     this.roles,
-//   });
-// }
-
-// enum Email { TEST1_GOOGLE_COM }
-
-// enum FullName { JUAN_CARLOS }
-
-// enum Role { ADMIN }
