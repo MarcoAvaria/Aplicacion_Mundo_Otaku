@@ -14,6 +14,11 @@ class ChatExchangesRepositoryImpl extends ChatExchangesRepository {
   }
 
   @override
+  Future<ChatExchange> changeChatExchangeStatus(String id, String status) {
+    return datasource.changeChatExchangeStatus(id, status);
+  }
+
+  @override
   Future<ChatExchange> getChatExchangeById(String id) {
     return datasource.getChatExchangeById(id);
   }
@@ -21,6 +26,11 @@ class ChatExchangesRepositoryImpl extends ChatExchangesRepository {
   @override
   Future<List<ChatExchange>> getChatExchangesByPage({int limit = 10, int offset = 0}) {
     return datasource.getChatExchangeByPage(limit: limit, offset: offset);
+  }
+  
+  @override
+  Future<List<ChatExchange>> getAllChatExchanges() {
+    return datasource.getAllChatExchanges();
   }
   
   // Implementar los métodos según tus necesidades

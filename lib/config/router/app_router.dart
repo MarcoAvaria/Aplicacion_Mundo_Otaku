@@ -1,6 +1,10 @@
 import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/preview_received_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/preview_requested_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/received_chat_list.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/requested_chat_list.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/details_screen.dart';
@@ -31,12 +35,6 @@ final goRouterProvider = Provider((ref) {
           name: RegisterScreen.name,
           builder: (context, state) => const RegisterScreen()),
       //TODO: PARA ELIMINAR ESTA PARTE!!
-      /*
-      GoRoute(
-          path: '/mangas',
-          name: MangaScreen.name,
-          builder: (context, state) => const MangaScreen()),
-      */
       GoRoute(
           path: '/productos',
           name: ProductsScreen.name,
@@ -56,15 +54,36 @@ final goRouterProvider = Provider((ref) {
           name: ChatListScreen.name,
           builder: (context, state) => const ChatListScreen()),
       GoRoute(
+          path: '/requestedList',
+          name: RequestedListScreen.name,
+          builder: (context, state) => const RequestedListScreen()),
+      GoRoute(
+          path: '/receivedList',
+          name: ReceivedListScreen.name,
+          builder: (context, state) => const ReceivedListScreen()), 
+      GoRoute(
+        path: '/previewreceived/:id',
+        builder: (context, state) => PreviewReceivedScreen(
+          chatExchangeId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
+        path: '/previewrequested/:id',
+        builder: (context, state) => PreviewRequestedScreen(
+          chatExchangeId: state.pathParameters['id'] ?? 'no-id',
+        ),
+      ),
+      GoRoute(
           path: '/userList',
           name: UserListScreen.name,
           builder: (context, state) => const UserListScreen()),
       GoRoute(
-        path: '/chatscreen/:id',
+        path: '/chatscreen/:conversacionId/:miProductId/:otroProductId',
         //name: ChatScreen.name,
         builder: (context, state) => ChatScreen(
-          productId: state.pathParameters['id'] ?? 'no-id',
-          //userId: state.pathParameters['id'] ?? 'no-id',
+          conversacionId: state.pathParameters['conversacionId'] ?? 'no-id',
+          miProductId: state.pathParameters['miProductId'] ?? 'no-id',
+          otroProductId: state.pathParameters['otroProductId'] ?? 'no-id',
         ),
       ),
       GoRoute(

@@ -60,3 +60,5 @@ class _DetailsView extends StatelessWidget {
     );
   }
 }
+
+//TODO: PARA BORRAR!

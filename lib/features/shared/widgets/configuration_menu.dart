@@ -1,5 +1,7 @@
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/received_chat_list.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/requested_chat_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
@@ -27,7 +29,10 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
 
     final hasNotch = MediaQuery.of(context).viewPadding.top > 45;
     final textStyles = Theme.of(context).textTheme;
-    
+
+    // Obtener el usuario actual del proveedor de autenticación
+    final currentUser = ref.read(authProvider);
+    final currentUserName = currentUser.user?.fullName; 
 
     return NavigationDrawer(
       elevation: 1,
@@ -52,7 +57,7 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
 
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 16, 10),
-          child: Text('Marco Avaria', style: textStyles.titleSmall ),
+          child: Text('$currentUserName', style: textStyles.titleSmall ),
         ),
 
         const NavigationDrawerDestination(
@@ -70,19 +75,6 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
           padding: EdgeInsets.fromLTRB(28, 10, 16, 10),
           child: Text('Otras opciones'),
         ),
-
-        //TODO: ELIMINAR ESTA PARTE, SCREEN DEPRECATED
-        /*
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: ButtonLogin(
-            onPressed: () {
-              context.goNamed( MangaScreen.name );
-            },
-            text: 'Mangas'
-          ),
-        ),
-        */
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: ButtonLogin(
@@ -114,6 +106,24 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(
             onPressed: () {
+              context.goNamed( RequestedListScreen.name );
+            },
+            text: 'Solicitudes enviadas pendientes'
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: CustomFilledButton(
+            onPressed: () {
+              context.goNamed( ReceivedListScreen.name );
+            },
+            text: 'Solicitudes recibidas'
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: CustomFilledButton(
+            onPressed: () {
               context.goNamed( UserListScreen.name );
             },
             text: 'Mensajeria'
@@ -128,6 +138,7 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
             text: 'Editar perfil'
           ),
         ),
+        /*
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(
@@ -137,6 +148,8 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
             text: 'Notificaciones'
           ),
         ),
+        */
+        /*
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(
@@ -147,6 +160,7 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
             text: 'Permisos'
           ),
         ),
+        */
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: CustomFilledButton(

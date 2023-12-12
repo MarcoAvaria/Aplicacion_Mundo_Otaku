@@ -27,5 +27,10 @@ class ProductsRepositoryImpl extends ProductsRepository{
   Future<List<Product>> searchProductByTerm(String term) {
     return datasource.searchProductByTerm(term);
   }
+  
+  @override
+  Future<List<Product>> getProductsForCurrentUser(String userId) {
+    return datasource.getProductsForCurrentUser(userId);
+  }
 
 }

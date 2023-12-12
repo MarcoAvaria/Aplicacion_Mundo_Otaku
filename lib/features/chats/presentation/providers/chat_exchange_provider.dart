@@ -10,27 +10,27 @@ final chatExchangeProvider = StateNotifierProvider.autoDispose
   final chatExchangesRepository = ref.watch(chatExchangesRepositoryProvider);
 
   return ChatExchangeNotifier(
-    chatExchangesRepository: chatExchangesRepository,
-    chatExchangeId: chatExchangeId);
+      chatExchangesRepository: chatExchangesRepository,
+      chatExchangeId: chatExchangeId);
 });
 
 class ChatExchangeNotifier extends StateNotifier<ChatExchangeState> {
   final ChatExchangesRepository chatExchangesRepository;
 
-  ChatExchangeNotifier({
-    required this.chatExchangesRepository,
-    required String chatExchangeId
-  }) : super(ChatExchangeState(id: chatExchangeId)) {
+  ChatExchangeNotifier(
+      {required this.chatExchangesRepository, required String chatExchangeId})
+      : super(ChatExchangeState(id: chatExchangeId)) {
     loadChatExchange();
   }
 
   ChatExchange newEmptyChatExchange() {
     return ChatExchange(
       id: 'new',
-      product1: '', 
+      product1: '',
       product2: '',
       requester1: '',
       messages: [],
+      status: 'pending',
     );
   }
 
@@ -44,14 +44,45 @@ class ChatExchangeNotifier extends StateNotifier<ChatExchangeState> {
         return;
       }
 
-      final chatExchange = await chatExchangesRepository.getChatExchangeById(state.id);
+      final chatExchange =
+          await chatExchangesRepository.getChatExchangeById(state.id);
       state = state.copyWith(isLoading: false, chatExchange: chatExchange);
     } catch (e) {
       // 404 Producto no encontrado
-      print(e);
+      //print(e);
+      throw Exception(e);
     }
   }
 
+  Future<void> updateChatExchangeStatus(String status) async {
+    if (isValidStatus(status)) {
+      try {
+        state = state.copyWith(isSaving: true);
+
+        final updatedChatExchange = await chatExchangesRepository
+            .changeChatExchangeStatus(state.id, status);
+
+        state =
+            state.copyWith(isSaving: false, chatExchange: updatedChatExchange);
+      } catch (e) {
+        state = state.copyWith(isSaving: false);
+        //print('ERROR EN updateChatExchangeStatus EN ChatExchangeNotifier:');
+        //print(e);
+        throw Exception(e);
+        // Manejar el error según tus necesidades
+      }
+    } else {
+      //print('ERROR: Estado no válido');
+      throw Exception();
+    }
+  }
+
+  bool isValidStatus(String status) {
+  // Agrega lógica para verificar si el estado es válido
+  // Por ejemplo, puedes tener una lista de estados válidos y verificar si el estado está en esa lista.
+  final validStatusList = ['pending','abort', 'rejected', 'inProgress', 'done', 'cancelled'];
+  return validStatusList.contains(status);
+}
 }
 
 class ChatExchangeState {
@@ -80,4 +111,3 @@ class ChatExchangeState {
         isSaving: isSaving ?? this.isSaving,
       );
 }
-

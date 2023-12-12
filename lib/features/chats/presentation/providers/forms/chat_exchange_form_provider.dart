@@ -40,10 +40,10 @@ class ChatExchangeFormNotifier extends StateNotifier<ChatExchangeFormState> {
 
     try {
       final result = await onSubmitCallback!(chatExchangeLike);
-      print(result); // Agrega esto para imprimir la respuesta.
+      //print(result); // Agrega esto para imprimir la respuesta.
       return result;
     } catch (e) {
-      print(e);
+      //print(e);
       return false;
     }
   }

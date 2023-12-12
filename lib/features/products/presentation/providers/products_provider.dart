@@ -1,3 +1,4 @@
+//import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,6 +60,23 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
         offset: state.offset + 10,
         products: [...state.products, ...products]);
   }
+
+
+  List<Product> get userProducts => state.userProducts;
+  bool get isLoading => state.isLoading;
+
+  Future<void> loadUserProducts( {String? userId} ) async {
+    try {
+      state = state.copyWith(isLoading: true); 
+      // Reemplázalo con tu lógica para obtener el userId
+      final products =
+          await productsRepository.getProductsForCurrentUser(userId!);
+      state = state.copyWith(userProducts: products, isLoading: false);
+    } catch (e) {
+      // Maneja el error según tus necesidades
+      state = state.copyWith(isLoading: false);
+    }
+  }
 }
 
 class ProductsState {
@@ -67,6 +85,8 @@ class ProductsState {
   final int offset;
   final bool isLoading;
   final List<Product> products;
+  final List<Product> userProducts;
+
 
   ProductsState({
     this.isLastPage = false,
@@ -74,6 +94,7 @@ class ProductsState {
     this.offset = 0,
     this.isLoading = false,
     this.products = const [],
+    this.userProducts = const [],
   });
 
   ProductsState copyWith({
@@ -82,6 +103,7 @@ class ProductsState {
     int? offset,
     bool? isLoading,
     List<Product>? products,
+    List<Product>? userProducts,
   }) =>
       ProductsState(
         isLastPage: isLastPage ?? this.isLastPage,
@@ -89,5 +111,6 @@ class ProductsState {
         offset: offset ?? this.offset,
         isLoading: isLoading ?? this.isLoading,
         products: products ?? this.products,
+        userProducts: userProducts ?? this.userProducts,
       );
 }

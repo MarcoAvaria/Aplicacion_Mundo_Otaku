@@ -150,87 +150,83 @@ class _OtherProductInformation extends ConsumerWidget {
               showModalBottomSheet(
                 context: context,
                 builder: (BuildContext context) {
-                  return Container(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        for (Product product2 in otherProductsState)
-                          ListTile(
-                              title: Text(product2.title),
-                              //context.push('/chatscreen/${productForm.id}');
-                              onTap: () {
-                                // Cierra el BottomSheet
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Confirmación'),
-                                        content: const Text(
-                                            '¿Estás seguro de enviar la solicitud de cambio?'),
-                                        actions: [
-                                          TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text(
-                                                  'No, me arrepiento jeje')),
-                                          TextButton(
-                                              onPressed: () async {
-                                                Navigator.of(context).pop();
-                                                ChatExchange conversacion =
-                                                    ChatExchange
-                                                        .createWithProducts(
-                                                            product1:
-                                                                product.id,
-                                                            product2:
-                                                                product2.id,
-                                                            requester1:
-                                                                product2.id);
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      for (Product product2 in otherProductsState)
+                        ListTile(
+                            title: Text(product2.title),
+                            //context.push('/chatscreen/${productForm.id}');
+                            onTap: () {
+                              // Cierra el BottomSheet
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('Confirmación'),
+                                      content: const Text(
+                                          '¿Estás seguro de enviar la solicitud de cambio?'),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: const Text(
+                                                'No, me arrepiento jeje')),
+                                        TextButton(
+                                            onPressed: () async {
+                                              Navigator.of(context).pop();
+                                              ChatExchange conversacion =
+                                                  ChatExchange
+                                                      .createWithProducts(
+                                                          product1:
+                                                              product.id,
+                                                          product2:
+                                                              product2.id,
+                                                          requester1:
+                                                              product2.id);
 
-                                                final chatExchangeFormNotifier =
-                                                    ref.read(
-                                                  chatExchangeFormProvider(
-                                                          conversacion)
-                                                      .notifier,
-                                                );
+                                              final chatExchangeFormNotifier =
+                                                  ref.read(
+                                                chatExchangeFormProvider(
+                                                        conversacion)
+                                                    .notifier,
+                                              );
 
-                                                chatExchangeFormNotifier
-                                                    .onFormSubmit()
-                                                    .then((value) async {
-                                                  if (value) {
-                                                    Navigator.pop(context);
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                            'Se ha enviado solicitud de conversación :D !'),
-                                                      ),
-                                                    ); // ID del formulario
-                                                  } else {
-                                                    Navigator.pop(context);
-                                                    // Muestra un mensaje de error o realiza otras operaciones según tus necesidades.
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text(
-                                                            'Error al enviar la solicitud de cambio :( !'),
-                                                      ),
-                                                    );
-                                                  }
-
-                                                  // TODO: Realizar otras operaciones según tus necesidades.
-                                                });
-                                              },
-                                              child: const Text(
-                                                  '¡Sí! Quiero cambiar :D'))
-                                        ],
-                                      );
-                                    });
-                              }),
-                      ],
-                    ),
+                                              chatExchangeFormNotifier
+                                                  .onFormSubmit()
+                                                  .then((value) async {
+                                                if (value) {
+                                                  Navigator.pop(context);
+                                                  ScaffoldMessenger.of(
+                                                          context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'Se ha enviado solicitud de conversación :D !'),
+                                                    ),
+                                                  ); // ID del formulario
+                                                } else {
+                                                  Navigator.pop(context);
+                                                  // Muestra un mensaje de error o realiza otras operaciones según tus necesidades.
+                                                  ScaffoldMessenger.of(
+                                                          context)
+                                                      .showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text(
+                                                          'Error al enviar la solicitud de cambio :( !'),
+                                                    ),
+                                                  );
+                                                }
+                                              });
+                                            },
+                                            child: const Text(
+                                                '¡Sí! Quiero cambiar :D'))
+                                      ],
+                                    );
+                                  });
+                            }),
+                    ],
                   );
                 },
               );

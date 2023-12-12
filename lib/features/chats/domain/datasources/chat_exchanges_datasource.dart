@@ -7,7 +7,11 @@ abstract class ChatExchangeDatasource {
   
   Future<ChatExchange> getChatExchangeById(String id);
 
+  Future<ChatExchange> changeChatExchangeStatus(String id, String status);
+
   Future<List<ChatExchange>> searchChatExchangeByTerm( String term );
 
   Future<ChatExchange> createUpdateChatExchange( Map<String,dynamic> chatExchangeLike );
+
+  Future<List<ChatExchange>> getAllChatExchanges();
 }

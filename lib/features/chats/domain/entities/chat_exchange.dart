@@ -4,6 +4,7 @@ class ChatExchange {
   late String product2;
   late String requester1;
   late List<String> messages;
+  late String status;
 
   ChatExchange({
     required this.id,
@@ -11,6 +12,7 @@ class ChatExchange {
     required this.product2,
     required this.requester1,
     required this.messages,
+    required this.status,
   });
 
 
@@ -22,6 +24,7 @@ class ChatExchange {
   }) {
     id = 'new';
     messages = [];
+    status = 'pending';
   }
 }
 

@@ -1,3 +1,5 @@
+//import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
+//import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchange_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
@@ -6,104 +8,131 @@ import '../providers/providers.dart';
 
 class ChatScreen extends ConsumerWidget {
   static const String name = 'chatscreen';
-  final String productId;
+  
+  //final String productId;
+  final String conversacionId;
+  final String miProductId;
+  final String otroProductId;
   final SocketService socketService;
-  ChatScreen({super.key, required this.productId})
-      : socketService = SocketService(tokencito: productId);
+
+  ChatScreen({
+    super.key,
+    required this.miProductId,
+    required this.otroProductId,
+    required this.conversacionId,
+    //required this.socketService,
+    SocketService? socketService,
+  }): socketService = socketService ?? SocketService(
+        tokencito: miProductId,
+        chatExchangeId: conversacionId,
+        sendBy: miProductId,
+      );
+  
   final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  /*
+  ChatScreen(
+      {super.key,
+      required this.miProductId,
+      required this.otroProductId,
+      required this.conversacionId}) //, required this.miProductId})
+      : socketService = SocketService(
+            tokencito: miProductId,
+            chatExchangeId: conversacionId,
+            sendBy: miProductId,
+            ); //, productId: miProductId);
+
+  */
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // IMPORTANTE: chatController se ocupa de todas formas...
+    // ... Aquí lo que es registrarlo
+    final chatController = Get.put(ChatController());
+    final sendBy = miProductId;
     print('Un print al comienzo, no debería repetirse');
-    final productState = ref.watch(productProvider(productId));
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment:
-              MainAxisAlignment.center, // Centra el contenido horizontalmente
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(0),
-              child: CircleAvatar(
-                backgroundImage:
-                    NetworkImage(productState.product!.images.first),
+    final productState = ref.watch(productProvider(miProductId));
+    final productState2 = ref.watch(productProvider(otroProductId));
+
+    if (productState.product == null || productState2.product == null) {
+      // Muestra un indicador de carga centrado mientras se carga el estado del producto
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      final product2 = productState2.product!; 
+      return Scaffold(
+        appBar: AppBar(
+          title: Row(
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(0),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(product2.images.first),
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-                child: Text(
-              productState.product!.title,
-              style: const TextStyle(fontSize: 15),
-            )),
-            const SizedBox(width: 52),
-          ],
+              const SizedBox(width: 8),
+              Expanded(
+                  child: Text(
+                productState2.product!.title,
+                style: const TextStyle(fontSize: 15),
+              )),
+              const SizedBox(width: 52),
+            ],
+          ),
         ),
-      ),
-      body: _ChatView(productId, socketService),
-    );
+        body: _ChatView(miProductId, socketService, conversacionId, sendBy),
+      );
+    }
   }
 }
 
 class _ChatView extends ConsumerStatefulWidget {
   final String productId;
+  final String conversacionId;
+  final String sendBy;
   final SocketService socketService;
-  const _ChatView(this.productId, this.socketService);
+  const _ChatView(this.productId, this.socketService, this.conversacionId, this.sendBy);
   @override
-  _ChatViewState createState() => _ChatViewState(productId, socketService);
+  _ChatViewState createState() =>
+      _ChatViewState(productId, socketService, conversacionId, sendBy);
 }
 
 class _ChatViewState extends ConsumerState {
   final SocketService socketService;
   final String productId;
+  final String conversacionId;
+  final String sendBy;
   ChatController chatController = Get.find<ChatController>();
-  _ChatViewState(this.productId, this.socketService);
+  _ChatViewState(this.productId, this.socketService, this.conversacionId, this.sendBy);
   @override
   void dispose() {
     // Desconectar el socket al salir de la pantalla
     socketService.disconnect();
     socketService.socket.off('message-from-server');
     super.dispose();
-    print('Hola desde void dispose()');
   }
 
   @override
   void initState() {
     super.initState();
-    socketService.disconnect();
-    socketService.updateToken(productId);
+    //socketService.disconnect();
+    //socketService.updateToken(productId);
     if (!socketService.socket.connected) {
-      print('Socket is not connected. Connecting...');
+      //print('Socket is not connected. Connecting...');
       socketService.socket.connect();
     }
-    final ChatController chatController = Get.find<ChatController>();
-    print('Debería aparecer una sola vez');
-    socketService.mensajeConectado("Hola desde ChatScreen");
+    ChatController chatController = Get.find<ChatController>();
 
-    //socketService.recibirMensaje(chatController);
-
-    
     socketService.socket.on('message-from-server', (data) {
       if (data is Map<String, dynamic>) {
         var receivedMessage = Message.fromJson(data);
-        //chatController.addMessage(receivedMessage);
-        
-        print('esta es la data: $data');
-        print('esta es la receivedMessage: $receivedMessage');
-        //chatController.chatMessages.add(receivedMessage);
         chatController.addMessage(receivedMessage);
-        print('receivedMessage: ' + receivedMessage.message);
-        print('PRIMERA INSTANCIA del array: ' + chatController.chatMessages.first.message);
-        print('ÚLTIMA INSTANCIA del array: ' + chatController.chatMessages.last.message);
-        print('SentbyMe???: ' + chatController.chatMessages.last.sentByMe);
-        print('socketService.tokencito: ' + socketService.tokencito);
-        print('socketService.socket.id: ' + (socketService.socket.id??''));
-        print('product.id: ' + productId);
-        
-        //print(chatController.chatMessages.);
       } else {
         print('El mensaje no es un mapa válido.');
-      }}
-    );
-    
+      }
+    });
   }
 
   @override
@@ -121,9 +150,13 @@ class _ChatViewState extends ConsumerState {
                 itemCount: chatController.chatMessages.length,
                 itemBuilder: (context, index) {
                   Message currentItem = chatController.chatMessages[index];
+                  print('Este es el productId: $productId');
+                  print('Este es el socketService.tokencito ${socketService.tokencito}');
+                  print('-------------currentItem.sendBy: ${currentItem.sendBy}');
                   return MessageItem(
-                    sentByMe: (productId == socketService.tokencito),
-                    //sentByMe: true,
+                    //sentByMe: (productId == socketService.tokencito),
+                    //sentByMe: (productId == currentItem.sendBy),
+                    sentByMe: (productId == currentItem.sendBy),
                     message: currentItem.message,
                   );
                 }),
@@ -153,7 +186,7 @@ class _ChatViewState extends ConsumerState {
                             onPressed: () {
                               //sendMessage(msgInputController.text);
                               socketService.sendMessage(msgInputController.text,
-                                  socketService, chatController);
+                                  chatController, conversacionId, sendBy);
                               msgInputController.text = '';
                             },
                             icon: const Icon(Icons.send, color: Colors.white60),
@@ -192,7 +225,7 @@ class MessageItem extends StatelessWidget {
                 style: TextStyle(
                   color:
                       sentByMe ? Colors.amber.shade200 : Colors.purple.shade300,
-                  fontSize: 18,
+                  fontSize: 12,
                 ),
               ),
               const SizedBox(width: 5),

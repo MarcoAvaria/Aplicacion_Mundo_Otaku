@@ -26,7 +26,8 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
       product1: '', 
       product2: '',
       requester1: '',
-      messages: [],
+      messages: [], 
+      status: 'pending',
     );
   }
 
@@ -35,9 +36,7 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
     try {
       final chatExchange = await chatExchangesRepository
           .createUpdateChatExchange(chatExchangeLike);
-      
       //print('chatExchange after API call: $chatExchange');
-
       final isChatExchangeInList =
           state.chatExchanges.any((element) => element.id == chatExchange.id);
 
@@ -46,7 +45,6 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
             .copyWith(chatExchanges: [...state.chatExchanges, chatExchange]);
         return true;
       }
-
       state = state.copyWith(
           chatExchanges: state.chatExchanges
               .map(
@@ -54,7 +52,6 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
                     (element.id == chatExchange.id) ? chatExchange : element,
               )
               .toList());
-
       //print("ChatExchange creado o actualizado con éxito: $chatExchange"); // Imprime información sobre el ChatExchange creado o actualizado.
       //print(state); // Agrega esta línea para verificar el estado después de la operación.
       return true;
@@ -67,21 +64,35 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
 
   Future loadNextPage() async {
     if (state.isLoading || state.isLastPage) return;
-
     state = state.copyWith(isLoading: true);
-
     final chatExchanges = await chatExchangesRepository.getChatExchangesByPage(
         limit: state.limit, offset: state.offset);
     if (chatExchanges.isEmpty) {
       state = state.copyWith(isLoading: false, isLastPage: true);
       return;
     }
-
     state = state.copyWith(
         isLastPage: false,
         isLoading: false,
         offset: state.offset + 10,
         chatExchanges: [...state.chatExchanges, ...chatExchanges]);
+  }
+
+  List<ChatExchange> get userChatExchanges => state.chatExchanges;
+  bool get isLoading => state.isLoading;
+
+  Future<void> loadAllChatExchanges( ) async {
+    //print('Entrando a loadAllChatExchanges!');
+    try {
+      state = state.copyWith(isLoading: true); 
+      // Reemplázalo con tu lógica para obtener el userId
+      final finalchatExchanges =
+          await chatExchangesRepository.getAllChatExchanges();
+      state = state.copyWith(chatExchanges: finalchatExchanges, isLoading: false);
+    } catch (e) {
+      // Maneja el error según tus necesidades
+      state = state.copyWith(isLoading: false);
+    }
   }
 }
 
@@ -91,7 +102,6 @@ class ChatExchangesState {
   final int offset;
   final bool isLoading;
   final List<ChatExchange> chatExchanges;
-
   ChatExchangesState({
     this.isLastPage = false,
     this.limit = 10,
@@ -99,7 +109,6 @@ class ChatExchangesState {
     this.isLoading = false,
     this.chatExchanges = const [],
   });
-
   ChatExchangesState copyWith({
     bool? isLastPage,
     int? limit,

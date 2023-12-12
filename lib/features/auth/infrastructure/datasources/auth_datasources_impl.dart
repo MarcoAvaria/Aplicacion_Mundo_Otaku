@@ -63,10 +63,36 @@ class AuthDataSourceImpl extends AuthDataSource {
   }
 
   @override
-  Future<User> register(String email, String password, String fullName) {
+  Future<User> register(String email, String password, String fullName) async {
+    try {
+      final response = await dio
+          .post('/auth/register', data: {'email': email, 'password': password, 'fullName': fullName});
+
+      final user = UserMapper.userJsonToEntity(response.data);
+      return user;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        print('Algo paso :/ 3');
+        throw CustomError(
+            e.response?.data['message'] ?? 'Credenciales Incorrectas :O ');
+      }
+      if (e.type == DioExceptionType.connectionTimeout) {
+        print('Algo paso :/ 2');
+        throw CustomError('Revisa la conexión de internet :O');
+      }
+      print('Algo paso :/ 1');
+      //throw Exception();
+
+      throw CustomError('Something wrong happend :O !3460', );
+    } catch (e) {
+      print('Algo paso :/ 5');
+      throw CustomError('Something wrong happend :O 222!');
+      //throw CustomError('Something wrong happend :O !', 4460);
+    }
     throw WrongCredentials();
   }
 
+  @override
   Future<String> getUserId(String token) async {
     try {
       final response = await dio.get('/auth/check-auth-status',

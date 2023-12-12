@@ -29,22 +29,37 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
       //print(url);
 
       chatExchangeLike.remove('id');
-
+      chatExchangeLike.remove('status');
       //print('Request to API: $url, Method: $method, Data: $chatExchangeLike');
 
       final response = await dio.request(url,
           data: chatExchangeLike, options: Options(method: method));
       //print('API Response: $response');
-
       final chatExchange = ChatExchangeMapper.jsonToEntity(response.data);
-      //print(product);
       return chatExchange;
     } catch (e) {
       //print('Error in createUpdateChatExchange: $e');
       if (e is DioException && e.response != null) {
-        print('API Response Data: ${e.response!.data}');
-        print('API Response Headers: ${e.response!.headers}');
+        //print('API Response Data: ${e.response!.data}');
+        //print('API Response Headers: ${e.response!.headers}');
       }
+      throw Exception();
+    }
+  }
+
+  @override
+  Future<ChatExchange> changeChatExchangeStatus(
+      String id, String status) async {
+    try {
+      final response = await dio
+          .patch('/chat-exchanges/$id/status', data: {'status': status});
+      final chatExchange = ChatExchangeMapper.jsonToEntity(response.data);
+      return chatExchange;
+    } on DioException catch (e) {
+      //print('DioException caught in changeChatExchangeStatus: ${e}');
+      throw Exception(e);
+    } catch (e) {
+      //print('Error no capturado en changeChatExchangeStatus dentro de\ncreateUpdateChatExchange en\nChatExchangesDatasourceImpl');  
       throw Exception();
     }
   }
@@ -77,8 +92,25 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   }
 
   @override
+  Future<List<ChatExchange>> getAllChatExchanges() async {
+    try {
+      final response = await dio.get<List<dynamic>>('/chat-exchanges');
+
+      final List<ChatExchange> allChatExchanges = List<ChatExchange>.from(
+        (response.data ?? []).map((dynamic productJson) {
+          return ChatExchangeMapper.jsonToEntity(
+              productJson as Map<String, dynamic>);
+        }),
+      );
+
+      return allChatExchanges;
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
+  @override
   Future<List<ChatExchange>> searchChatExchangeByTerm(String term) {
-    // TODO: implement searchProductByTerm
     throw UnimplementedError();
   }
 }
