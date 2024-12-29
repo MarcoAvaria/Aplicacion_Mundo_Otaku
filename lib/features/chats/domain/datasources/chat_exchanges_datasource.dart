@@ -13,5 +13,5 @@ abstract class ChatExchangeDatasource {
 
   Future<ChatExchange> createUpdateChatExchange( Map<String,dynamic> chatExchangeLike );
 
-  Future<List<ChatExchange>> getAllChatExchanges();
+  Future<List<ChatExchange>> getAllChatExchanges(String id);
 }

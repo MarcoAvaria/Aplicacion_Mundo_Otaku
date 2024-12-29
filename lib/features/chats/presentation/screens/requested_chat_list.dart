@@ -35,7 +35,8 @@ class _RequestedListState extends ConsumerState {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(chatExchangesProvider.notifier).loadAllChatExchanges();
+      final userId = ref.read(authProvider).user?.id as String;
+      ref.read(chatExchangesProvider.notifier).loadAllChatExchanges(userId);
     });
 
     scrollController.addListener(() {

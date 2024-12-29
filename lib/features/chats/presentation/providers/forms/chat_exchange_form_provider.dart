@@ -23,6 +23,8 @@ class ChatExchangeFormNotifier extends StateNotifier<ChatExchangeFormState> {
           id: chatExchange.id,
           product1: chatExchange.product1,
           product2: chatExchange.product2,
+          owner1: chatExchange.owner1,
+          owner2: chatExchange.owner2,
           requester1: chatExchange.requester1,
           messages: chatExchange.messages,
         ));
@@ -34,6 +36,8 @@ class ChatExchangeFormNotifier extends StateNotifier<ChatExchangeFormState> {
       'id': (state.id == 'new') ? null : state.id,
       'product1': state.product1,
       'product2': state.product2,
+      'owner1': state.owner1,
+      'owner2': state.owner2,
       'requester1': state.requester1,
       'messages': state.messages,
     };
@@ -57,6 +61,8 @@ class ChatExchangeFormState {
   final String? id;
   final String product1;
   final String product2;
+  final String owner1;
+  final String owner2;
   final String requester1;
   final List<String> messages;
 
@@ -64,6 +70,8 @@ class ChatExchangeFormState {
     this.id,
     this.product1 = '',
     this.product2 = '',
+    this.owner1 = '',
+    this.owner2 = '',
     this.requester1 = '',
     this.messages = const [],
   });
@@ -72,6 +80,8 @@ class ChatExchangeFormState {
     String? id,
     String? product1,
     String? product2,
+    String? owner1,
+    String? owner2,
     String? requester1,
     List<String>? messages,
   }) =>
@@ -79,6 +89,8 @@ class ChatExchangeFormState {
         id: id ?? this.id,
         product1: product1 ?? this.product1,
         product2: product2 ?? this.product2,
+        owner1: owner1 ?? this.owner1,
+        owner2: owner2 ?? this.owner2,
         requester1: requester1 ?? this.requester1,
         messages: messages ?? this.messages,
       );

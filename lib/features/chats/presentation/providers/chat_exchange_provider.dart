@@ -28,6 +28,8 @@ class ChatExchangeNotifier extends StateNotifier<ChatExchangeState> {
       id: 'new',
       product1: '',
       product2: '',
+      owner1: '',
+      owner2: '',
       requester1: '',
       messages: [],
       status: 'pending',

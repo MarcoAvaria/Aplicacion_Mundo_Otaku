@@ -130,38 +130,23 @@ class _ChatListState extends ConsumerState<_ChatListView> {
           miProductId = conversacion.product1;
           otroProductId = conversacion.product2;
         }
-        // final socketService = SocketService(
-        //   tokencito: miProductId, // Reemplaza lógica para obtener el token
-        //   chatExchangeId: conversacion.id, // Reemplaza con tu lógica para obtener el chat exchange id
-        //   sendBy: miProductId, // Reemplaza con tu lógica para obtener el send by
-        // );
+        final socketService = SocketService(
+          tokencito: miProductId, // Reemplaza lógica para obtener el token
+          chatExchangeId: conversacion.id, // Reemplaza con tu lógica para obtener el chat exchange id
+          sendBy: miProductId, // Reemplaza con tu lógica para obtener el send by
+        );
 
         // Llamar al callback para notificar que el SocketService ha sido creado
-        // widget.onSocketServiceCreated(socketService);
+        widget.onSocketServiceCreated(socketService);
 
         return ListTile(
           leading:
               CircleAvatar(backgroundImage: NetworkImage(product.images.first)),
           title: Text(product.title),
-          // onTap: () => context.push(
-          //   '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
-          // ),
-          onTap: () {
-            // Aquí se crea el SocketService solo cuando el usuario hace tap en el chat
-            final socketService = SocketService(
-              tokencito: miProductId,
-              chatExchangeId: conversacion.id,
-              sendBy: miProductId,
-            );
+          onTap: () => context.push(
+            '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
 
-            // Llamar al callback para notificar que el SocketService ha sido creado
-            widget.onSocketServiceCreated(socketService);
-
-            // Navegar a la pantalla del chat
-            context.push(
-              '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
-            );
-          },
+          ),
         );
       },
     );

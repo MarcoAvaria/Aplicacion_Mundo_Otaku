@@ -21,8 +21,11 @@ class AuthDataSourceImpl extends AuthDataSource {
 
 
     } on DioException catch (e) {
+      if (e.response?.statusCode == 400) {
+        throw CustomError('Token no es correcto :o');
+      }
       if (e.response?.statusCode == 401) {
-        throw CustomError('Token no es correcto');
+        throw CustomError('Token no es correcto :/');
       }
       if (e.type == DioExceptionType.connectionTimeout) {
         throw CustomError('Revisa la conexión de internet :O');
@@ -36,16 +39,20 @@ class AuthDataSourceImpl extends AuthDataSource {
   @override
   Future<User> login(String email, String password) async {
     try {
+      print('Dentro de login-------------------en el try');
       final response = await dio
           .post('/auth/login', data: {'email': email, 'password': password});
 
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        //print('Algo paso :/ 3');
-        throw CustomError(
-            e.response?.data['message'] ?? 'Credenciales Incorrectas :O ');
+      String errorMessage = 'Credenciales incorrectas.';
+      print('Dentro de DioException-------------------');
+      if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
+        print('Algo paso :/ 3');
+        final data = e.response?.data;
+        if (data is Map<String, dynamic> && data['message'] is String) {errorMessage = data['message'];}
+        throw CustomError(errorMessage);
       }
       if (e.type == DioExceptionType.connectionTimeout) {
         //print('Algo paso :/ 2');
@@ -57,7 +64,7 @@ class AuthDataSourceImpl extends AuthDataSource {
       //throw CustomError('Something wrong happend :O !', 3460);
     } catch (e) {
       //print('Algo paso :/ 5');
-      throw CustomError('Something wrong happend :O 222!');
+      throw CustomError('Something wrong happend :O please try again!');
       //throw CustomError('Something wrong happend :O !', 4460);
     }
   }
@@ -89,7 +96,8 @@ class AuthDataSourceImpl extends AuthDataSource {
       throw CustomError('Something wrong happend :O 222!');
       //throw CustomError('Something wrong happend :O !', 4460);
     }
-    throw WrongCredentials();
+    // The next line it's maybe a dead code, but it's necessary to avoid the error
+    // throw WrongCredentials();
   }
 
   @override

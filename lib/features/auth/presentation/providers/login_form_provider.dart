@@ -42,12 +42,21 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
 
   onFormSubmit() async {
     _touchEveryField();
-    print({state.isValid});
+    // print({state.isValid});
     if( !state.isValid ) return;
 
-    await loginUserCallback( state.email.value, state.password.value );
+    try {
+      await loginUserCallback(state.email.value, state.password.value);
+      state = state.copyWith(isPosting: false);
+    } catch (e) {
+      print('Error al intentar iniciar sesión: $e');
+      state = state.copyWith(isPosting: false, errorMessage: e.toString());
+    }
 
-    state = state.copyWith( isPosting: false);
+    // print("------------------EXITOSO PASO POR ACÁ 0001 ------------------");
+    // await loginUserCallback( state.email.value, state.password.value );
+    // print("------------------EXITOSO PASO POR ACÁ 00022 ------------------");
+    // state = state.copyWith( isPosting: false);
     
     //print(state);
   }
@@ -74,13 +83,15 @@ class LoginFormState {
   final bool isValid;
   final Email email;
   final Password password;
+  final String errorMessage;
 
   LoginFormState({
     this.isPosting = false, 
     this.isFormPosted = false, 
     this.isValid = false, 
     this.email = const Email.pure(), 
-    this.password = const Password.pure()
+    this.password = const Password.pure(),
+    this.errorMessage = '',
   });
 
   LoginFormState copyWith({
@@ -89,12 +100,14 @@ class LoginFormState {
     bool? isValid,
     Email? email,
     Password? password,
+    String? errorMessage,
   }) => LoginFormState(
     isPosting: isPosting ?? this.isPosting,
     isFormPosted: isFormPosted ?? this.isFormPosted,
     isValid: isValid ?? this.isValid,
     email: email ?? this.email,
     password: password ?? this.password,
+    errorMessage: errorMessage ?? this.errorMessage,
   );
 
   @override
@@ -106,6 +119,7 @@ class LoginFormState {
     isValid = $isValid 
     email = $email 
     password = $password
+    errorMessage = $errorMessage
 ''';
   }
 

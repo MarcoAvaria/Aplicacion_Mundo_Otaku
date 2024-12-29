@@ -183,6 +183,10 @@ class _OtherProductInformation extends ConsumerWidget {
                                                               product.id,
                                                           product2:
                                                               product2.id,
+                                                          owner1:
+                                                              product.user!.id,
+                                                          owner2:
+                                                              product2.user!.id,
                                                           requester1:
                                                               product2.id);
 

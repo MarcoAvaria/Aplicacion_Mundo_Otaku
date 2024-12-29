@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/auth_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/repositories/chat_exchanges_repository.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_repository_provider.dart';
@@ -8,16 +9,18 @@ final chatExchangesProvider =
     StateNotifierProvider<ChatExchangesNotifier, ChatExchangesState>((ref) {
     //AutoDisposeStateNotifierProvider<ChatExchangesNotifier, ChatExchangesState>((ref) {
   final chatExchangesRepository = ref.watch(chatExchangesRepositoryProvider);
+  final authState = ref.watch(authProvider);
 
-  return ChatExchangesNotifier(chatExchangesRepository: chatExchangesRepository,);
+  return ChatExchangesNotifier(chatExchangesRepository: chatExchangesRepository, authState: authState);
 });
 
 class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
   final ChatExchangesRepository chatExchangesRepository;
-
-  ChatExchangesNotifier({required this.chatExchangesRepository,
+  final AuthState authState;
+  ChatExchangesNotifier({required this.chatExchangesRepository, required this.authState
   }) : super(ChatExchangesState()) {
-    loadNextPage();
+    // loadNextPage();
+    loadAllChatExchanges(authState.user!.id);
   }
 
   ChatExchange newEmptyProduct() {
@@ -25,6 +28,8 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
       id: 'new',
       product1: '', 
       product2: '',
+      owner1:'',
+      owner2:'',
       requester1: '',
       messages: [], 
       status: 'pending',
@@ -52,7 +57,7 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
                     (element.id == chatExchange.id) ? chatExchange : element,
               )
               .toList());
-      //print("ChatExchange creado o actualizado con éxito: $chatExchange"); // Imprime información sobre el ChatExchange creado o actualizado.
+      print("ChatExchange creado o actualizado con éxito: $chatExchange"); // Imprime información sobre el ChatExchange creado o actualizado.
       //print(state); // Agrega esta línea para verificar el estado después de la operación.
       return true;
     } catch (e) {
@@ -81,13 +86,13 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
   List<ChatExchange> get userChatExchanges => state.chatExchanges;
   bool get isLoading => state.isLoading;
 
-  Future<void> loadAllChatExchanges( ) async {
+  Future<void> loadAllChatExchanges(String id ) async {
     //print('Entrando a loadAllChatExchanges!');
     try {
       state = state.copyWith(isLoading: true); 
       // Reemplázalo con tu lógica para obtener el userId
       final finalchatExchanges =
-          await chatExchangesRepository.getAllChatExchanges();
+          await chatExchangesRepository.getAllChatExchanges(id);
       state = state.copyWith(chatExchanges: finalchatExchanges, isLoading: false);
     } catch (e) {
       // Maneja el error según tus necesidades

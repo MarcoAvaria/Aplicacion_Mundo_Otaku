@@ -29,8 +29,8 @@ class ChatExchangesRepositoryImpl extends ChatExchangesRepository {
   }
   
   @override
-  Future<List<ChatExchange>> getAllChatExchanges() {
-    return datasource.getAllChatExchanges();
+  Future<List<ChatExchange>> getAllChatExchanges(String id) {
+    return datasource.getAllChatExchanges(id);
   }
   
   // Implementar los métodos según tus necesidades

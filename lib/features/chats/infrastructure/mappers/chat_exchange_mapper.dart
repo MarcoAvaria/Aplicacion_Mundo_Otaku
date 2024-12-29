@@ -4,6 +4,8 @@ class ChatExchangeMapper {
   static ChatExchange jsonToEntity(Map<String, dynamic> json) {
     return ChatExchange(
       id: json['id'] ?? '',
+      owner1: json['__owner1__']['id'] ?? '',
+      owner2: json['__owner2__']['id'] ?? '',
       product1: json['__product1__']['id'] ?? '',
       product2: json['__product2__']['id'] ?? '',
       requester1: json['__requester1__']['id'] ?? '',

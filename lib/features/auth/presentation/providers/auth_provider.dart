@@ -30,7 +30,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await authRepository.login(email, password);
       _setLoggedUser(user);
     } on CustomError catch (e) {
+      state = state.copyWith(errorMessage: e.message);
       logout(e.message);
+      print('Hola desde logout on CustomError catch (e)');
     } catch (e) {
       logout('¡Error no controlado!');
     }
@@ -47,10 +49,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     } on CustomError catch (e) {
       logout(e.message);
     } catch (e) {
-      print('Capturado un error no esperado: $e');
-      //print('Capturado un error no esperado: ${e.runtimeType}: ${e.toString()}');
-      //print('Capturado un error no esperado: ${e.runtimeType}: ${(e as WrongCredentials).getMessage()}');
-      print('Capturado un error no esperado: ${e.runtimeType}: $e');
+      // print('Capturado un error no esperado: $e');
+      print('Capturado un error no esperado: ${e.runtimeType}: ${e.toString()}');
+      // print('Capturado un error no esperado: ${e.runtimeType}: ${(e as WrongCredentials).getMessage()}');
+      // print('Capturado un error no esperado: ${e.runtimeType}: $e');
       logout('¡Error no controlado!');
     }
   }
@@ -63,7 +65,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final user = await authRepository.checkAuthStatus(token);
       _setLoggedUser(user);
     } catch (e) {
-      //print('Fallo checkAuthStatus :( !!! )');
+      print('Fallo checkAuthStatus :( !!! )');
       logout();
     }
   }
@@ -77,7 +79,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void _setLoggedUser(User user) async {
-    //print('Dentro de _setLoggedUser');
+    print('Dentro de _setLoggedUser');
 
     await keyValueStorageService.setKeyValue('token', user.token);
 

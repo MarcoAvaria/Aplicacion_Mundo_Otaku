@@ -17,11 +17,15 @@ class SocketService {
       required this.sendBy,
       //required this.productId
   }) {
+    chatExchangeId = chatExchangeId;
+    print("SocketService nuevo creado con chatExchangeId: $chatExchangeId");
     _initSocket();
     //print('Print desde constructor de SocketService');
   }
 
   void _initSocket() {
+    // Desconectar primero si está conectado
+    // disconnect();
     final uri = Uri.parse(Environment.apiUrl.replaceAll('/api', ''));
 
     // Añadir parámetros a la URL del socket
@@ -34,7 +38,8 @@ class SocketService {
 
     // Convertir el objeto Uri a una cadena utilizando toString()
     final urlString = uri.replace(queryParameters: query).toString();
-    print({urlString});
+    // print({urlString});
+    print("\n\n\nConectando a: $urlString\n\n\n");
 
     socket = io.io(
       urlString, // Usar la cadena resultante

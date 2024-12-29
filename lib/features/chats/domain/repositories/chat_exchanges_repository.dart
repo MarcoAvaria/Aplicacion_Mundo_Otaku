@@ -8,7 +8,7 @@ abstract class ChatExchangesRepository {
 
   Future<ChatExchange> changeChatExchangeStatus(String id, String status);
   
-  Future<List<ChatExchange>> getAllChatExchanges();
+  Future<List<ChatExchange>> getAllChatExchanges(String id);
   
   Future<ChatExchange> createUpdateChatExchange(Map<String,dynamic> chatExchangeLike );
   // Agregar otros métodos según sea necesario

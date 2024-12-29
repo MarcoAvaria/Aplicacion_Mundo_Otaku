@@ -27,39 +27,41 @@ class ChatScreen extends ConsumerWidget {
         chatExchangeId: conversacionId,
         sendBy: miProductId,
       );
-  
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
-  /*
-  ChatScreen(
-      {super.key,
-      required this.miProductId,
-      required this.otroProductId,
-      required this.conversacionId}) //, required this.miProductId})
-      : socketService = SocketService(
-            tokencito: miProductId,
-            chatExchangeId: conversacionId,
-            sendBy: miProductId,
-            ); //, productId: miProductId);
-
-  */
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // IMPORTANTE: chatController se ocupa de todas formas...
-    // ... Aquí lo que es registrarlo
+    // IMPORTANTE: chatController se ocupa de todas formas... aquí se registra
     final chatController = Get.put(ChatController());
+    // print("Este es el chatController: ${chatController.hashCode}");
     final sendBy = miProductId;
-    print('Un print al comienzo, no debería repetirse');
+    // print("Este es el miProductId: $miProductId");
+    // print('Un print al comienzo en la línea 51, no debería repetirse');
+    
     final productState = ref.watch(productProvider(miProductId));
     final productState2 = ref.watch(productProvider(otroProductId));
 
     if (productState.product == null || productState2.product == null) {
+      // Mostrar indicador de carga
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    final product1 = productState.product!;
+    final product2 = productState2.product!;
+
+    // print("Este es el productState: ${productState.product?.title}");
+    // print("Este es el productState2: ${productState2.product?.title}");
+
+    if (productState.product == null || productState2.product == null) {
       // Muestra un indicador de carga centrado mientras se carga el estado del producto
+      print("El producto es nulo");
       return const Center(
         child: CircularProgressIndicator(),
       );
     } else {
-      final product2 = productState2.product!; 
+      // final product2 = productState2.product!; 
       return Scaffold(
         appBar: AppBar(
           title: Row(
@@ -104,10 +106,12 @@ class _ChatViewState extends ConsumerState {
   final String productId;
   final String conversacionId;
   final String sendBy;
-  ChatController chatController = Get.find<ChatController>();
+  
+  final chatController = Get.find<ChatController>();
   _ChatViewState(this.productId, this.socketService, this.conversacionId, this.sendBy);
   @override
   void dispose() {
+    print('Se ha desconectado desde -dispose()- dentro del _ChatViewState');
     // Desconectar el socket al salir de la pantalla
     socketService.disconnect();
     socketService.socket.off('message-from-server');
@@ -116,6 +120,8 @@ class _ChatViewState extends ConsumerState {
 
   @override
   void initState() {
+    // print("Esta es la conversaciónID del chat actual ${conversacionId.toString()}");
+    // print("Esta es la socketService.tokencito del chat actual ${socketService.tokencito}");
     super.initState();
     //socketService.disconnect();
     //socketService.updateToken(productId);
@@ -123,7 +129,7 @@ class _ChatViewState extends ConsumerState {
       //print('Socket is not connected. Connecting...');
       socketService.socket.connect();
     }
-    ChatController chatController = Get.find<ChatController>();
+    final ChatController chatController = Get.find<ChatController>();
 
     socketService.socket.on('message-from-server', (data) {
       if (data is Map<String, dynamic>) {
@@ -241,3 +247,16 @@ class MessageItem extends StatelessWidget {
     );
   }
 }
+  /*
+  ChatScreen(
+      {super.key,
+      required this.miProductId,
+      required this.otroProductId,
+      required this.conversacionId}) //, required this.miProductId})
+      : socketService = SocketService(
+            tokencito: miProductId,
+            chatExchangeId: conversacionId,
+            sendBy: miProductId,
+            ); //, productId: miProductId);
+
+  */
