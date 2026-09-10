@@ -5,7 +5,6 @@ import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/errors/chat
 import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/mappers/chat_exchange_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
-import 'package:flutter/foundation.dart';
 
 class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   late final Dio dio;
@@ -60,7 +59,7 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
       //print('DioException caught in changeChatExchangeStatus: ${e}');
       throw Exception(e);
     } catch (e) {
-      //print('Error no capturado en changeChatExchangeStatus dentro de\ncreateUpdateChatExchange en\nChatExchangesDatasourceImpl');  
+      //print('Error no capturado en changeChatExchangeStatus dentro de\ncreateUpdateChatExchange en\nChatExchangesDatasourceImpl');
       throw Exception();
     }
   }
@@ -94,33 +93,23 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
 
   @override
   Future<List<ChatExchange>> getAllChatExchanges(String id) async {
-    print('-------------ENTRANDO A Future<List<ChatExchange>> getAllChatExchanges ----------------------');
-    print('Este es el ID del user: \n$id\n');
     // print($dio.options.);
     try {
       final response = await dio.get<List<dynamic>>('/chat-exchanges/user/$id');
-      print('-----------------RESPONSE DE Future<List<ChatExchange>> getAllChatExchanges---------------');
       // print(response.data);
       // for (final chatExchange in response.data ?? []) {
       //   print(chatExchange['id']); // ID del intercambio
       //   print(chatExchange['__owner1__']['fullName']); // Nombre del propietario 1
       //   print(chatExchange['__owner2__']['fullName']); // Nombre del propietario 2
       // }
-      final inProgressChats = (response.data ?? []).where((chat) => chat['status'] == "inProgress").toList();
-      // print(inProgressChats);
-      debugPrint(inProgressChats.toString());
-      print('--------DENTRO DEL TRY DE Future<List<ChatExchange>> getAllChatExchanges--------------');
       final List<ChatExchange> allChatExchanges = List<ChatExchange>.from(
         (response.data ?? []).map((dynamic productJson) {
           return ChatExchangeMapper.jsonToEntity(
               productJson as Map<String, dynamic>);
         }),
       );
-      print('----OJO------allChatExchanges DE Future<List<ChatExchange>> getAllChatExchanges---------');
-      print(allChatExchanges);
       return allChatExchanges;
     } catch (e) {
-      print('-----------------DENTRO DEL CATCH DE Future<List<ChatExchange>> getAllChatExchanges---------------');
       throw Exception();
     }
   }

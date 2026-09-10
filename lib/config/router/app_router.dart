@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
-
+  // final socketService = Get.find<SocketService>();
   return GoRouter(
     initialLocation: '/login',
     refreshListenable: goRouterNotifier,
@@ -84,6 +84,7 @@ final goRouterProvider = Provider((ref) {
           conversacionId: state.pathParameters['conversacionId'] ?? 'no-id',
           miProductId: state.pathParameters['miProductId'] ?? 'no-id',
           otroProductId: state.pathParameters['otroProductId'] ?? 'no-id',
+          // socketService: state.pathParameters['socketService'] ?? 'no-socket-service',
         ),
       ),
       GoRoute(

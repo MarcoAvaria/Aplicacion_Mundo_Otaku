@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
-//import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 class ChatListScreen extends StatelessWidget {
@@ -16,16 +15,11 @@ class ChatListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    // Maybe 
-    late SocketService socketService;
     return Scaffold(
       drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, '¡Chats!'),
       body: _ChatListView(
-        onSocketServiceCreated: (service) {
-          // Asignar el valor del socketService
-          socketService = service;
-        },
+        onSocketServiceCreated: (_) {},
       ),
     );
   }
@@ -34,7 +28,6 @@ class ChatListScreen extends StatelessWidget {
 class _ChatListView extends ConsumerStatefulWidget {
   final Function(SocketService) onSocketServiceCreated;
 
-  
   const _ChatListView({required this.onSocketServiceCreated});
   @override
   _ChatListState createState() => _ChatListState();
@@ -123,9 +116,9 @@ class _ChatListState extends ConsumerState<_ChatListView> {
         final conversacion = listafinal[index][1] as ChatExchange;
         String miProductId;
         String otroProductId;
-        if( product.id == conversacion.product1 ) {
+        if (product.id == conversacion.product1) {
           miProductId = conversacion.product2;
-          otroProductId = conversacion.product1; 
+          otroProductId = conversacion.product1;
         } else {
           miProductId = conversacion.product1;
           otroProductId = conversacion.product2;
@@ -149,10 +142,10 @@ class _ChatListState extends ConsumerState<_ChatListView> {
           onTap: () {
             // Aquí se crea el SocketService solo cuando el usuario hace tap en el chat
             final socketService = SocketService(
-              tokencito: miProductId,
-              chatExchangeId: conversacion.id,
-              sendBy: miProductId,
-            );
+                // tokencito: miProductId,
+                // chatExchangeId: conversacion.id,
+                // sendBy: miProductId,
+                );
 
             // Llamar al callback para notificar que el SocketService ha sido creado
             widget.onSocketServiceCreated(socketService);

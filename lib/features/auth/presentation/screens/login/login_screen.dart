@@ -9,9 +9,6 @@ class LoginScreen extends StatelessWidget {
 
   const LoginScreen({super.key});
 
-  // Iniciar sesión
-  //void signUserIn() {}
-
   @override
   Widget build(BuildContext context) {
 
@@ -83,6 +80,12 @@ class _LoginForm extends ConsumerWidget {
     ref.listen(authProvider, ((previous, next) {
       if ( next.errorMessage.isEmpty ) return;
       showSnackbar( context, next.errorMessage );
+      // Si está autenticado, redirigir a la página principal
+      if (next.authStatus == AuthStatus.authenticated) {
+        // Redirigir a la página principal
+        context.push('/discover');
+        // context.go('/home'); // Asume que '/home' es la ruta principal
+      }
     }));
 
     return Padding(
@@ -101,8 +104,7 @@ class _LoginForm extends ConsumerWidget {
           MyFieldText(
               keyboardType: TextInputType.emailAddress,
               onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
-              errorMessage: loginForm.isFormPosted ?
-                loginForm.email.errorMessage : null,
+              errorMessage: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
               label: "El correo de tu cuenta",
               darkText: false),
           const SizedBox(height: 15),
@@ -111,8 +113,7 @@ class _LoginForm extends ConsumerWidget {
             darkText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
             onFieldSubmitted: ( _ ) => ref.read(loginFormProvider.notifier).onFormSubmit(),
-            errorMessage: loginForm.isFormPosted ?
-                loginForm.password.errorMessage : null,
+            errorMessage: loginForm.isFormPosted ? loginForm.password.errorMessage : null,
           ),
           const SizedBox(height: 15),
           //const NewWidgetRecuperarPass(),

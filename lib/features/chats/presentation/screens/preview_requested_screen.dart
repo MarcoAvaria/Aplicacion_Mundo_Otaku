@@ -87,8 +87,8 @@ class _PreviewRequestedView extends ConsumerWidget {
     return [product1, product2];
   }
 
-  Widget _buildContent(
-      BuildContext context, List<Product> products, String idUser, WidgetRef ref) {
+  Widget _buildContent(BuildContext context, List<Product> products,
+      String idUser, WidgetRef ref) {
     //final textStyles = Theme.of(context).textTheme;
     final customColor = Theme.of(context).primaryColor;
     final Product product1 = products[0];
@@ -104,21 +104,23 @@ class _PreviewRequestedView extends ConsumerWidget {
       miProducto = product2;
       otroProducto = product1;
     }
-    
+
     return ListView(
       children: [
         methodChar(customColor, otroProducto.title, 'Tu ofreces: '),
         SizedBox(
           height: 200,
           width: 600,
-          child: _ImageGallery(images: otroProducto.images, idProducto: otroProducto.id),
+          child: _ImageGallery(
+              images: otroProducto.images, idProducto: otroProducto.id),
         ),
         const SizedBox(height: 10),
         methodChar(customColor, miProducto.title, 'Tu recibes: '),
         SizedBox(
           height: 200,
           width: 600,
-          child: _ImageGallery(images: miProducto.images, idProducto: miProducto.id),
+          child: _ImageGallery(
+              images: miProducto.images, idProducto: miProducto.id),
         ),
         const SizedBox(height: 15),
         // Aquí puedes usar product1 y product2 según tus necesidades
@@ -131,6 +133,7 @@ class _PreviewRequestedView extends ConsumerWidget {
                 await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('abort');
+                if (!context.mounted) return;
                 // Muestra el SnackBar
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -142,7 +145,8 @@ class _PreviewRequestedView extends ConsumerWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade100,
                 shape: const CircleBorder(),
-                padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
               ),
               child: const Text(
                 'Cancelar',
@@ -153,7 +157,6 @@ class _PreviewRequestedView extends ConsumerWidget {
         ),
       ],
     );
-    
   }
 
   Container methodChar(Color customColor, dynamic myArg, String cadena) {
@@ -188,7 +191,7 @@ class _PreviewRequestedView extends ConsumerWidget {
 
 class _ImageGallery extends StatelessWidget {
   final List<String> images;
-  final String idProducto; 
+  final String idProducto;
   const _ImageGallery({required this.images, required this.idProducto});
 
   @override
@@ -200,7 +203,7 @@ class _ImageGallery extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () =>  context.push('/otherproduct/$idProducto'),
+      onTap: () => context.push('/otherproduct/$idProducto'),
       child: PageView(
         scrollDirection: Axis.horizontal,
         controller: PageController(viewportFraction: 0.7),

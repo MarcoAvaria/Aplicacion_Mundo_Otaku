@@ -152,6 +152,7 @@ class _PreviewReceivedView extends ConsumerWidget {
                 await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('inProgress');
+                if (!context.mounted) return;
                 // Muestra el SnackBar
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

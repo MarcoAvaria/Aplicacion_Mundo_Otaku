@@ -1,29 +1,56 @@
-flutter emulators --delete-all
-flutter emulators --launch Pixel_3a_API_34_extension_level_7_x86_64
-flutter emulators --launch Realme_X3_SuperZoom_API_31
+# Mundo Otaku — aplicación Flutter
 
-# Nest - TesloShop Backend
+Cliente multiplataforma de Mundo Otaku. Permite registrarse, explorar y publicar productos, administrar publicaciones propias, proponer intercambios y conversar en tiempo real cuando una solicitud es aceptada.
 
-## Development
-1. Tener corriendo el servicio de Docker (Docker Desktop o Docker Deamon)
-2. Clonar el archivo __.env.template__ y renombrar la copia a __.env__
-3. Levantar los servicios con el comando
+## Tecnologías
+
+- Flutter y Dart
+- Riverpod para estado y dependencias
+- Dio para la API REST
+- almacenamiento seguro para el JWT
+- Socket.IO para chat en tiempo real
+- GoRouter para navegación
+
+## Puesta en marcha
+
+Requisitos: Flutter instalado y la API de Mundo Otaku en ejecución.
+
+```powershell
+Copy-Item .env.template .env
+flutter pub get
+flutter run -d chrome --web-port 8080
 ```
-docker compose up -d
+
+`.env` contiene únicamente configuración pública del cliente:
+
+```env
+APP_VERSION=0.0.1
+API_URL=http://localhost:3001/api
+STAGE=dev
 ```
-4. Llenar la base de datos con data temporal:
 
-    http://localhost:3000/api/seed
+Para un emulador Android suele ser necesario cambiar el host a `http://10.0.2.2:3001/api`. En un teléfono físico se usa la IP local del equipo que ejecuta la API. Si el backend se levanta en otro puerto, actualiza `API_URL`.
 
-5. Documentación de los endpoints disponibles:
+## Cuentas demo
 
-    http://localhost:3000/api
+| Cuenta | Correo | Contraseña |
+| --- | --- | --- |
+| Usuario Demo 1 | `usuario1@mundo-otaku.demo` | `MundoOtakuDemo1!` |
+| Usuario Demo 2 | `usuario2@mundo-otaku.demo` | `MundoOtakuDemo2!` |
 
+Cada cuenta tiene cuatro productos recuperados con sus fotografías originales. Hay solicitudes de intercambio entre ambas para demostrar los estados y el chat.
 
+## Estructura principal
 
-# Extra
-Si desean saber más sobre docker y cómo se construyó esta imagen, esto es parte de mi curso de Nest y Docker:
+El código bajo `lib/features/` se organiza por funcionalidad y separa dominio, infraestructura y presentación. Las áreas principales son autenticación, productos, intercambios y componentes compartidos.
 
-[Cursos sobre Docker](https://fernando-herrera.com/#/search/docker)
+La sesión se guarda una sola vez en almacenamiento seguro. Al restaurarla se conecta el socket con el mismo JWT; el servidor confirma la autenticación antes de que el cliente entre en una sala. El historial llega mediante `chat-history` y los mensajes nuevos mediante `new-message`.
 
-[Imagen en DockerHub](https://hub.docker.com/repository/docker/klerith/flutter-backend-teslo-shop/general)
+## Verificación
+
+```powershell
+flutter analyze
+flutter build web --release
+```
+
+Ambos comandos pasan sin incidencias en el estado recuperado del 10 de septiembre de 2026. La compilación web queda en `build/web/`.

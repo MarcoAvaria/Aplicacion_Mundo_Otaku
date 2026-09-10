@@ -166,6 +166,7 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
           child: CustomFilledButton(
             onPressed: () {
               ref.read(authProvider.notifier).logout();
+              context.goNamed( LoginScreen.name );
             },
             text: 'Cerrar sesión'
           ),

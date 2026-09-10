@@ -16,16 +16,11 @@ class ChatListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
-    // Maybe 
-    late SocketService socketService;
     return Scaffold(
       drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, '¡Chats!'),
       body: _ChatListView(
-        onSocketServiceCreated: (service) {
-          // Asignar el valor del socketService
-          socketService = service;
-        },
+        onSocketServiceCreated: (_) {},
       ),
     );
   }
@@ -34,7 +29,6 @@ class ChatListScreen extends StatelessWidget {
 class _ChatListView extends ConsumerStatefulWidget {
   final Function(SocketService) onSocketServiceCreated;
 
-  
   const _ChatListView({required this.onSocketServiceCreated});
   @override
   _ChatListState createState() => _ChatListState();
@@ -123,18 +117,18 @@ class _ChatListState extends ConsumerState<_ChatListView> {
         final conversacion = listafinal[index][1] as ChatExchange;
         String miProductId;
         String otroProductId;
-        if( product.id == conversacion.product1 ) {
+        if (product.id == conversacion.product1) {
           miProductId = conversacion.product2;
-          otroProductId = conversacion.product1; 
+          otroProductId = conversacion.product1;
         } else {
           miProductId = conversacion.product1;
           otroProductId = conversacion.product2;
         }
         final socketService = SocketService(
-          tokencito: miProductId, // Reemplaza lógica para obtener el token
-          chatExchangeId: conversacion.id, // Reemplaza con tu lógica para obtener el chat exchange id
-          sendBy: miProductId, // Reemplaza con tu lógica para obtener el send by
-        );
+            // tokencito: miProductId, // Reemplaza lógica para obtener el token
+            // chatExchangeId: conversacion.id, // Reemplaza con tu lógica para obtener el chat exchange id
+            // sendBy: miProductId, // Reemplaza con tu lógica para obtener el send by
+            );
 
         // Llamar al callback para notificar que el SocketService ha sido creado
         widget.onSocketServiceCreated(socketService);
@@ -145,7 +139,6 @@ class _ChatListState extends ConsumerState<_ChatListView> {
           title: Text(product.title),
           onTap: () => context.push(
             '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
-
           ),
         );
       },

@@ -109,19 +109,14 @@ class ProductsDatasourceImpl extends ProductDatasource {
   @override
   Future<List<Product>> getProductsForCurrentUser(String userId) async {
     try {
-      final response = await dio.get<List<dynamic>>('/products');
+      final response = await dio.get<List<dynamic>>('/products/mine');
 
-      final List<Product> allProducts = List<Product>.from(
+      return List<Product>.from(
         (response.data ?? []).map((dynamic productJson) {
           return ProductMapper.jsonToEntity(
               productJson as Map<String, dynamic>);
         }),
       );
-
-      final userProducts =
-          allProducts.where((product) => product.user?.id == userId).toList();
-
-      return userProducts;
     } catch (e) {
       throw Exception();
     }
