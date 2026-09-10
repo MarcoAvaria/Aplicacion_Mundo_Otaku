@@ -11,143 +11,253 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    final size = MediaQuery.of(context).size;
-    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
-
-    return Scaffold(
-        body: SafeArea(
-            child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 50),
-                      const Icon(Icons.lock, size: 40),
-                      Container(
-                        height: size.height -
-                            130, // 80 los dos sizebox y 100 el ícono
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: scaffoldBackgroundColor,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(100)),
-                        ),
-                        child: const _LoginForm(),
-                      )
-                    ]))));
+    return const AuthLayout(
+      eyebrow: 'Bienvenido de vuelta',
+      title: 'Tu próxima pieza está esperando.',
+      description:
+          'Entra a tu cuenta para revisar intercambios, mensajes y nuevos hallazgos de la comunidad.',
+      child: _LoginForm(),
+    );
   }
 }
 
+/// Compatibilidad con la pantalla histórica conservada en el repositorio.
 class GoogleOutlookSignIn extends StatelessWidget {
-  const GoogleOutlookSignIn({
-    super.key,
-  });
+  const GoogleOutlookSignIn({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        //Boton Google
         SquareTile(imagePath: 'assets/google_image.png'),
-
         SizedBox(width: 25),
-
-        //Boton Outlook
         SquareTile(imagePath: 'assets/outlook_image.png'),
       ],
     );
   }
 }
 
-class _LoginForm extends ConsumerWidget {
-  
+class _LoginForm extends ConsumerStatefulWidget {
   const _LoginForm();
 
-  void showSnackbar ( BuildContext context, String message ){
-    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message))
-    );
+  @override
+  ConsumerState<_LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends ConsumerState<_LoginForm> {
+  String? _activeDemo;
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _loginDemo(String account) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _activeDemo = account);
+
+    await ref.read(authProvider.notifier).loginUser(
+          '$account@mundo-otaku.demo',
+          account == 'usuario1' ? 'MundoOtakuDemo1!' : 'MundoOtakuDemo2!',
+        );
+
+    if (mounted) setState(() => _activeDemo = null);
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-
+  Widget build(BuildContext context) {
     final loginForm = ref.watch(loginFormProvider);
 
-    ref.listen(authProvider, ((previous, next) {
-      if ( next.errorMessage.isEmpty ) return;
-      showSnackbar( context, next.errorMessage );
-      // Si está autenticado, redirigir a la página principal
-      if (next.authStatus == AuthStatus.authenticated) {
-        // Redirigir a la página principal
-        context.push('/discover');
-        // context.go('/home'); // Asume que '/home' es la ruta principal
+    ref.listen(authProvider, (previous, next) {
+      if (next.errorMessage.isEmpty ||
+          next.errorMessage == previous?.errorMessage) {
+        return;
       }
-    }));
+      _showSnackbar(next.errorMessage);
+    });
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Text(
-            '¡Bienvenid@! Te hemos extrañado :(',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 20),
-          MyFieldText(
-              keyboardType: TextInputType.emailAddress,
-              onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
-              errorMessage: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
-              label: "El correo de tu cuenta",
-              darkText: false),
-          const SizedBox(height: 15),
-          MyFieldText(
-            label: "Contraseña",
-            darkText: true,
-            onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
-            onFieldSubmitted: ( _ ) => ref.read(loginFormProvider.notifier).onFormSubmit(),
-            errorMessage: loginForm.isFormPosted ? loginForm.password.errorMessage : null,
-          ),
-          const SizedBox(height: 15),
-          //const NewWidgetRecuperarPass(),
-
-          const SizedBox(height: 30),
-
-          SizedBox(
-            width: double.infinity,
-            height: 60,
-            child: ButtonLogin(
-              text: 'Iniciar sesión', 
-              onPressed: loginForm.isPosting
-                ? null
-                //: ref.read(loginFormProvider.notifier).onFormSubmit
-                : () {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        MyFieldText(
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.email],
+          prefixIcon: Icons.alternate_email_rounded,
+          onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
+          errorMessage:
+              loginForm.isFormPosted ? loginForm.email.errorMessage : null,
+          label: 'Correo electrónico',
+        ),
+        const SizedBox(height: 16),
+        MyFieldText(
+          label: 'Contraseña',
+          darkText: true,
+          textInputAction: TextInputAction.done,
+          autofillHints: const [AutofillHints.password],
+          prefixIcon: Icons.lock_outline_rounded,
+          onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
+          onFieldSubmitted: (_) =>
+              ref.read(loginFormProvider.notifier).onFormSubmit(),
+          errorMessage:
+              loginForm.isFormPosted ? loginForm.password.errorMessage : null,
+        ),
+        const SizedBox(height: 22),
+        ButtonLogin(
+          text: loginForm.isPosting ? 'Entrando…' : 'Iniciar sesión',
+          onPressed: loginForm.isPosting || _activeDemo != null
+              ? null
+              : () {
                   FocusManager.instance.primaryFocus?.unfocus();
                   ref.read(loginFormProvider.notifier).onFormSubmit();
                 },
-              )
+        ),
+        const SizedBox(height: 28),
+        const _DividerLabel(label: 'O EXPLORA LA DEMO'),
+        const SizedBox(height: 18),
+        Row(
+          children: [
+            Expanded(
+              child: _DemoAccountButton(
+                number: '01',
+                label: 'Colección manga',
+                isLoading: _activeDemo == 'usuario1',
+                onPressed:
+                    _activeDemo == null ? () => _loginDemo('usuario1') : null,
+              ),
             ),
-          const SizedBox(height: 30),
-          
-          const SizedBox(height: 30),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _DemoAccountButton(
+                number: '02',
+                label: 'Figuras y tomos',
+                isLoading: _activeDemo == 'usuario2',
+                onPressed:
+                    _activeDemo == null ? () => _loginDemo('usuario2') : null,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 26),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              '¿Aún no tienes cuenta?',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            TextButton(
+              onPressed: () => context.go('/register'),
+              child: const Text('Crear una cuenta'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+class _DividerLabel extends StatelessWidget {
+  final String label;
+
+  const _DividerLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: MundoOtakuColors.muted,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.3,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+}
+
+class _DemoAccountButton extends StatelessWidget {
+  final String number;
+  final String label;
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const _DemoAccountButton({
+    required this.number,
+    required this.label,
+    required this.isLoading,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: const BorderSide(color: MundoOtakuColors.outline),
+      ),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(13),
+          child: Row(
             children: [
-              const Text('¿No tienes cuenta?'),
-              TextButton(
-                  onPressed: () => context.push('/register'),
-                  child: const Text('Crea una aquí'))
+              Container(
+                width: 34,
+                height: 34,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: MundoOtakuColors.night,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 15,
+                        height: 15,
+                        child: CircularProgressIndicator(
+                          color: MundoOtakuColors.mint,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        number,
+                        style: const TextStyle(
+                          color: MundoOtakuColors.mint,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  style: const TextStyle(
+                    color: MundoOtakuColors.ink,
+                    fontSize: 12,
+                    height: 1.15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

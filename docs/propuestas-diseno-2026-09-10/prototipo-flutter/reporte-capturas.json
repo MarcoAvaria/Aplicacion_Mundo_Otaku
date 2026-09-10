@@ -1,0 +1,46 @@
+[
+  {
+    "name": "login-desktop",
+    "route": "login",
+    "width": 1440,
+    "height": 1000,
+    "documentStatus": 200,
+    "title": "",
+    "errors": [],
+    "failedResponses": []
+  },
+  {
+    "name": "login-mobile",
+    "route": "login",
+    "width": 390,
+    "height": 844,
+    "documentStatus": 200,
+    "title": "",
+    "errors": [],
+    "failedResponses": []
+  },
+  {
+    "name": "register-mobile",
+    "route": "register",
+    "width": 390,
+    "height": 844,
+    "documentStatus": 200,
+    "title": "",
+    "errors": [],
+    "failedResponses": []
+  },
+  {
+    "name": "demo1-access",
+    "finalUrl": "http://localhost:8080/#/discover",
+    "reachedDiscover": true,
+    "errors": [],
+    "failedResponses": []
+  },
+  {
+    "name": "demo2-access",
+    "finalUrl": "http://localhost:8080/#/discover",
+    "reachedDiscover": true,
+    "errors": [],
+    "failedResponses": []
+  }
+]

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 //import 'package:provider/provider.dart';
 
 class MyFieldText extends StatelessWidget {
-  
   final TextEditingController? varTextCtrl;
   final String? label;
   final bool darkText;
@@ -12,69 +11,65 @@ class MyFieldText extends StatelessWidget {
   final Function(String)? onChanged;
   final Function(String)? onFieldSubmitted;
   final String? Function(String?)? validator;
+  final IconData? prefixIcon;
+  final TextInputAction? textInputAction;
+  final Iterable<String>? autofillHints;
 
   const MyFieldText({
     super.key,
     this.varTextCtrl,
     this.label,
     this.darkText = false,
-    this.errorMessage, 
+    this.errorMessage,
     this.keyboardType = TextInputType.text,
-    this.onChanged, 
+    this.onChanged,
     this.validator,
-    this.onFieldSubmitted, 
+    this.onFieldSubmitted,
+    this.prefixIcon,
+    this.textInputAction,
+    this.autofillHints,
   });
 
   @override
   Widget build(BuildContext context) {
-
     final colors = Theme.of(context).colorScheme;
-
     final border = OutlineInputBorder(
-      borderSide: const BorderSide(color: Colors.transparent),
-      borderRadius: BorderRadius.circular(40)
+      borderSide: BorderSide(color: colors.outline),
+      borderRadius: BorderRadius.circular(14),
     );
 
-    const borderRadius = Radius.circular(15);
-
-    return Container(
-      //padding: const EdgeInsets.only(bottom: 0, top: 15),
-      //padding: const EdgeInsets.symmetric(horizontal: 25.0),
-      decoration: BoxDecoration(
-        //color: Colors.white,
-        color:Colors.grey.shade100,
-        borderRadius: const BorderRadius.only(topRight: borderRadius, bottomLeft: borderRadius, bottomRight: borderRadius ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.35),
-            blurRadius: 10,
-            offset: const Offset(0,5)
-          )
-        ]
-      ),
-      child: TextFormField(
-        controller: varTextCtrl,
-        onChanged: onChanged,
-        onFieldSubmitted: onFieldSubmitted,
-        obscureText: darkText,
-        keyboardType: keyboardType,
-        style: const TextStyle( fontSize: 15, color: Colors.black54 ),
-        decoration: InputDecoration(
-          floatingLabelStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18),
-          enabledBorder: border,
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.shade400),
-          ),
-          errorBorder: border.copyWith( borderSide: const BorderSide( color: Colors.transparent)),
-          focusedErrorBorder: border.copyWith( borderSide: const BorderSide( color: Colors.transparent)),
-          isDense: true,
-          fillColor: Colors.grey.shade100,
-          filled: true,
-          label: label != null ? Text(label!) : null,
-          errorText: errorMessage,
-          focusColor: colors.primary,
-          hintStyle: TextStyle(color: Colors.grey[500]),
+    return TextFormField(
+      controller: varTextCtrl,
+      onChanged: onChanged,
+      onFieldSubmitted: onFieldSubmitted,
+      obscureText: darkText,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      autofillHints: autofillHints,
+      style: const TextStyle(fontSize: 15, color: Color(0xFF191B2B)),
+      decoration: InputDecoration(
+        enabledBorder: border,
+        focusedBorder: border.copyWith(
+          borderSide: BorderSide(color: colors.primary, width: 2),
         ),
+        errorBorder: border.copyWith(
+          borderSide: BorderSide(color: colors.error),
+        ),
+        focusedErrorBorder: border.copyWith(
+          borderSide: BorderSide(color: colors.error, width: 2),
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+        fillColor: Colors.white,
+        filled: true,
+        label: label != null ? Text(label!) : null,
+        labelStyle: const TextStyle(color: Color(0xFF696B7B)),
+        floatingLabelStyle: TextStyle(
+          color: colors.primary,
+          fontWeight: FontWeight.w700,
+        ),
+        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon, size: 20),
+        errorText: errorMessage,
       ),
     );
   }

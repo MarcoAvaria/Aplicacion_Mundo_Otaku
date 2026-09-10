@@ -76,3 +76,14 @@ Las tres propuestas comparten la misma arquitectura para que la elección estét
 
 Abre `index.html` para revisar las tres direcciones en una presentación adaptable. Las imágenes fueron generadas con la herramienta integrada `image_gen`; sus prompts se conservan en `PROMPTS.md`.
 
+## Primer prototipo Flutter
+
+La recomendación Yoru Exchange ya cuenta con un prototipo funcional en esta rama. Incluye:
+
+- acceso y registro adaptables a escritorio y móvil;
+- portada de marca optimizada en WebP, con un peso aproximado de 235 KB;
+- campos, jerarquía tipográfica, acciones y estados de carga renovados;
+- entrada directa como Demo 1 o Demo 2;
+- tema base con tokens de color reutilizables para las siguientes pantallas.
+
+Las capturas reales del build y el resultado de la prueba automatizada están en `prototipo-flutter/`. Ambos usuarios demo llegan a `/discover` y muestran sus productos y fotografías conservados, sin errores de consola ni respuestas HTTP fallidas durante el recorrido.

@@ -6,157 +6,128 @@ import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatelessWidget {
   static const String name = 'register_screen';
+
   const RegisterScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
-    return Scaffold(
-        body: SafeArea(
-            child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 50),
-                      const Icon(Icons.lock, size: 40),
-                      Container(
-                        height: size.height -
-                            130, // 80 los dos sizebox y 100 el ícono
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: scaffoldBackgroundColor,
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(100)),
-                        ),
-                        child: const _RegisterForm(),
-                      )
-                    ]))));
+    return const AuthLayout(
+      eyebrow: 'Únete a la comunidad',
+      title: 'Dale otra vida a tu colección.',
+      description:
+          'Crea tu perfil para publicar piezas, proponer intercambios y conversar de forma segura.',
+      child: _RegisterForm(),
+    );
   }
 }
 
 class _RegisterForm extends ConsumerWidget {
   const _RegisterForm();
 
-  void showSnackbar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+  void _showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final registerForm = ref.watch(registerFormProvider);
 
-    ref.listen(authProvider, ((previous, next) {
-      if (next.errorMessage.isEmpty) return;
-      showSnackbar(context, next.errorMessage);
-    }));
+    ref.listen(authProvider, (previous, next) {
+      if (next.errorMessage.isEmpty ||
+          next.errorMessage == previous?.errorMessage) {
+        return;
+      }
+      _showSnackbar(context, next.errorMessage);
+    });
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          Text(
-            '¿Qué esperas? ¡Crea tu cuenta ahora!',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 14,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        MyFieldText(
+          keyboardType: TextInputType.name,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.name],
+          prefixIcon: Icons.person_outline_rounded,
+          onChanged: ref.read(registerFormProvider.notifier).onFullNameChange,
+          errorMessage: registerForm.isFormPosted
+              ? registerForm.fullName.errorMessage
+              : null,
+          label: 'Nombre público',
+        ),
+        const SizedBox(height: 14),
+        MyFieldText(
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.email],
+          prefixIcon: Icons.alternate_email_rounded,
+          onChanged: ref.read(registerFormProvider.notifier).onEmailChange,
+          errorMessage: registerForm.isFormPosted
+              ? registerForm.email.errorMessage
+              : null,
+          label: 'Correo electrónico',
+        ),
+        const SizedBox(height: 14),
+        MyFieldText(
+          label: 'Contraseña',
+          darkText: true,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.newPassword],
+          prefixIcon: Icons.lock_outline_rounded,
+          onChanged: ref.read(registerFormProvider.notifier).onPasswordChanged,
+          errorMessage: registerForm.isFormPosted
+              ? registerForm.password.errorMessage
+              : null,
+        ),
+        const SizedBox(height: 14),
+        MyFieldText(
+          label: 'Confirmar contraseña',
+          darkText: true,
+          textInputAction: TextInputAction.done,
+          autofillHints: const [AutofillHints.newPassword],
+          prefixIcon: Icons.verified_user_outlined,
+          onChanged:
+              ref.read(registerFormProvider.notifier).onConfirmPasswordChanged,
+          onFieldSubmitted: (_) =>
+              ref.read(registerFormProvider.notifier).onFormSubmit(),
+          errorMessage: registerForm.isFormPosted &&
+                  registerForm.confirmPassword != registerForm.password.value
+              ? 'Las contraseñas no coinciden'
+              : null,
+        ),
+        const SizedBox(height: 22),
+        ButtonLogin(
+          text: registerForm.isPosting ? 'Creando cuenta…' : 'Crear mi cuenta',
+          onPressed: registerForm.isPosting
+              ? null
+              : () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  ref.read(registerFormProvider.notifier).onFormSubmit();
+                },
+        ),
+        const SizedBox(height: 18),
+        Text(
+          'Al crear tu cuenta aceptas participar con respeto y cuidar cada intercambio.',
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
+        ),
+        const SizedBox(height: 18),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              '¿Ya eres parte?',
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-          ),
-          const SizedBox(height: 20),
-          MyFieldText(
-              keyboardType: TextInputType.name,
-              onChanged:
-                  ref.read(registerFormProvider.notifier).onFullNameChange,
-              errorMessage: registerForm.isFormPosted
-                  ? registerForm.fullName.errorMessage
-                  : null,
-              label: "Tu nombre acá",
-              darkText: false),
-          const SizedBox(height: 15),
-          MyFieldText(
-              keyboardType: TextInputType.emailAddress,
-              onChanged: ref.read(registerFormProvider.notifier).onEmailChange,
-              errorMessage: registerForm.isFormPosted
-                  ? registerForm.email.errorMessage
-                  : null,
-              label: "Tu correo para tu nueva cuenta",
-              darkText: false),
-          const SizedBox(height: 15),
-          MyFieldText(
-            label: "Ingrese la contraseña",
-            darkText: true,
-            onChanged:
-                ref.read(registerFormProvider.notifier).onPasswordChanged,
-            onFieldSubmitted: (_) =>
-                ref.read(registerFormProvider.notifier).onFormSubmit(),
-            errorMessage: registerForm.isFormPosted
-                ? registerForm.password.errorMessage
-                : null,
-          ),
-          const SizedBox(height: 15),
-          MyFieldText(
-            label: "Vuelva a ingresar la contraseña",
-            darkText: true,
-            onChanged: ref
-                .read(registerFormProvider.notifier)
-                .onConfirmPasswordChanged,
-            onFieldSubmitted: (_) =>
-                ref.read(registerFormProvider.notifier).onFormSubmit(),
-            errorMessage: registerForm.isFormPosted &&
-                    registerForm.confirmPassword != registerForm.password.value
-                ? 'Las contraseñas no coinciden'
-                : null,
-          ),
-          const SizedBox(height: 15),
-          const SizedBox(height: 30),
-          SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: ButtonLogin(
-                text: '¡Registrarse!',
-                onPressed: registerForm.isPosting
-                    ? null
-                    //: ref.read(loginFormProvider.notifier).onFormSubmit
-                    : () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        ref.read(registerFormProvider.notifier).onFormSubmit();
-                      },
-              )),
-          const SizedBox(height: 30),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    thickness: 0.5,
-                    color: Colors.grey[400],
-                  ),
-                ),
-                Expanded(
-                  child: Divider(
-                    thickness: 0.5,
-                    color: Colors.grey[400],
-                  ),
-                ),
-              ],
+            TextButton(
+              onPressed: () => context.go('/login'),
+              child: const Text('Iniciar sesión'),
             ),
-          ),
-          const SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              //const Text('\n'),
-              TextButton(
-                  onPressed: () => context.goNamed(LoginScreen.name),
-                  child: const Text('¡O pincha aquí si ya tienes cuenta!'))
-            ],
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
