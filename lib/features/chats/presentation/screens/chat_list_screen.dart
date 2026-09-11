@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 class ChatListScreen extends StatelessWidget {
   static const String name = 'chat_list_screen';
@@ -155,9 +156,11 @@ class _ChatListState extends ConsumerState<_ChatListView> {
           ),
           title: Text(product.title),
           onTap: () {
-            context.push(
-              '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
-            );
+            context.push(AppRoutes.chat(
+              conversationId: conversacion.id,
+              myProductId: miProductId,
+              otherProductId: otroProductId,
+            ));
           },
         );
       },

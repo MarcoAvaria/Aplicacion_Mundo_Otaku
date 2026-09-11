@@ -26,10 +26,11 @@ flutter run -d chrome --web-port 8080
 ```env
 APP_VERSION=0.0.1
 API_URL=http://localhost:3001/api
+SOCKET_URL=http://localhost:3001
 STAGE=dev
 ```
 
-Para un emulador Android suele ser necesario cambiar el host a `http://10.0.2.2:3001/api`. En un teléfono físico se usa la IP local del equipo que ejecuta la API. Si el backend se levanta en otro puerto, actualiza `API_URL`.
+Para un emulador Android suele ser necesario cambiar el host a `http://10.0.2.2:3001/api`. En un teléfono físico se usa la IP local del equipo que ejecuta la API. Si el backend se levanta en otro puerto, actualiza `API_URL` y `SOCKET_URL`.
 
 ## Cuentas demo
 
@@ -44,6 +45,8 @@ Cada cuenta tiene cuatro productos recuperados con sus fotografías originales. 
 
 El código bajo `lib/features/` se organiza por funcionalidad y separa dominio, infraestructura y presentación. Las áreas principales son autenticación, productos, intercambios y componentes compartidos.
 
+Las rutas visuales están declaradas en `lib/config/router/app_routes.dart` y los endpoints REST en `lib/config/constants/api_endpoints.dart`. Los parámetros se codifican antes de formar una URL y la raíz del socket se configura independientemente de la API.
+
 La sesión se guarda una sola vez en almacenamiento seguro. Al restaurarla se conecta el socket con el mismo JWT; el servidor confirma la autenticación antes de que el cliente entre en una sala. El historial llega mediante `chat-history` y los mensajes nuevos mediante `new-message`.
 
 Las imágenes seleccionadas se leen como bytes en todas las plataformas. El cliente reconoce la firma JPEG, PNG, GIF o WebP antes de subir el archivo y usa un proveedor de imagen específico para navegador o sistema de archivos, por lo que la previsualización no depende de `dart:io` en Flutter Web.
@@ -53,10 +56,10 @@ Las imágenes seleccionadas se leen como bytes en todas las plataformas. El clie
 ```powershell
 flutter analyze
 flutter test
-flutter build web --release
+flutter build web --release --no-tree-shake-icons
 ```
 
-Las pruebas actuales cubren la confirmación de contraseña del registro y la detección del contenido real de las imágenes. GitHub Actions ejecuta análisis, pruebas y build web en cada push y pull request. La compilación queda en `build/web/`.
+Las 12 pruebas actuales cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. [TESTING.md](TESTING.md) separa los casos de caja blanca y caja negra y define la siguiente suite de flujos completos. GitHub Actions ejecuta análisis, pruebas y build web en cada push y pull request. La compilación queda en `build/web/`.
 
 ## Trabajo pendiente conocido
 

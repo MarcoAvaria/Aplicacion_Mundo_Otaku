@@ -23,9 +23,9 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
       //print(productId);
       final String method = (chatExchangeId == null) ? 'POST' : 'PATCH';
       //print(method);
-      final String url = (chatExchangeId == null)
-          ? '/chat-exchanges'
-          : '/chat-exchanges/$chatExchangeId';
+      final String url = chatExchangeId == null
+          ? ApiEndpoints.chatExchanges
+          : ApiEndpoints.chatExchange(chatExchangeId);
       //print(url);
 
       chatExchangeLike.remove('id');
@@ -51,8 +51,10 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   Future<ChatExchange> changeChatExchangeStatus(
       String id, String status) async {
     try {
-      final response = await dio
-          .patch('/chat-exchanges/$id/status', data: {'status': status});
+      final response = await dio.patch(
+        ApiEndpoints.chatExchangeStatus(id),
+        data: {'status': status},
+      );
       final chatExchange = ChatExchangeMapper.jsonToEntity(response.data);
       return chatExchange;
     } on DioException catch (e) {
@@ -67,7 +69,7 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   @override
   Future<ChatExchange> getChatExchangeById(String id) async {
     try {
-      final response = await dio.get('/chat-exchanges/$id');
+      final response = await dio.get(ApiEndpoints.chatExchange(id));
       final chatExchange = ChatExchangeMapper.jsonToEntity(response.data);
       return chatExchange;
     } on DioException catch (e) {
@@ -81,8 +83,10 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   @override
   Future<List<ChatExchange>> getChatExchangeByPage(
       {int limit = 10, int offset = 0}) async {
-    final response =
-        await dio.get<List>('/chat-exchanges?limit=$limit&offset=$offset');
+    final response = await dio.get<List>(
+      ApiEndpoints.chatExchanges,
+      queryParameters: {'limit': limit, 'offset': offset},
+    );
     final List<ChatExchange> chatExchanges = [];
     for (final chatExchange in response.data ?? []) {
       chatExchanges
@@ -95,7 +99,8 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   Future<List<ChatExchange>> getAllChatExchanges(String id) async {
     // print($dio.options.);
     try {
-      final response = await dio.get<List<dynamic>>('/chat-exchanges/user/$id');
+      final response =
+          await dio.get<List<dynamic>>(ApiEndpoints.chatExchangesForUser(id));
       // print(response.data);
       // for (final chatExchange in response.data ?? []) {
       //   print(chatExchange['id']); // ID del intercambio
@@ -112,10 +117,5 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
     } catch (e) {
       throw Exception();
     }
-  }
-
-  @override
-  Future<List<ChatExchange>> searchChatExchangeByTerm(String term) {
-    throw UnimplementedError();
   }
 }

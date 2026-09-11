@@ -155,7 +155,6 @@ class _OtherProductInformation extends ConsumerWidget {
                       for (Product product2 in otherProductsState)
                         ListTile(
                             title: Text(product2.title),
-                            //context.push('/chatscreen/${productForm.id}');
                             onTap: () {
                               // Cierra el BottomSheet
                               showDialog(

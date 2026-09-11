@@ -9,141 +9,123 @@ import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/sc
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/details_screen.dart';
 import 'package:go_router/go_router.dart';
-//import 'package:aplicacion_mundo_otaku/feautures/auth/presentation/screens/screens.dart';
+
+import 'app_routes.dart';
 
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
   // final socketService = Get.find<SocketService>();
   return GoRouter(
-    initialLocation: '/login',
+    initialLocation: AppRoutes.login,
     refreshListenable: goRouterNotifier,
     routes: [
       GoRoute(
-          path: '/',
+          path: AppRoutes.splash,
           name: SplashScreen.name,
           builder: (context, state) => const SplashScreen()),
       GoRoute(
-          path: '/home',
+          path: AppRoutes.home,
           name: HomeScreen.name,
           builder: (context, state) => const HomeScreen()),
       GoRoute(
-          path: '/login',
+          path: AppRoutes.login,
           name: LoginScreen.name,
           builder: (context, state) => const LoginScreen()),
       GoRoute(
-          path: '/register',
+          path: AppRoutes.register,
           name: RegisterScreen.name,
           builder: (context, state) => const RegisterScreen()),
-      //TODO: PARA ELIMINAR ESTA PARTE!!
       GoRoute(
-          path: '/productos',
+          path: AppRoutes.products,
           name: ProductsScreen.name,
           builder: (context, state) => const ProductsScreen()),
       GoRoute(
-          path: '/discover',
+          path: AppRoutes.discover,
           name: DiscoverScreen.name,
           builder: (context, state) => const DiscoverScreen()),
-      /*
       GoRoute(
-        path: '/configuracion',
-        name: ConfigurationScreen.name,
-        builder: (context, state) => const ConfigurationScreen()),
-      */
-      GoRoute(
-          path: '/chatList',
+          path: AppRoutes.chatList,
           name: ChatListScreen.name,
           builder: (context, state) => const ChatListScreen()),
       GoRoute(
-          path: '/requestedList',
+          path: AppRoutes.requestedList,
           name: RequestedListScreen.name,
           builder: (context, state) => const RequestedListScreen()),
       GoRoute(
-          path: '/receivedList',
+          path: AppRoutes.receivedList,
           name: ReceivedListScreen.name,
-          builder: (context, state) => const ReceivedListScreen()), 
+          builder: (context, state) => const ReceivedListScreen()),
       GoRoute(
-        path: '/previewreceived/:id',
+        path: AppRoutes.previewReceivedPattern,
         builder: (context, state) => PreviewReceivedScreen(
           chatExchangeId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
       GoRoute(
-        path: '/previewrequested/:id',
+        path: AppRoutes.previewRequestedPattern,
         builder: (context, state) => PreviewRequestedScreen(
           chatExchangeId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
       GoRoute(
-          path: '/userList',
-          name: UserListScreen.name,
-          builder: (context, state) => const UserListScreen()),
-      GoRoute(
-        path: '/chatscreen/:conversacionId/:miProductId/:otroProductId',
-        //name: ChatScreen.name,
+        path: AppRoutes.chatPattern,
         builder: (context, state) => ChatScreen(
-          conversacionId: state.pathParameters['conversacionId'] ?? 'no-id',
-          miProductId: state.pathParameters['miProductId'] ?? 'no-id',
-          otroProductId: state.pathParameters['otroProductId'] ?? 'no-id',
-          // socketService: state.pathParameters['socketService'] ?? 'no-socket-service',
+          conversacionId: state.pathParameters['conversationId'] ?? 'no-id',
+          miProductId: state.pathParameters['myProductId'] ?? 'no-id',
+          otroProductId: state.pathParameters['otherProductId'] ?? 'no-id',
         ),
       ),
       GoRoute(
-        path: '/permisos',
+        path: AppRoutes.permissions,
         name: PermisosScreen.name,
         builder: (context, state) => const PermisosScreen(),
       ),
       GoRoute(
-        path: '/push-details/:messageId',
-        //name: PermisosScreen.name,
+        path: AppRoutes.pushDetailsPattern,
         builder: (context, state) => DetailsScreen(
             pushMessageId: state.pathParameters['messageId'] ?? ''),
       ),
       GoRoute(
-        path: '/splash_status',
+        path: AppRoutes.authStatus,
         builder: (context, state) => const CheckAuthStatusScreen(),
       ),
       GoRoute(
-        path: '/product/:id',
+        path: AppRoutes.productPattern,
         builder: (context, state) => ProductScreen(
           productId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
       GoRoute(
-        path: '/otherproduct/:id',
+        path: AppRoutes.otherProductPattern,
         builder: (context, state) => OtherProductScreen(
           productId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
-      /*GoRoute(
-      path: '/users',
-      builder: (context, state) => const ChatScreen(user: user)
-    ),*/
     ],
     redirect: (context, state) {
       final isGoingTo = state.matchedLocation;
       final authStatus = goRouterNotifier.authStatus;
 
-      if (isGoingTo == '/splash_status' && authStatus == AuthStatus.checking) {
+      if (isGoingTo == AppRoutes.authStatus &&
+          authStatus == AuthStatus.checking) {
         return null;
       }
 
       if (authStatus == AuthStatus.notAuthenticated) {
-        if (isGoingTo == '/login' || isGoingTo == '/register') return null;
-        return '/login';
+        if (isGoingTo == AppRoutes.login || isGoingTo == AppRoutes.register) {
+          return null;
+        }
+        return AppRoutes.login;
       }
 
       if (authStatus == AuthStatus.authenticated) {
-        if (isGoingTo == '/login' ||
-            isGoingTo == '/register' ||
-            isGoingTo == '/splash_status') {
-          //return '/mangas';
-          return '/discover';
+        if (isGoingTo == AppRoutes.login ||
+            isGoingTo == AppRoutes.register ||
+            isGoingTo == AppRoutes.authStatus) {
+          return AppRoutes.discover;
         }
       }
 
-      //print(state);
-      //print(state.matchedLocation);
-      //return '/login';
       return null;
     },
   );

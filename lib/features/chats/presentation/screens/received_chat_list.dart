@@ -8,6 +8,7 @@ import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/prov
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 class ReceivedListScreen extends StatelessWidget {
   static const String name = 'received_list_screen';
@@ -99,7 +100,7 @@ class _ReceivedListState extends ConsumerState {
               CircleAvatar(backgroundImage: NetworkImage(product.images.first)),
           title: Text(product.title),
           //onTap: () {},
-          onTap: () =>  context.push('/previewreceived/${ chatcito.id }'),
+          onTap: () => context.push(AppRoutes.previewReceived(chatcito.id)),
         );
       },
     );

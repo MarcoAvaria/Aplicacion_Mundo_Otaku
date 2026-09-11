@@ -8,6 +8,7 @@ import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/prov
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 class RequestedListScreen extends StatelessWidget {
   static const String name = 'requested_list_screen';
@@ -98,7 +99,7 @@ class _RequestedListState extends ConsumerState {
               CircleAvatar(backgroundImage: NetworkImage(product.images.first)),
           title: Text(product.title),
           //onTap: () {},
-          onTap: () =>  context.push('/previewrequested/${ chatcito.id }'),
+          onTap: () => context.push(AppRoutes.previewRequested(chatcito.id)),
         );
       },
     );

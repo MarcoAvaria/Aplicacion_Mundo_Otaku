@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 class PreviewReceivedScreen extends ConsumerWidget {
   final String chatExchangeId;
@@ -220,7 +221,7 @@ class _ImageGallery extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => context.push('/otherproduct/$idProducto'),
+      onTap: () => context.push(AppRoutes.otherProduct(idProducto)),
       child: PageView(
         scrollDirection: Axis.horizontal,
         controller: PageController(viewportFraction: 0.7),

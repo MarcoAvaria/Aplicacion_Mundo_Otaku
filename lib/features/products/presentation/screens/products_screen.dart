@@ -7,6 +7,7 @@ import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 import '../../../auth/auth.dart';
 
@@ -29,7 +30,7 @@ class ProductsScreen extends StatelessWidget {
         label: const Text('Nuevo producto'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/product/new');
+          context.push(AppRoutes.product('new'));
         },
       ),
     );
@@ -85,7 +86,7 @@ class _ProductsViewState extends ConsumerState {
 
           if (authState.user?.id == product.user?.id) {
             return GestureDetector(
-                onTap: () => context.push('/product/${product.id}'),
+                onTap: () => context.push(AppRoutes.product(product.id)),
                 child: ProductCard(product: product));
           } else {
             return Container();

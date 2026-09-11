@@ -28,7 +28,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
           contentType: MediaType('image', fileType.mimeSubtype),
         ),
       });
-      final response = await dio.post('/files/product', data: data);
+      final response = await dio.post(ApiEndpoints.productImages, data: data);
 
       return response.data['image'];
     } on FormatException {
@@ -59,8 +59,9 @@ class ProductsDatasourceImpl extends ProductDatasource {
       //print(productId);
       final String method = (productId == null) ? 'POST' : 'PATCH';
       //print(method);
-      final String url =
-          (productId == null) ? '/products' : '/products/$productId';
+      final String url = productId == null
+          ? ApiEndpoints.products
+          : ApiEndpoints.product(productId);
       //print(url);
 
       productLike.remove('id');
@@ -84,7 +85,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
   @override
   Future<Product> getProductById(String id) async {
     try {
-      final response = await dio.get('/products/$id');
+      final response = await dio.get(ApiEndpoints.product(id));
       final product = ProductMapper.jsonToEntity(response.data);
       return product;
     } on DioException catch (e) {
@@ -99,7 +100,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
   Future<List<Product>> getProductByPage(
       {int limit = 10, int offset = 0}) async {
     final response = await dio.get<List>(
-      '/products',
+      ApiEndpoints.products,
       queryParameters: {'limit': limit, 'offset': offset},
     );
     final List<Product> products = [];
@@ -112,7 +113,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
   @override
   Future<List<Product>> getProductsForCurrentUser(String userId) async {
     try {
-      final response = await dio.get<List<dynamic>>('/products/mine');
+      final response = await dio.get<List<dynamic>>(ApiEndpoints.myProducts);
 
       return List<Product>.from(
         (response.data ?? []).map((dynamic productJson) {
@@ -131,7 +132,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
     if (normalizedTerm.length < 2) return [];
 
     final response = await dio.get<List>(
-      '/products',
+      ApiEndpoints.products,
       queryParameters: {'term': normalizedTerm, 'limit': 50},
     );
 

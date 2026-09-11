@@ -8,6 +8,7 @@ import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 import '../delegates/product_search_delegate.dart';
 
@@ -35,7 +36,7 @@ class DiscoverScreen extends ConsumerWidget {
             ),
           );
           if (product == null || !context.mounted) return;
-          context.push('/otherproduct/${product.id}');
+          context.push(AppRoutes.otherProduct(product.id));
         },
       ),
       body: const _DiscoverView(),
@@ -43,7 +44,7 @@ class DiscoverScreen extends ConsumerWidget {
         label: const Text('Nuevo producto'),
         icon: const Icon(Icons.add),
         onPressed: () {
-          context.push('/product/new');
+          context.push(AppRoutes.product('new'));
         },
       ),
     );
@@ -95,7 +96,7 @@ class _DiscoverViewState extends ConsumerState {
 
           if (authState.user?.id != product.user?.id) {
             return GestureDetector(
-                onTap: () => context.push('/otherproduct/${product.id}'),
+                onTap: () => context.push(AppRoutes.otherProduct(product.id)),
                 child: DiscoverCard(product: product));
           } else {
             return Container();

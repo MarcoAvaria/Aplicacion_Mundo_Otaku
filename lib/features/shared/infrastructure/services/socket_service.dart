@@ -30,7 +30,7 @@ class SocketService with ChangeNotifier {
 
     disconnect();
     _token = token;
-    final socketUrl = Environment.apiUrl.replaceFirst(RegExp(r'/api/?$'), '');
+    final socketUrl = Environment.socketUrl;
     _socket = io.io(
       socketUrl,
       io.OptionBuilder()

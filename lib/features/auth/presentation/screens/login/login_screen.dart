@@ -3,6 +3,7 @@ import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 class LoginScreen extends StatelessWidget {
   static const String name = 'login_screen';
@@ -11,7 +12,6 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.of(context).size;
     final scaffoldBackgroundColor = Theme.of(context).scaffoldBackgroundColor;
 
@@ -62,29 +62,23 @@ class GoogleOutlookSignIn extends StatelessWidget {
 }
 
 class _LoginForm extends ConsumerWidget {
-  
   const _LoginForm();
 
-  void showSnackbar ( BuildContext context, String message ){
+  void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message))
-    );
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final loginForm = ref.watch(loginFormProvider);
 
     ref.listen(authProvider, ((previous, next) {
-      if ( next.errorMessage.isEmpty ) return;
-      showSnackbar( context, next.errorMessage );
-      // Si está autenticado, redirigir a la página principal
+      if (next.errorMessage.isEmpty) return;
+      showSnackbar(context, next.errorMessage);
       if (next.authStatus == AuthStatus.authenticated) {
-        // Redirigir a la página principal
-        context.push('/discover');
-        // context.go('/home'); // Asume que '/home' es la ruta principal
+        context.push(AppRoutes.discover);
       }
     }));
 
@@ -104,7 +98,8 @@ class _LoginForm extends ConsumerWidget {
           MyFieldText(
               keyboardType: TextInputType.emailAddress,
               onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
-              errorMessage: loginForm.isFormPosted ? loginForm.email.errorMessage : null,
+              errorMessage:
+                  loginForm.isFormPosted ? loginForm.email.errorMessage : null,
               label: "El correo de tu cuenta",
               darkText: false),
           const SizedBox(height: 15),
@@ -112,8 +107,10 @@ class _LoginForm extends ConsumerWidget {
             label: "Contraseña",
             darkText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
-            onFieldSubmitted: ( _ ) => ref.read(loginFormProvider.notifier).onFormSubmit(),
-            errorMessage: loginForm.isFormPosted ? loginForm.password.errorMessage : null,
+            onFieldSubmitted: (_) =>
+                ref.read(loginFormProvider.notifier).onFormSubmit(),
+            errorMessage:
+                loginForm.isFormPosted ? loginForm.password.errorMessage : null,
           ),
           const SizedBox(height: 15),
           //const NewWidgetRecuperarPass(),
@@ -121,21 +118,20 @@ class _LoginForm extends ConsumerWidget {
           const SizedBox(height: 30),
 
           SizedBox(
-            width: double.infinity,
-            height: 60,
-            child: ButtonLogin(
-              text: 'Iniciar sesión', 
-              onPressed: loginForm.isPosting
-                ? null
-                //: ref.read(loginFormProvider.notifier).onFormSubmit
-                : () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  ref.read(loginFormProvider.notifier).onFormSubmit();
-                },
-              )
-            ),
+              width: double.infinity,
+              height: 60,
+              child: ButtonLogin(
+                text: 'Iniciar sesión',
+                onPressed: loginForm.isPosting
+                    ? null
+                    //: ref.read(loginFormProvider.notifier).onFormSubmit
+                    : () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        ref.read(loginFormProvider.notifier).onFormSubmit();
+                      },
+              )),
           const SizedBox(height: 30),
-          
+
           const SizedBox(height: 30),
 
           Row(
@@ -143,7 +139,7 @@ class _LoginForm extends ConsumerWidget {
             children: [
               const Text('¿No tienes cuenta?'),
               TextButton(
-                  onPressed: () => context.push('/register'),
+                  onPressed: () => context.push(AppRoutes.register),
                   child: const Text('Crea una aquí'))
             ],
           ),

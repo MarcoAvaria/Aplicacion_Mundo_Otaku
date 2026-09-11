@@ -1,5 +1,6 @@
 import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/infrastructure/infraestructure.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
   @override
   Future<User> checkAuthStatus(String token) async {
     try {
-      final response = await dio.get('/auth/check-auth-status',
+      final response = await dio.get(ApiEndpoints.authStatus,
           options: Options(headers: {'Authorization': 'Bearer $token'}));
       return UserMapper.userJsonToEntity(response.data);
       // return user;
@@ -37,8 +38,8 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
   @override
   Future<User> login(String email, String password) async {
     try {
-      final response = await dio
-          .post('/auth/login', data: {'email': email, 'password': password});
+      final response = await dio.post(ApiEndpoints.authLogin,
+          data: {'email': email, 'password': password});
       final user = UserMapper.userJsonToEntity(response.data);
 
       return user;
@@ -63,7 +64,7 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
   @override
   Future<User> register(String email, String password, String fullName) async {
     try {
-      final response = await dio.post('/auth/register',
+      final response = await dio.post(ApiEndpoints.authRegister,
           data: {'email': email, 'password': password, 'fullName': fullName});
       final user = UserMapper.userJsonToEntity(response.data);
       return user;
@@ -86,7 +87,7 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
   @override
   Future<String> getUserId(String token) async {
     try {
-      final response = await dio.get('/auth/check-auth-status',
+      final response = await dio.get(ApiEndpoints.authStatus,
           options: Options(headers: {'Authorization': 'Bearer $token'}));
 
       final user = UserMapper.userJsonToEntity(response.data);
@@ -107,7 +108,7 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
     final token = await secureStorage.read(key: 'auth_token');
     if (token == null) return;
 
-    await dio.post('/auth/logout',
+    await dio.post(ApiEndpoints.authLogout,
         options: Options(headers: {'Authorization': 'Bearer $token'}));
   }
 }
