@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchange_provider.dart';
@@ -227,13 +225,7 @@ class _ImageGallery extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         controller: PageController(viewportFraction: 0.7),
         children: images.map((image) {
-          late ImageProvider imageProvider;
-
-          if (image.startsWith('http')) {
-            imageProvider = NetworkImage(image);
-          } else {
-            imageProvider = FileImage(File(image));
-          }
+          final imageProvider = imageProviderForPath(image);
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),

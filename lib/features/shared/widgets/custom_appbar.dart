@@ -4,17 +4,21 @@ import 'package:flutter/material.dart';
 
 //import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/screens.dart';
 
-
 class CustomAppBar {
-  static AppBar customAppBar(BuildContext context, String title ) {
-
+  static AppBar customAppBar(
+    BuildContext context,
+    String title, {
+    VoidCallback? onSearch,
+  }) {
     return AppBar(
-      title: Text( title ),
+      title: Text(title),
       actions: [
-        IconButton(
-          onPressed: (){}, 
-          icon: const Icon( Icons.search_rounded)
-        )
+        if (onSearch != null)
+          IconButton(
+            tooltip: 'Buscar productos',
+            onPressed: onSearch,
+            icon: const Icon(Icons.search_rounded),
+          ),
       ],
     );
   }

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
@@ -126,7 +125,6 @@ class _ProductInformation extends ConsumerWidget {
                 ref.read(productFormProvider(product).notifier).onTitleChanged,
             errorMessage: productForm.title.errorMessage,
           ),
-
           const SizedBox(height: 15),
           const Text('Demografía'),
           const SizedBox(height: 5),
@@ -137,7 +135,6 @@ class _ProductInformation extends ConsumerWidget {
                 .read(productFormProvider(product).notifier)
                 .onDemographicChanged,
           ),
-
           const SizedBox(height: 15),
           const Text('Tipo'),
           const SizedBox(height: 5),
@@ -147,7 +144,6 @@ class _ProductInformation extends ConsumerWidget {
             onTypeChanged:
                 ref.read(productFormProvider(product).notifier).onTypeChanged,
           ),
-          
           const SizedBox(height: 15),
           const Text('Género'),
           const SizedBox(height: 5),
@@ -157,7 +153,6 @@ class _ProductInformation extends ConsumerWidget {
             onGendersChanged:
                 ref.read(productFormProvider(product).notifier).onGenderChanged,
           ),
-
           const SizedBox(height: 15),
           CustomProductField(
             isTopField: true,
@@ -206,7 +201,16 @@ class _ProductInformation extends ConsumerWidget {
 
 class _SizeSelector extends StatelessWidget {
   final String selectedSizes;
-  final List<String> sizes = const ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL','Ninguno'];
+  final List<String> sizes = const [
+    'XS',
+    'S',
+    'M',
+    'L',
+    'XL',
+    'XXL',
+    'XXXL',
+    'Ninguno'
+  ];
 
   final void Function(String selectedSizes) onSizesChanged;
 
@@ -256,7 +260,6 @@ class _SizeSelector extends StatelessWidget {
 }
 
 class _TypeSelector extends StatelessWidget {
-  
   final String selectedType;
   final void Function(String selectedType) onTypeChanged;
 
@@ -312,9 +315,7 @@ class _TypeSelector extends StatelessWidget {
   }
 }
 
-
 class _GenderSelector extends StatelessWidget {
-  
   final String selectedGenders;
   final void Function(String selectedGenders) onGendersChanged;
 
@@ -451,13 +452,7 @@ class _ImageGallery extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       controller: PageController(viewportFraction: 0.7),
       children: images.map((image) {
-        late ImageProvider imageProvider;
-
-        if (image.startsWith('http')) {
-          imageProvider = NetworkImage(image);
-        } else {
-          imageProvider = FileImage(File(image));
-        }
+        final imageProvider = imageProviderForPath(image);
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),

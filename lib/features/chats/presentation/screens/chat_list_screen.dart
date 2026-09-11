@@ -18,17 +18,13 @@ class ChatListScreen extends StatelessWidget {
     return Scaffold(
       drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, '¡Chats!'),
-      body: _ChatListView(
-        onSocketServiceCreated: (_) {},
-      ),
+      body: const _ChatListView(),
     );
   }
 }
 
 class _ChatListView extends ConsumerStatefulWidget {
-  final Function(SocketService) onSocketServiceCreated;
-
-  const _ChatListView({required this.onSocketServiceCreated});
+  const _ChatListView();
   @override
   _ChatListState createState() => _ChatListState();
 }
@@ -109,6 +105,22 @@ class _ChatListState extends ConsumerState<_ChatListView> {
       }
     }
 
+    if (chatExchangesState.isLoading && listaTotalChat.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (listafinal.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            'No tienes intercambios aceptados. Cuando aceptes una propuesta, el chat aparecerá aquí.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       itemCount: listafinal.length,
       itemBuilder: (context, index) {
@@ -133,24 +145,16 @@ class _ChatListState extends ConsumerState<_ChatListView> {
         // widget.onSocketServiceCreated(socketService);
 
         return ListTile(
-          leading:
-              CircleAvatar(backgroundImage: NetworkImage(product.images.first)),
+          leading: CircleAvatar(
+            backgroundImage: product.images.isEmpty
+                ? null
+                : NetworkImage(product.images.first),
+            child: product.images.isEmpty
+                ? const Icon(Icons.inventory_2_outlined)
+                : null,
+          ),
           title: Text(product.title),
-          // onTap: () => context.push(
-          //   '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
-          // ),
           onTap: () {
-            // Aquí se crea el SocketService solo cuando el usuario hace tap en el chat
-            final socketService = SocketService(
-                // tokencito: miProductId,
-                // chatExchangeId: conversacion.id,
-                // sendBy: miProductId,
-                );
-
-            // Llamar al callback para notificar que el SocketService ha sido creado
-            widget.onSocketServiceCreated(socketService);
-
-            // Navegar a la pantalla del chat
             context.push(
               '/chatscreen/${conversacion.id}/$miProductId/$otroProductId',
             );

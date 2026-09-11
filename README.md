@@ -46,11 +46,21 @@ El código bajo `lib/features/` se organiza por funcionalidad y separa dominio, 
 
 La sesión se guarda una sola vez en almacenamiento seguro. Al restaurarla se conecta el socket con el mismo JWT; el servidor confirma la autenticación antes de que el cliente entre en una sala. El historial llega mediante `chat-history` y los mensajes nuevos mediante `new-message`.
 
+Las imágenes seleccionadas se leen como bytes en todas las plataformas. El cliente reconoce la firma JPEG, PNG, GIF o WebP antes de subir el archivo y usa un proveedor de imagen específico para navegador o sistema de archivos, por lo que la previsualización no depende de `dart:io` en Flutter Web.
+
 ## Verificación
 
 ```powershell
 flutter analyze
+flutter test
 flutter build web --release
 ```
 
-Ambos comandos pasan sin incidencias en el estado recuperado del 10 de septiembre de 2026. La compilación web queda en `build/web/`.
+Las pruebas actuales cubren la confirmación de contraseña del registro y la detección del contenido real de las imágenes. GitHub Actions ejecuta análisis, pruebas y build web en cada push y pull request. La compilación queda en `build/web/`.
+
+## Trabajo pendiente conocido
+
+- automatizar el recorrido completo con dos sesiones, recarga y reconexión del chat;
+- completar edición de perfil y notificaciones si pasan a formar parte del alcance de la demo;
+- revisar el formulario completo de publicación en navegador con cámara, galería y varias imágenes;
+- actualizar dependencias por etapas después de estabilizar el recorrido principal.

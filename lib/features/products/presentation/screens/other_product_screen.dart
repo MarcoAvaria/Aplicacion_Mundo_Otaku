@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/forms/chat_exchange_form_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
@@ -179,10 +178,8 @@ class _OtherProductInformation extends ConsumerWidget {
                                               ChatExchange conversacion =
                                                   ChatExchange
                                                       .createWithProducts(
-                                                          product1:
-                                                              product.id,
-                                                          product2:
-                                                              product2.id,
+                                                          product1: product.id,
+                                                          product2: product2.id,
                                                           owner1:
                                                               product.user!.id,
                                                           owner2:
@@ -202,8 +199,7 @@ class _OtherProductInformation extends ConsumerWidget {
                                                   .then((value) async {
                                                 if (value) {
                                                   Navigator.pop(context);
-                                                  ScaffoldMessenger.of(
-                                                          context)
+                                                  ScaffoldMessenger.of(context)
                                                       .showSnackBar(
                                                     const SnackBar(
                                                       content: Text(
@@ -213,8 +209,7 @@ class _OtherProductInformation extends ConsumerWidget {
                                                 } else {
                                                   Navigator.pop(context);
                                                   // Muestra un mensaje de error o realiza otras operaciones según tus necesidades.
-                                                  ScaffoldMessenger.of(
-                                                          context)
+                                                  ScaffoldMessenger.of(context)
                                                       .showSnackBar(
                                                     const SnackBar(
                                                       content: Text(
@@ -289,13 +284,7 @@ class _ImageGallery extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       controller: PageController(viewportFraction: 0.7),
       children: images.map((image) {
-        late ImageProvider imageProvider;
-
-        if (image.startsWith('http')) {
-          imageProvider = NetworkImage(image);
-        } else {
-          imageProvider = FileImage(File(image));
-        }
+        final imageProvider = imageProviderForPath(image);
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),

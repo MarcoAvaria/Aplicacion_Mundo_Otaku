@@ -1,9 +1,11 @@
-//import 'package:aplicacion_mundo_otaku/features/products/infrastructure/errors/product_errors.dart';
 import 'package:dio/dio.dart';
 import 'package:aplicacion_mundo_otaku/features/products/infrastructure/infrastructure.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+
+import '../helpers/image_file_type.dart';
 
 class ProductsDatasourceImpl extends ProductDatasource {
   late final Dio dio;
@@ -16,39 +18,38 @@ class ProductsDatasourceImpl extends ProductDatasource {
 
   Future<String> _uploadFile(String path) async {
     try {
-      final fileName = path.split('/').last;
-      final contentType = path.split('.').last;
-      /*
-      final FormData data = FormData.fromMap( {
-        'file': MultipartFile.fromFileSync( path, filename: fileName)
-      });
-      */
+      final bytes = await XFile(path).readAsBytes();
+      final fileType = detectImageFileType(bytes);
+      final fileName = 'product.${fileType.extension}';
       final FormData data = FormData.fromMap({
-        'file': MultipartFile.fromFileSync(
-          path,
+        'file': MultipartFile.fromBytes(
+          bytes,
           filename: fileName,
-          contentType: MediaType('image', contentType),
+          contentType: MediaType('image', fileType.mimeSubtype),
         ),
       });
       final response = await dio.post('/files/product', data: data);
 
       return response.data['image'];
-    } catch (e) {
-      throw Exception();
+    } on FormatException {
+      rethrow;
+    } catch (_) {
+      throw Exception('No fue posible subir la imagen.');
     }
   }
 
   Future<List<String>> _uploadPhotos(List<String> photos) async {
-    final photosToUpload =
-        photos.where((element) => element.contains('/')).toList();
-    final photosToIgnore =
-        photos.where((element) => !element.contains('/')).toList();
+    final photosToUpload = photos.where(isPendingImageUploadPath).toList();
+    final photosToKeep = photos
+        .where((photo) => !isPendingImageUploadPath(photo))
+        .map(imageReferenceForApi)
+        .toList();
 
     final List<Future<String>> uploadJob =
         photosToUpload.map(_uploadFile).toList();
     final newImages = await Future.wait(uploadJob);
 
-    return [...photosToIgnore, ...newImages];
+    return [...photosToKeep, ...newImages];
   }
 
   @override
@@ -97,8 +98,10 @@ class ProductsDatasourceImpl extends ProductDatasource {
   @override
   Future<List<Product>> getProductByPage(
       {int limit = 10, int offset = 0}) async {
-    final response =
-        await dio.get<List>('/products?limit=$limit&offset=$offset');
+    final response = await dio.get<List>(
+      '/products',
+      queryParameters: {'limit': limit, 'offset': offset},
+    );
     final List<Product> products = [];
     for (final product in response.data ?? []) {
       products.add(ProductMapper.jsonToEntity(product)); // mapper
@@ -123,7 +126,21 @@ class ProductsDatasourceImpl extends ProductDatasource {
   }
 
   @override
-  Future<List<Product>> searchProductByTerm(String term) {
-    throw UnimplementedError();
+  Future<List<Product>> searchProductByTerm(String term) async {
+    final normalizedTerm = term.trim();
+    if (normalizedTerm.length < 2) return [];
+
+    final response = await dio.get<List>(
+      '/products',
+      queryParameters: {'term': normalizedTerm, 'limit': 50},
+    );
+
+    return List<Product>.from(
+      (response.data ?? []).map((dynamic productJson) {
+        return ProductMapper.jsonToEntity(
+          productJson as Map<String, dynamic>,
+        );
+      }),
+    );
   }
 }

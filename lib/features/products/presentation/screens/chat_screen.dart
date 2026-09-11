@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
 import '../../../auth/presentation/providers/providers.dart';
+import '../../../chats/presentation/providers/chat_exchange_provider.dart';
+import '../../../chats/presentation/providers/chat_exchanges_provider.dart';
 import '../../../shared/shared.dart';
 import '../providers/providers.dart';
 
@@ -24,8 +26,11 @@ class ChatScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final productState = ref.watch(productProvider(miProductId));
     final otherProductState = ref.watch(productProvider(otroProductId));
+    final exchangeState = ref.watch(chatExchangeProvider(conversacionId));
 
-    if (productState.product == null || otherProductState.product == null) {
+    if (productState.product == null ||
+        otherProductState.product == null ||
+        exchangeState.chatExchange == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -49,9 +54,97 @@ class ChatScreen extends ConsumerWidget {
             ),
           ],
         ),
+        actions: [
+          if (exchangeState.isSaving)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox.square(
+                dimension: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else if (exchangeState.chatExchange?.status == 'inProgress')
+            PopupMenuButton<String>(
+              tooltip: 'Opciones del intercambio',
+              onSelected: (status) =>
+                  _confirmStatusChange(context, ref, status),
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'done',
+                  child: ListTile(
+                    leading: Icon(Icons.check_circle_outline),
+                    title: Text('Marcar como completado'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'cancelled',
+                  child: ListTile(
+                    leading: Icon(Icons.cancel_outlined),
+                    title: Text('Cancelar intercambio'),
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
       body: _ChatView(conversacionId: conversacionId),
     );
+  }
+
+  Future<void> _confirmStatusChange(
+    BuildContext context,
+    WidgetRef ref,
+    String status,
+  ) async {
+    final isCompleted = status == 'done';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          isCompleted ? '¿Completar intercambio?' : '¿Cancelar intercambio?',
+        ),
+        content: Text(
+          isCompleted
+              ? 'El chat se cerrará y el intercambio quedará registrado como completado.'
+              : 'El chat se cerrará y el intercambio quedará registrado como cancelado.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Volver'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(isCompleted ? 'Completar' : 'Cancelar intercambio'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await ref
+          .read(chatExchangeProvider(conversacionId).notifier)
+          .updateChatExchangeStatus(status);
+      ref.invalidate(chatExchangesProvider);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isCompleted ? 'Intercambio completado.' : 'Intercambio cancelado.',
+          ),
+        ),
+      );
+      Navigator.of(context).maybePop();
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No fue posible actualizar el intercambio.'),
+        ),
+      );
+    }
   }
 }
 
