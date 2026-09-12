@@ -59,11 +59,10 @@ flutter test
 flutter build web --release --no-tree-shake-icons
 ```
 
-Las 12 pruebas actuales cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. [TESTING.md](TESTING.md) separa los casos de caja blanca y caja negra y define la siguiente suite de flujos completos. GitHub Actions ejecuta análisis, pruebas y build web en cada push y pull request. La compilación queda en `build/web/`.
+Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexión y persistencia. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
 
 ## Trabajo pendiente conocido
 
-- automatizar el recorrido completo con dos sesiones, recarga y reconexión del chat;
 - completar edición de perfil y notificaciones si pasan a formar parte del alcance de la demo;
-- revisar el formulario completo de publicación en navegador con cámara, galería y varias imágenes;
+- ampliar los recorridos con edición, eliminación, permisos de cámara y archivos inválidos;
 - actualizar dependencias por etapas después de estabilizar el recorrido principal.

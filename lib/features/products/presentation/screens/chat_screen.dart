@@ -170,6 +170,7 @@ class _ChatViewState extends ConsumerState<_ChatView> {
     chatController.clearMessages();
     socketService.socket.on('chat-history', _onHistory);
     socketService.socket.on('new-message', _onMessage);
+    socketService.socket.on('chat-error', _onChatError);
     socketService.joinChat(widget.conversacionId);
   }
 
@@ -190,64 +191,92 @@ class _ChatViewState extends ConsumerState<_ChatView> {
     );
   }
 
+  void _onChatError(dynamic data) {
+    if (!mounted) return;
+    final message = data is Map ? data['message'] : null;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message?.toString() ?? 'Error en el chat.')),
+    );
+  }
+
   @override
   void dispose() {
     socketService.leaveChat(widget.conversacionId);
     socketService.socket.off('chat-history', _onHistory);
     socketService.socket.off('new-message', _onMessage);
+    socketService.socket.off('chat-error', _onChatError);
     inputController.dispose();
     super.dispose();
   }
 
   void _sendMessage() {
-    socketService.sendMessage(inputController.text, widget.conversacionId);
-    inputController.clear();
+    final sent =
+        socketService.sendMessage(inputController.text, widget.conversacionId);
+    if (sent) {
+      inputController.clear();
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sin conexión. El mensaje no se envió.')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Obx(
-            () => ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              itemCount: chatController.chatMessages.length,
-              itemBuilder: (context, index) {
-                final message = chatController.chatMessages[index];
-                return MessageItem(
-                  sentByMe: currentUserId == message.sendBy,
-                  message: message.message,
-                  timestamp: message.timestamp,
-                );
-              },
+    return AnimatedBuilder(
+      animation: socketService,
+      builder: (context, child) => Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: socketService.isChatReady(widget.conversacionId)
+            ? 'Chat conectado'
+            : 'Chat sin conexión',
+        child: child,
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Obx(
+              () => ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                itemCount: chatController.chatMessages.length,
+                itemBuilder: (context, index) {
+                  final message = chatController.chatMessages[index];
+                  return MessageItem(
+                    sentByMe: currentUserId == message.sendBy,
+                    message: message.message,
+                    timestamp: message.timestamp,
+                  );
+                },
+              ),
             ),
           ),
-        ),
-        SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: TextField(
-              controller: inputController,
-              minLines: 1,
-              maxLines: 4,
-              textInputAction: TextInputAction.send,
-              onSubmitted: (_) => _sendMessage(),
-              decoration: InputDecoration(
-                hintText: 'Escribe un mensaje',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                suffixIcon: IconButton(
-                  onPressed: _sendMessage,
-                  icon: const Icon(Icons.send),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: inputController,
+                minLines: 1,
+                maxLines: 4,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _sendMessage(),
+                decoration: InputDecoration(
+                  hintText: 'Escribe un mensaje',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  suffixIcon: IconButton(
+                    tooltip: 'Enviar mensaje',
+                    onPressed: _sendMessage,
+                    icon: const Icon(Icons.send),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Environment.initEnvironment();
-  // WidgetsFlutterBinding.ensureInitialized();
   // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   // await NotificationsBloc.initializeFCM();
 

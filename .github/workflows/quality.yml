@@ -32,3 +32,65 @@ jobs:
 
       - name: Build web
         run: flutter build web --release --no-tree-shake-icons
+
+  browser-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout client
+        uses: actions/checkout@v5
+
+      - name: Checkout API
+        uses: actions/checkout@v5
+        with:
+          repository: MarcoAvaria/MundoOtaku-Backend-Repository
+          ref: mejora/calidad-portafolio
+          path: backend
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            e2e/package-lock.json
+
+      - name: Use Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.16.8
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          cp .env.template .env
+          flutter pub get
+          npm ci --prefix backend
+          npm ci --prefix e2e
+
+      - name: Install Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Build web for browser tests
+        run: >-
+          flutter build web --release --web-renderer html
+          --dart-define=API_URL=http://127.0.0.1:3001/api
+          --dart-define=SOCKET_URL=http://127.0.0.1:3001
+
+      - name: Run browser journeys
+        working-directory: e2e
+        env:
+          MUNDO_OTAKU_BACKEND_DIR: ${{ github.workspace }}/backend
+        run: npm test
+
+      - name: Upload Playwright evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7

@@ -3,7 +3,7 @@ import 'package:aplicacion_mundo_otaku/features/products/infrastructure/infrastr
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/camera_gallery_service_impl.dart';
 
 import '../helpers/image_file_type.dart';
 
@@ -18,7 +18,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
 
   Future<String> _uploadFile(String path) async {
     try {
-      final bytes = await XFile(path).readAsBytes();
+      final bytes = await CameraGalleryServiceImpl.readPhotoBytes(path);
       final fileType = detectImageFileType(bytes);
       final fileName = 'product.${fileType.extension}';
       final FormData data = FormData.fromMap({
@@ -29,6 +29,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
         ),
       });
       final response = await dio.post(ApiEndpoints.productImages, data: data);
+      CameraGalleryServiceImpl.forgetPhotoBytes(path);
 
       return response.data['image'];
     } on FormatException {

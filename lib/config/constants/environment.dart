@@ -1,6 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Environment {
+  static const _compiledApiUrl = String.fromEnvironment('API_URL');
+  static const _compiledSocketUrl = String.fromEnvironment('SOCKET_URL');
+
   static Future<void> initEnvironment() async {
     await dotenv.load(fileName: '.env');
   }
@@ -8,7 +11,9 @@ class Environment {
   static String get apiUrl => _requiredUrl('API_URL');
 
   static String get socketUrl {
-    final configuredUrl = dotenv.env['SOCKET_URL']?.trim();
+    final configuredUrl = _compiledSocketUrl.trim().isNotEmpty
+        ? _compiledSocketUrl.trim()
+        : dotenv.env['SOCKET_URL']?.trim();
     if (configuredUrl != null && configuredUrl.isNotEmpty) return configuredUrl;
 
     final apiUri = Uri.parse(apiUrl);
@@ -16,7 +21,9 @@ class Environment {
   }
 
   static String _requiredUrl(String name) {
-    final value = dotenv.env[name]?.trim();
+    final compiledValue = name == 'API_URL' ? _compiledApiUrl.trim() : '';
+    final value =
+        compiledValue.isNotEmpty ? compiledValue : dotenv.env[name]?.trim();
     if (value == null || value.isEmpty) {
       throw StateError('Falta configurar $name en el entorno.');
     }

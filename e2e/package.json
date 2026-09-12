@@ -1,0 +1,15 @@
+{
+  "name": "mundo-otaku-browser-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Recorridos completos de Mundo Otaku en un navegador real",
+  "scripts": {
+    "test": "node scripts/run-tests.js",
+    "test:headed": "node scripts/run-tests.js --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "serve": "14.2.6"
+  }
+}

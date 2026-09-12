@@ -19,6 +19,17 @@ abstract final class AppRoutes {
   static const productPattern = '/product/:id';
   static const otherProductPattern = '/otherproduct/:id';
 
+  static String initialLocation(Uri browserUri) {
+    final fragment = browserUri.fragment;
+    if (fragment.startsWith('/')) {
+      return fragment;
+    }
+
+    final path = browserUri.path;
+    if (path.isEmpty || path == '/') return login;
+    return browserUri.hasQuery ? '$path?${browserUri.query}' : path;
+  }
+
   static String previewReceived(String id) =>
       '/previewreceived/${Uri.encodeComponent(id)}';
 

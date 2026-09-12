@@ -148,7 +148,7 @@ class _OtherProductInformation extends ConsumerWidget {
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                builder: (BuildContext context) {
+                builder: (BuildContext bottomSheetContext) {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
@@ -158,8 +158,8 @@ class _OtherProductInformation extends ConsumerWidget {
                             onTap: () {
                               // Cierra el BottomSheet
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
+                                  context: bottomSheetContext,
+                                  builder: (BuildContext dialogContext) {
                                     return AlertDialog(
                                       title: const Text('Confirmación'),
                                       content: const Text(
@@ -167,13 +167,13 @@ class _OtherProductInformation extends ConsumerWidget {
                                       actions: [
                                         TextButton(
                                             onPressed: () {
-                                              Navigator.pop(context);
+                                              Navigator.pop(dialogContext);
                                             },
                                             child: const Text(
                                                 'No, me arrepiento jeje')),
                                         TextButton(
                                             onPressed: () async {
-                                              Navigator.of(context).pop();
+                                              Navigator.of(dialogContext).pop();
                                               ChatExchange conversacion =
                                                   ChatExchange
                                                       .createWithProducts(
@@ -193,30 +193,23 @@ class _OtherProductInformation extends ConsumerWidget {
                                                     .notifier,
                                               );
 
-                                              chatExchangeFormNotifier
-                                                  .onFormSubmit()
-                                                  .then((value) async {
-                                                if (value) {
-                                                  Navigator.pop(context);
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          'Se ha enviado solicitud de conversación :D !'),
-                                                    ),
-                                                  ); // ID del formulario
-                                                } else {
-                                                  Navigator.pop(context);
-                                                  // Muestra un mensaje de error o realiza otras operaciones según tus necesidades.
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          'Error al enviar la solicitud de cambio :( !'),
-                                                    ),
-                                                  );
-                                                }
-                                              });
+                                              final wasCreated =
+                                                  await chatExchangeFormNotifier
+                                                      .onFormSubmit();
+                                              if (!bottomSheetContext.mounted ||
+                                                  !context.mounted) {
+                                                return;
+                                              }
+
+                                              Navigator.pop(bottomSheetContext);
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(wasCreated
+                                                      ? 'Se ha enviado solicitud de conversación :D !'
+                                                      : 'Error al enviar la solicitud de cambio :( !'),
+                                                ),
+                                              );
                                             },
                                             child: const Text(
                                                 '¡Sí! Quiero cambiar :D'))

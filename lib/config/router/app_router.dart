@@ -16,7 +16,7 @@ final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
   // final socketService = Get.find<SocketService>();
   return GoRouter(
-    initialLocation: AppRoutes.login,
+    initialLocation: AppRoutes.initialLocation(Uri.base),
     refreshListenable: goRouterNotifier,
     routes: [
       GoRoute(

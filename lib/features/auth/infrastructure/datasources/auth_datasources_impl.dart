@@ -52,12 +52,16 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
         }
         throw CustomError(errorMessage);
       }
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw CustomError('Revisa la conexión de internet :O');
+      if (_isNetworkFailure(e)) {
+        throw CustomError(
+          'No fue posible conectar con el servidor. Revisa tu conexión.',
+        );
       }
-      throw CustomError('Something wrong happend :O ! 3460');
-    } catch (e) {
-      throw CustomError('Something wrong happend :O please try again!');
+      throw CustomError('No fue posible iniciar sesión. Inténtalo nuevamente.');
+    } on CustomError {
+      rethrow;
+    } catch (_) {
+      throw CustomError('No fue posible iniciar sesión. Inténtalo nuevamente.');
     }
   }
 
@@ -73,14 +77,18 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
         throw CustomError(
             e.response?.data['message'] ?? 'Credenciales Incorrectas :O ');
       }
-      if (e.type == DioExceptionType.connectionTimeout) {
-        throw CustomError('Revisa la conexión de internet :O');
+      if (_isNetworkFailure(e)) {
+        throw CustomError(
+          'No fue posible conectar con el servidor. Revisa tu conexión.',
+        );
       }
       throw CustomError(
-        'Something wrong happend :O !3460',
-      );
-    } catch (e) {
-      throw CustomError('Something wrong happend :O 222!');
+          'No fue posible crear la cuenta. Inténtalo nuevamente.');
+    } on CustomError {
+      rethrow;
+    } catch (_) {
+      throw CustomError(
+          'No fue posible crear la cuenta. Inténtalo nuevamente.');
     }
   }
 
@@ -110,5 +118,16 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
 
     await dio.post(ApiEndpoints.authLogout,
         options: Options(headers: {'Authorization': 'Bearer $token'}));
+  }
+
+  bool _isNetworkFailure(DioException error) {
+    return switch (error.type) {
+      DioExceptionType.connectionTimeout ||
+      DioExceptionType.sendTimeout ||
+      DioExceptionType.receiveTimeout ||
+      DioExceptionType.connectionError =>
+        true,
+      _ => false,
+    };
   }
 }

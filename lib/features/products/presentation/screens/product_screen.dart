@@ -25,6 +25,7 @@ class ProductScreen extends ConsumerWidget {
         //appBar: CustomAppBar.myOwnMethodAppBar(context, 'Editar producto'),
         appBar: AppBar(title: const Text('Editar producto'), actions: [
           IconButton(
+              tooltip: 'Agregar imagen desde galería',
               onPressed: () async {
                 final photoPath =
                     await CameraGalleryServiceImpl().selectPhoto();
@@ -37,6 +38,7 @@ class ProductScreen extends ConsumerWidget {
               },
               icon: const Icon(Icons.photo_library_outlined)),
           IconButton(
+              tooltip: 'Tomar fotografía',
               onPressed: () async {
                 final photoPath = await CameraGalleryServiceImpl().takePhoto();
                 if (photoPath == null) return;
@@ -51,17 +53,26 @@ class ProductScreen extends ConsumerWidget {
             ? const FullScreenLoader()
             : _ProductView(product: productState.product!),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
+          tooltip: 'Guardar producto',
+          onPressed: () async {
             if (productState.product == null) return;
 
-            ref
+            final saved = await ref
                 .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit()
-                .then((value) {
-              if (!value) return;
+                .onFormSubmit();
+            if (!context.mounted) return;
+            if (saved) {
               showSnackbar(context);
-              //FocusScope.of(context).unfocus();
-            });
+              return;
+            }
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'No fue posible guardar el producto. Revisa tu conexión e inténtalo nuevamente.',
+                ),
+              ),
+            );
           },
           child: const Icon(Icons.save_as_outlined),
         ),
@@ -86,7 +97,11 @@ class _ProductView extends ConsumerWidget {
         SizedBox(
           height: 250,
           width: 600,
-          child: _ImageGallery(images: productForm.images),
+          child: Semantics(
+            container: true,
+            label: 'Imágenes del producto: ${productForm.images.length}',
+            child: _ImageGallery(images: productForm.images),
+          ),
         ),
         const SizedBox(height: 10),
         Center(

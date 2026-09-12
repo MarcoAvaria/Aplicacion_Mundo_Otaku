@@ -2,17 +2,25 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
+import 'network_status.dart';
+
 class SocketService with ChangeNotifier {
   static final SocketService _instance = SocketService._internal();
   factory SocketService() => _instance;
-  SocketService._internal();
+  SocketService._internal() {
+    networkStatusChanges.listen(_handleNetworkStatus);
+  }
 
   static SocketService get instance => _instance;
 
   io.Socket? _socket;
   String? _token;
   String? _pendingChatId;
+  String? _joinedChatId;
   bool isConnected = false;
+
+  bool isChatReady(String chatExchangeId) =>
+      isConnected && _joinedChatId == chatExchangeId;
 
   io.Socket get socket {
     final currentSocket = _socket;
@@ -24,7 +32,7 @@ class SocketService with ChangeNotifier {
 
   void initialize({required String token}) {
     if (_token == token && _socket != null) {
-      if (!socket.connected) socket.connect();
+      if (isNetworkOnline && !socket.connected) socket.connect();
       return;
     }
 
@@ -48,13 +56,22 @@ class SocketService with ChangeNotifier {
         socket.emit('join-chat', {'chatExchangeId': chatId});
       }
     });
-    socket.onDisconnect((_) => _setConnectionState(false));
-    socket.onConnectError((_) => _setConnectionState(false));
-    socket.connect();
+    socket.on('joined-chat', (data) {
+      if (data is! Map) return;
+      final chatId = data['chatExchangeId']?.toString();
+      if (chatId == null || chatId != _pendingChatId) return;
+      _setJoinedChat(chatId);
+    });
+    socket.onDisconnect((_) => _handleDisconnected());
+    socket.onConnectError((_) => _handleDisconnected());
+    if (isNetworkOnline) socket.connect();
   }
 
   void joinChat(String chatExchangeId) {
-    _pendingChatId = chatExchangeId;
+    if (_pendingChatId != chatExchangeId || _joinedChatId != null) {
+      _pendingChatId = chatExchangeId;
+      _setJoinedChat(null);
+    }
     if (isConnected) {
       socket.emit('join-chat', {'chatExchangeId': chatExchangeId});
     }
@@ -62,16 +79,20 @@ class SocketService with ChangeNotifier {
 
   void leaveChat(String chatExchangeId) {
     if (_pendingChatId == chatExchangeId) _pendingChatId = null;
+    if (_joinedChatId == chatExchangeId) _setJoinedChat(null);
     _socket?.emit('leave-chat', {'chatExchangeId': chatExchangeId});
   }
 
-  void sendMessage(String content, String chatExchangeId) {
+  bool sendMessage(String content, String chatExchangeId) {
     final message = content.trim();
-    if (message.isEmpty || !socket.connected) return;
+    if (message.isEmpty || !isNetworkOnline || !isChatReady(chatExchangeId)) {
+      return false;
+    }
     socket.emit('send-message', {
       'chatExchangeId': chatExchangeId,
       'content': message,
     });
+    return true;
   }
 
   void disconnect() {
@@ -83,7 +104,31 @@ class SocketService with ChangeNotifier {
     _socket = null;
     _token = null;
     _pendingChatId = null;
-    _setConnectionState(false);
+    _handleDisconnected();
+  }
+
+  void _handleDisconnected() {
+    final changed = isConnected || _joinedChatId != null;
+    isConnected = false;
+    _joinedChatId = null;
+    if (changed) notifyListeners();
+  }
+
+  void _handleNetworkStatus(bool online) {
+    final currentSocket = _socket;
+    if (!online) {
+      currentSocket?.disconnect();
+      _handleDisconnected();
+      return;
+    }
+
+    currentSocket?.connect();
+  }
+
+  void _setJoinedChat(String? chatId) {
+    if (_joinedChatId == chatId) return;
+    _joinedChatId = chatId;
+    notifyListeners();
   }
 
   void _setConnectionState(bool connected) {

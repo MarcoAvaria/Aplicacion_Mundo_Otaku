@@ -61,8 +61,52 @@ class GoogleOutlookSignIn extends StatelessWidget {
   }
 }
 
-class _LoginForm extends ConsumerWidget {
+class _LoginForm extends ConsumerStatefulWidget {
   const _LoginForm();
+
+  @override
+  ConsumerState<_LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends ConsumerState<_LoginForm> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  late final FocusNode _emailFocusNode;
+  late final FocusNode _passwordFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailFocusNode = FocusNode()..addListener(_synchronizeEmail);
+    _passwordFocusNode = FocusNode()..addListener(_synchronizePassword);
+  }
+
+  void _synchronizeEmail() {
+    if (!_emailFocusNode.hasFocus) {
+      ref.read(loginFormProvider.notifier).onEmailChange(_emailController.text);
+    }
+  }
+
+  void _synchronizePassword() {
+    if (!_passwordFocusNode.hasFocus) {
+      ref
+          .read(loginFormProvider.notifier)
+          .onPasswordChanged(_passwordController.text);
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailFocusNode
+      ..removeListener(_synchronizeEmail)
+      ..dispose();
+    _passwordFocusNode
+      ..removeListener(_synchronizePassword)
+      ..dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void showSnackbar(BuildContext context, String message) {
     ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
@@ -71,7 +115,7 @@ class _LoginForm extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final loginForm = ref.watch(loginFormProvider);
 
     ref.listen(authProvider, ((previous, next) {
@@ -96,6 +140,8 @@ class _LoginForm extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
           MyFieldText(
+              varTextCtrl: _emailController,
+              focusNode: _emailFocusNode,
               keyboardType: TextInputType.emailAddress,
               onChanged: ref.read(loginFormProvider.notifier).onEmailChange,
               errorMessage:
@@ -104,6 +150,8 @@ class _LoginForm extends ConsumerWidget {
               darkText: false),
           const SizedBox(height: 15),
           MyFieldText(
+            varTextCtrl: _passwordController,
+            focusNode: _passwordFocusNode,
             label: "Contraseña",
             darkText: true,
             onChanged: ref.read(loginFormProvider.notifier).onPasswordChanged,
