@@ -1,6 +1,6 @@
 # Pruebas completas en navegador
 
-Esta suite usa Playwright y Chromium para verificar el cliente Flutter contra la API NestJS y PostgreSQL reales. No usa la base ni los productos demo.
+Esta suite usa Playwright y Chromium para verificar el cliente Flutter contra la API NestJS, PostgreSQL y almacenamiento compatible con S3 reales. No usa la base ni los productos demo.
 
 ## Requisitos
 
@@ -33,7 +33,7 @@ Set-Location e2e
 npm test
 ```
 
-`npm test` prepara el backend, crea el contenedor PostgreSQL temporal en el puerto 5433, ejecuta migraciones, inicia API y web, corre las pruebas y limpia el contenedor y las imágenes temporales. Para depurar visualmente puede usarse `npm run test:headed`; los rastros, capturas y videos de fallos quedan en `test-results/`.
+`npm test` prepara el backend, crea PostgreSQL temporal en el puerto 5433 y MinIO temporal en el 9000, crea el bucket, ejecuta migraciones, inicia API y web, corre las pruebas y limpia todos los contenedores y objetos. Para depurar visualmente puede usarse `npm run test:headed`; los rastros, capturas y videos de fallos quedan en `test-results/`.
 
 Variables opcionales:
 

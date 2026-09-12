@@ -30,6 +30,16 @@ if (manageDatabase) {
     'up',
     '-d',
     '--wait',
+    'test-db',
+    'test-storage',
+  ]);
+  run('docker', [
+    'compose',
+    '-f',
+    'docker-compose.test.yml',
+    'run',
+    '--rm',
+    'test-storage-init',
   ]);
 }
 
