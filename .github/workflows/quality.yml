@@ -45,6 +45,7 @@ jobs:
           repository: MarcoAvaria/MundoOtaku-Backend-Repository
           ref: mejora/calidad-portafolio
           path: backend
+          ssh-key: ${{ secrets.MUNDO_OTAKU_BACKEND_DEPLOY_KEY }}
 
       - name: Use Node.js
         uses: actions/setup-node@v4
