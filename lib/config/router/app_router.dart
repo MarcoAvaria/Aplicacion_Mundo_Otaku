@@ -7,14 +7,12 @@ import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/recei
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/requested_chat_list.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/details_screen.dart';
 import 'package:go_router/go_router.dart';
 
 import 'app_routes.dart';
 
 final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
-  // final socketService = Get.find<SocketService>();
   return GoRouter(
     refreshListenable: goRouterNotifier,
     routes: [
@@ -22,10 +20,6 @@ final goRouterProvider = Provider((ref) {
           path: AppRoutes.splash,
           name: SplashScreen.name,
           builder: (context, state) => const SplashScreen()),
-      GoRoute(
-          path: AppRoutes.home,
-          name: HomeScreen.name,
-          builder: (context, state) => const HomeScreen()),
       GoRoute(
           path: AppRoutes.login,
           name: LoginScreen.name,
@@ -73,16 +67,6 @@ final goRouterProvider = Provider((ref) {
           miProductId: state.pathParameters['myProductId'] ?? 'no-id',
           otroProductId: state.pathParameters['otherProductId'] ?? 'no-id',
         ),
-      ),
-      GoRoute(
-        path: AppRoutes.permissions,
-        name: PermisosScreen.name,
-        builder: (context, state) => const PermisosScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.pushDetailsPattern,
-        builder: (context, state) => DetailsScreen(
-            pushMessageId: state.pathParameters['messageId'] ?? ''),
       ),
       GoRoute(
         path: AppRoutes.authStatus,

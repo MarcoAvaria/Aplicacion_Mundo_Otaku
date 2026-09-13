@@ -102,29 +102,6 @@ class ConfigurationMenuState extends ConsumerState<ConfigurationMenu> {
                 },
                 text: 'Solicitudes recibidas'),
           ),
-          /*
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: CustomFilledButton(
-            onPressed: () {
-              //context.goNamed( noti );
-            },
-            text: 'Notificaciones'
-          ),
-        ),
-        */
-          /*
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: CustomFilledButton(
-            onPressed: () {
-              
-              context.goNamed( PermisosScreen.name );
-            },
-            text: 'Permisos'
-          ),
-        ),
-        */
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: CustomFilledButton(
