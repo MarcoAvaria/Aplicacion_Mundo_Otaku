@@ -372,6 +372,9 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await secondPage.getByRole('button', { name: 'Enviar mensaje' }).click();
     await expect(firstPage.getByLabel(reconnectedMessage)).toBeVisible();
 
+    expect(firstPage.url()).toContain(
+      `#/chatscreen/${exchange.id}/${publishedProduct.id}/${offeredProduct.id}`,
+    );
     await firstPage.reload();
     await enableFlutterAccessibility(firstPage);
     await expect(firstPage.getByLabel('Chat conectado')).toBeVisible({
@@ -513,4 +516,205 @@ test('informa un error de red sin abandonar la pantalla de acceso', async ({
     ),
   ).toBeVisible();
   await expect(page).toHaveURL(/#\/login$/);
+});
+
+test('cierra la sesión cuando el token se revoca durante una edición', async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${process.pid}`;
+  const password = 'BrowserExpired1!';
+  const user = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-expired-${runId}@mundo-otaku.test`,
+      fullName: 'Sesión Revocada',
+      password,
+    },
+  });
+  const product = await apiRequest('/products', {
+    token: user.token,
+    method: 'POST',
+    body: {
+      title: `Producto sesión ${runId}`,
+      typeOf: 'Otros',
+      description: 'Producto para revocar la sesión activa',
+      tomo: 1,
+      sizeOf: 'Ninguno',
+      gender: 'Ninguno',
+      demographic: 'Shonen',
+      tags: ['sesión'],
+      images: [],
+    },
+  });
+
+  const context = await browser.newContext();
+  await prepareAuthenticatedContext(context, user.token);
+  const page = await context.newPage();
+
+  try {
+    await openFlutterRoute(page, `/product/${product.id}`);
+    await expect(page.getByLabel('Editar producto')).toBeVisible();
+    await apiRequest('/auth/logout', {
+      token: user.token,
+      method: 'POST',
+    });
+
+    const unauthorizedResponse = page.waitForResponse(
+      (response) =>
+        response.url() === `${apiUrl}/products/${product.id}` &&
+        response.request().method() === 'PATCH' &&
+        response.status() === 401,
+      { timeout: 30_000 },
+    );
+    await page.getByRole('button', { name: 'Guardar producto' }).click();
+    await unauthorizedResponse;
+
+    await expect(page).toHaveURL(/#\/login$/);
+    await expect(page.getByLabel('El correo de tu cuenta')).toBeVisible();
+    await expect(
+      page.getByLabel('Tu sesión expiró. Inicia sesión nuevamente.'),
+    ).toBeVisible();
+  } finally {
+    await context.close();
+  }
+});
+
+test('el remitente cancela y el receptor rechaza solicitudes pendientes', async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${process.pid}`;
+  const password = 'BrowserAlternatives1!';
+  const receiver = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-receiver-${runId}@mundo-otaku.test`,
+      fullName: 'Receptor Alternativas',
+      password,
+    },
+  });
+  const sender = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-sender-${runId}@mundo-otaku.test`,
+      fullName: 'Remitente Alternativas',
+      password,
+    },
+  });
+  const requestedProduct = await apiRequest('/products', {
+    token: receiver.token,
+    method: 'POST',
+    body: {
+      title: `Producto solicitado ${runId}`,
+      typeOf: 'Otros',
+      description: 'Producto del receptor',
+      tomo: 1,
+      sizeOf: 'Ninguno',
+      gender: 'Ninguno',
+      demographic: 'Shonen',
+      tags: ['alternativas'],
+      images: [],
+    },
+  });
+  const offeredProduct = await apiRequest('/products', {
+    token: sender.token,
+    method: 'POST',
+    body: {
+      title: `Producto ofrecido ${runId}`,
+      typeOf: 'Otros',
+      description: 'Producto del remitente',
+      tomo: 1,
+      sizeOf: 'Ninguno',
+      gender: 'Ninguno',
+      demographic: 'Shonen',
+      tags: ['alternativas'],
+      images: [],
+    },
+  });
+  const createExchange = () =>
+    apiRequest('/chat-exchanges', {
+      token: sender.token,
+      method: 'POST',
+      body: {
+        product1: requestedProduct.id,
+        product2: offeredProduct.id,
+        requester1: offeredProduct.id,
+        owner1: receiver.id,
+        owner2: sender.id,
+        messages: [],
+      },
+    });
+
+  const senderContext = await browser.newContext();
+  const receiverContext = await browser.newContext();
+  const senderPage = await senderContext.newPage();
+  const receiverPage = await receiverContext.newPage();
+
+  try {
+    await Promise.all([
+      login(senderPage, sender.email, password),
+      login(receiverPage, receiver.email, password),
+    ]);
+    const cancelledExchange = await createExchange();
+    await openFlutterRoute(
+      senderPage,
+      `/previewrequested/${cancelledExchange.id}`,
+    );
+    await expect(
+      senderPage.getByLabel(`Tu ofreces: ${offeredProduct.title}`),
+    ).toBeVisible();
+    const cancelResponse = senderPage.waitForResponse(
+      (response) =>
+        response.url() ===
+          `${apiUrl}/chat-exchanges/${cancelledExchange.id}/status` &&
+        response.request().method() === 'PATCH',
+      { timeout: 30_000 },
+    );
+    await clickFlutterControl(
+      senderPage,
+      senderPage.getByRole('button', { name: 'Cancelar' }),
+    );
+    expect((await cancelResponse).status()).toBe(200);
+    await expect(
+      senderPage.getByLabel('Se ha cancelado la solicitud'),
+    ).toBeVisible();
+    expect(
+      (await apiRequest(`/chat-exchanges/${cancelledExchange.id}`, {
+        token: sender.token,
+      })).status,
+    ).toBe('abort');
+
+    const rejectedExchange = await createExchange();
+    await openFlutterRoute(
+      receiverPage,
+      `/previewreceived/${rejectedExchange.id}`,
+    );
+    await expect(
+      receiverPage.getByLabel(`Te ofrecen: ${offeredProduct.title}`),
+    ).toBeVisible();
+    const rejectResponse = receiverPage.waitForResponse(
+      (response) =>
+        response.url() ===
+          `${apiUrl}/chat-exchanges/${rejectedExchange.id}/status` &&
+        response.request().method() === 'PATCH',
+      { timeout: 30_000 },
+    );
+    await clickFlutterControl(
+      receiverPage,
+      receiverPage.getByRole('button', { name: 'Rechazar' }),
+    );
+    expect((await rejectResponse).status()).toBe(200);
+    await expect(
+      receiverPage.getByLabel('Se ha rechazado la solicitud'),
+    ).toBeVisible();
+    expect(
+      (await apiRequest(`/chat-exchanges/${rejectedExchange.id}`, {
+        token: receiver.token,
+      })).status,
+    ).toBe('rejected');
+  } finally {
+    await Promise.allSettled([
+      senderContext.close(),
+      receiverContext.close(),
+    ]);
+  }
 });

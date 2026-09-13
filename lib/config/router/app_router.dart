@@ -16,7 +16,6 @@ final goRouterProvider = Provider((ref) {
   final goRouterNotifier = ref.read(goRouterNotifierProvider);
   // final socketService = Get.find<SocketService>();
   return GoRouter(
-    initialLocation: AppRoutes.initialLocation(Uri.base),
     refreshListenable: goRouterNotifier,
     routes: [
       GoRoute(
@@ -119,7 +118,8 @@ final goRouterProvider = Provider((ref) {
       }
 
       if (authStatus == AuthStatus.authenticated) {
-        if (isGoingTo == AppRoutes.login ||
+        if (isGoingTo == AppRoutes.splash ||
+            isGoingTo == AppRoutes.login ||
             isGoingTo == AppRoutes.register ||
             isGoingTo == AppRoutes.authStatus) {
           return AppRoutes.discover;

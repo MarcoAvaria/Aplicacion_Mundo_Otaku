@@ -4,6 +4,7 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/camera_gallery_service_impl.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/token_interceptor.dart';
 
 import '../helpers/image_file_type.dart';
 
@@ -11,10 +12,16 @@ class ProductsDatasourceImpl extends ProductDatasource {
   late final Dio dio;
   final String accessToken;
 
-  ProductsDatasourceImpl({required this.accessToken})
-      : dio = Dio(BaseOptions(
+  ProductsDatasourceImpl({
+    required this.accessToken,
+    UnauthorizedCallback? onUnauthorized,
+  }) : dio = Dio(BaseOptions(
             baseUrl: Environment.apiUrl,
-            headers: {'Authorization': 'Bearer $accessToken'}));
+            headers: {'Authorization': 'Bearer $accessToken'})) {
+    if (accessToken.isNotEmpty && onUnauthorized != null) {
+      dio.interceptors.add(UnauthorizedInterceptor(onUnauthorized));
+    }
+  }
 
   Future<String> _uploadFile(String path) async {
     try {

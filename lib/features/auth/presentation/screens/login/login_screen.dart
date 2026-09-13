@@ -79,6 +79,14 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
     super.initState();
     _emailFocusNode = FocusNode()..addListener(_synchronizeEmail);
     _passwordFocusNode = FocusNode()..addListener(_synchronizePassword);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final authState = ref.read(authProvider);
+      if (authState.authStatus == AuthStatus.notAuthenticated &&
+          authState.errorMessage.isNotEmpty) {
+        showSnackbar(context, authState.errorMessage);
+      }
+    });
   }
 
   void _synchronizeEmail() {
@@ -118,13 +126,13 @@ class _LoginFormState extends ConsumerState<_LoginForm> {
   Widget build(BuildContext context) {
     final loginForm = ref.watch(loginFormProvider);
 
-    ref.listen(authProvider, ((previous, next) {
+    ref.listen(authProvider, (previous, next) {
       if (next.errorMessage.isEmpty) return;
       showSnackbar(context, next.errorMessage);
       if (next.authStatus == AuthStatus.authenticated) {
         context.push(AppRoutes.discover);
       }
-    }));
+    });
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),

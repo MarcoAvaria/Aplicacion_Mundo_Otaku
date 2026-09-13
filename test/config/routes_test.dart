@@ -14,21 +14,6 @@ void main() {
         '/chatscreen/exchange%201/mine/other',
       );
     });
-
-    test('restores browser paths and hash routes after a reload', () {
-      expect(AppRoutes.initialLocation(Uri.parse('https://demo.test/')),
-          AppRoutes.login);
-      expect(
-        AppRoutes.initialLocation(
-          Uri.parse('https://demo.test/#/chatscreen/chat/product-1/product-2'),
-        ),
-        '/chatscreen/chat/product-1/product-2',
-      );
-      expect(
-        AppRoutes.initialLocation(Uri.parse('https://demo.test/product/abc')),
-        '/product/abc',
-      );
-    });
   });
 
   group('ApiEndpoints', () {

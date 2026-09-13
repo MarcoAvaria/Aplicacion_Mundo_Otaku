@@ -102,6 +102,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
+  Future<void> expireSession() async {
+    await _clearLocalSession(
+      'Tu sesión expiró. Inicia sesión nuevamente.',
+    );
+  }
+
   Future<void> _clearLocalSession([String? errorMessage]) async {
     SocketService.instance.disconnect();
     await secureStorage.delete(key: 'auth_token');

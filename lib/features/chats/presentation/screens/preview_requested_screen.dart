@@ -106,20 +106,20 @@ class _PreviewRequestedView extends ConsumerWidget {
 
     return ListView(
       children: [
-        methodChar(customColor, otroProducto.title, 'Tu ofreces: '),
-        SizedBox(
-          height: 200,
-          width: 600,
-          child: _ImageGallery(
-              images: otroProducto.images, idProducto: otroProducto.id),
-        ),
-        const SizedBox(height: 10),
-        methodChar(customColor, miProducto.title, 'Tu recibes: '),
+        methodChar(customColor, miProducto.title, 'Tu ofreces: '),
         SizedBox(
           height: 200,
           width: 600,
           child: _ImageGallery(
               images: miProducto.images, idProducto: miProducto.id),
+        ),
+        const SizedBox(height: 10),
+        methodChar(customColor, otroProducto.title, 'Tu recibes: '),
+        SizedBox(
+          height: 200,
+          width: 600,
+          child: _ImageGallery(
+              images: otroProducto.images, idProducto: otroProducto.id),
         ),
         const SizedBox(height: 15),
         // Aquí puedes usar product1 y product2 según tus necesidades

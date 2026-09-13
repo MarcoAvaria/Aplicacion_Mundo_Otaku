@@ -133,7 +133,12 @@ class _PreviewReceivedView extends ConsumerWidget {
                 await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('rejected');
-                // Puedes realizar otras acciones después de rechazar la conversación
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Se ha rechazado la solicitud'),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade100,

@@ -5,15 +5,22 @@ import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/errors/chat
 import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/mappers/chat_exchange_mapper.dart';
 import 'package:dio/dio.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/token_interceptor.dart';
 
 class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   late final Dio dio;
   final String accessToken;
 
-  ChatExchangesDatasourceImpl({required this.accessToken})
-      : dio = Dio(BaseOptions(
+  ChatExchangesDatasourceImpl({
+    required this.accessToken,
+    UnauthorizedCallback? onUnauthorized,
+  }) : dio = Dio(BaseOptions(
             baseUrl: Environment.apiUrl,
-            headers: {'Authorization': 'Bearer $accessToken'}));
+            headers: {'Authorization': 'Bearer $accessToken'})) {
+    if (accessToken.isNotEmpty && onUnauthorized != null) {
+      dio.interceptors.add(UnauthorizedInterceptor(onUnauthorized));
+    }
+  }
 
   @override
   Future<ChatExchange> createUpdateChatExchange(
