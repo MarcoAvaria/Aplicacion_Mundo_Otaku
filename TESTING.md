@@ -9,6 +9,7 @@ flutter build web --release --no-tree-shake-icons
 Set-Location e2e
 npm ci
 npx playwright install chromium
+npm run check:portability
 npm test
 ```
 
@@ -26,6 +27,10 @@ Las pruebas unitarias verifican reglas con conocimiento de la implementación:
 - carga fallida y reintento de un producto individual.
 
 Los constructores `AppRoutes` y `ApiEndpoints` concentran los segmentos dinámicos y usan `Uri.encodeComponent`. La URL de la API y la del socket se leen desde `.env`; no dependen de una ruta absoluta del equipo.
+
+La prueba Node `e2e/scripts/check-portability.test.js` inspecciona la configuración y el código ejecutable de todas las plataformas. Rechaza rutas de unidad de Windows y directorios personales de Unix; permite URL locales configurables, rutas web y rutas relativas. Android obtiene el JDK de `JAVA_HOME` o del entorno de desarrollo, y Playwright usa su Chromium salvo que se defina `E2E_BROWSER_EXECUTABLE`.
+
+`flutter build apk --debug` todavía no forma parte de la matriz aprobada. Con JDK 17 supera la configuración de Gradle, pero falla en el plugin heredado `desktop_webview_auth 0.0.16` porque no define `compileSdkVersion`. El problema quedó aislado para la revisión de Firebase/OAuth; no afecta el build web usado por la demo actual.
 
 ## Caja negra de componentes
 

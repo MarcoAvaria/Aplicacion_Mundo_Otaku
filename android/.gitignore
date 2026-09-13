@@ -1,5 +1,6 @@
 gradle-wrapper.jar
 /.gradle
+/.gradle-portability-check
 /captures/
 /gradlew
 /gradlew.bat

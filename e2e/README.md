@@ -40,3 +40,6 @@ Variables opcionales:
 | `E2E_DB_PORT` | Puerto PostgreSQL del entorno de prueba | `5433` |
 | `E2E_FRONTEND_URL` | Origen web permitido por CORS | `http://127.0.0.1:8080` |
 | `E2E_BACKEND_URL` | Raíz pública de la API para Playwright | `http://127.0.0.1:3001` |
+| `E2E_BROWSER_EXECUTABLE` | Ejecutable alternativo de Chromium/Chrome, si se desea usar uno externo | Chromium instalado por Playwright |
+
+El proyecto no fija rutas absolutas del equipo. Android obtiene el JDK de `JAVA_HOME` o del entorno de desarrollo. `npm run check:portability` revisa el código ejecutable y la configuración de todas las plataformas, y también se ejecuta automáticamente antes de los recorridos. Las direcciones locales de la tabla son valores predeterminados aislados y pueden reemplazarse mediante variables de entorno.

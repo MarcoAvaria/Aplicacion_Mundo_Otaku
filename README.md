@@ -13,7 +13,7 @@ Cliente multiplataforma de Mundo Otaku. Permite registrarse, explorar y publicar
 
 ## Puesta en marcha
 
-Requisitos: Flutter instalado y la API de Mundo Otaku en ejecución.
+Requisitos: Flutter instalado y la API de Mundo Otaku en ejecución. Para compilar Android con la versión actual de Gradle se requiere JDK 17 configurado mediante `JAVA_HOME` o la opción de JDK del IDE; el repositorio no guarda la ubicación local del JDK.
 
 ```powershell
 Copy-Item .env.template .env
@@ -62,6 +62,8 @@ flutter build web --release --no-tree-shake-icons
 Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexión y persistencia; también comprueba edición, rechazo de archivos inválidos, eliminación de publicaciones, revocación de sesión, cancelación y rechazo de solicitudes. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
 
 Las únicas dependencias Node del repositorio pertenecen a Playwright y se administran dentro de `e2e/`. La aplicación usa exclusivamente las dependencias Dart declaradas en `pubspec.yaml`.
+
+La compilación Android aún tiene un bloqueo heredado en `desktop_webview_auth 0.0.16`: después de seleccionar correctamente JDK 17, el plugin no expone `compileSdkVersion` con la cadena Gradle 7.5/AGP 7.3.1. Debe resolverse junto con la revisión de las funciones Firebase/OAuth antes de declarar Android listo para distribución.
 
 El lockfile se actualizó dentro de las restricciones actuales y se verificó con análisis, pruebas, build web y el recorrido Playwright completo. Las migraciones mayores de Firebase, Riverpod, GoRouter y Socket.IO se mantienen como entregas independientes.
 

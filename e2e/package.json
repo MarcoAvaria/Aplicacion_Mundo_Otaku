@@ -4,7 +4,10 @@
   "private": true,
   "description": "Recorridos completos de Mundo Otaku en un navegador real",
   "scripts": {
+    "check:portability": "node --test scripts/check-portability.test.js",
+    "pretest": "npm run check:portability",
     "test": "node scripts/run-tests.js",
+    "pretest:headed": "npm run check:portability",
     "test:headed": "node scripts/run-tests.js --headed",
     "report": "playwright show-report"
   },

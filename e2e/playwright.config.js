@@ -1,13 +1,9 @@
-const fs = require('node:fs');
 const { defineConfig } = require('@playwright/test');
 
 const { backendDirectory, backendEnvironment } = require('./scripts/environment');
 const frontendUrl = process.env.E2E_FRONTEND_URL || 'http://127.0.0.1:8080';
 const backendUrl = process.env.E2E_BACKEND_URL || 'http://127.0.0.1:3001';
-const systemChrome = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
-const browserExecutable =
-  process.env.E2E_BROWSER_EXECUTABLE ||
-  (!process.env.CI && fs.existsSync(systemChrome) ? systemChrome : undefined);
+const browserExecutable = process.env.E2E_BROWSER_EXECUTABLE || undefined;
 
 module.exports = defineConfig({
   testDir: './tests',
