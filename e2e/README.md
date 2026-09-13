@@ -35,6 +35,8 @@ npm test
 
 `npm test` prepara el backend, crea PostgreSQL temporal en el puerto 5433 y MinIO temporal en el 9000, crea el bucket, ejecuta migraciones, inicia API y web, corre las pruebas y limpia todos los contenedores y objetos. Para depurar visualmente puede usarse `npm run test:headed`; los rastros, capturas y videos de fallos quedan en `test-results/`.
 
+Los recorridos cubren dos sesiones, publicación con varias imágenes, intercambio y chat por Socket.IO, pérdida de red y reconexión, error de red durante el acceso, edición de una publicación propia, rechazo de contenido que no corresponde a una imagen y eliminación confirmada.
+
 Variables opcionales:
 
 | Variable | Propósito | Valor predeterminado |

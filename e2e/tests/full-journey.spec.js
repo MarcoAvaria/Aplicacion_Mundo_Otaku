@@ -403,6 +403,97 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
   }
 });
 
+test('el propietario edita, rechaza una imagen inválida y elimina su producto', async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${process.pid}`;
+  const password = 'BrowserOwnership1!';
+  const originalTitle = `Producto editable ${runId}`;
+  const editedTitle = `Producto editado ${runId}`;
+  const user = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-owner-${runId}@mundo-otaku.test`,
+      fullName: 'Propietario Navegador',
+      password,
+    },
+  });
+  const product = await apiRequest('/products', {
+    token: user.token,
+    method: 'POST',
+    body: {
+      title: originalTitle,
+      typeOf: 'Otros',
+      description: 'Producto para comprobar edición y eliminación',
+      tomo: 1,
+      sizeOf: 'Ninguno',
+      gender: 'Ninguno',
+      demographic: 'Shonen',
+      tags: ['propiedad'],
+      images: [],
+    },
+  });
+
+  const context = await browser.newContext();
+  await prepareAuthenticatedContext(context, user.token);
+  const page = await context.newPage();
+
+  try {
+    await openFlutterRoute(page, `/product/${product.id}`);
+    await expect(page.getByLabel('Editar producto')).toBeVisible();
+    await enterFlutterText(page, page.getByLabel('Nombre'), editedTitle);
+
+    const editResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url() === `${apiUrl}/products/${product.id}` &&
+        response.request().method() === 'PATCH',
+      { timeout: 30_000 },
+    );
+    await page.getByRole('button', { name: 'Guardar producto' }).click();
+    expect((await editResponsePromise).status()).toBe(200);
+    await expect(page.getByLabel('Producto actualizado')).toBeVisible();
+
+    const storedProduct = await apiRequest(`/products/${product.id}`);
+    expect(storedProduct.title).toBe(editedTitle);
+
+    const chooserPromise = page.waitForEvent('filechooser', {
+      timeout: 20_000,
+    });
+    await page
+      .getByRole('button', { name: 'Agregar imagen desde galería' })
+      .click();
+    const chooser = await chooserPromise;
+    await chooser.setFiles({
+      name: 'contenido-invalido.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from('esto no es una imagen'),
+    });
+    await expect(
+      page.getByLabel('El archivo seleccionado no es una imagen válida.'),
+    ).toBeVisible();
+    await expect(page.getByLabel('Imágenes del producto: 0')).toBeVisible();
+
+    await page.getByRole('button', { name: 'Eliminar producto' }).click();
+    await expect(
+      page.getByText('Eliminar producto', { exact: true }),
+    ).toBeVisible();
+    const deleteResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url() === `${apiUrl}/products/${product.id}` &&
+        response.request().method() === 'DELETE',
+      { timeout: 30_000 },
+    );
+    await page.getByRole('button', { name: 'Eliminar', exact: true }).click();
+    expect((await deleteResponsePromise).status()).toBe(200);
+    await expect(page).toHaveURL(/#\/productos$/);
+
+    const deletedResponse = await fetch(`${apiUrl}/products/${product.id}`);
+    expect(deletedResponse.status).toBe(404);
+  } finally {
+    await context.close();
+  }
+});
+
 test('informa un error de red sin abandonar la pantalla de acceso', async ({
   page,
 }) => {

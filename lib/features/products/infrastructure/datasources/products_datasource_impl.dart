@@ -145,4 +145,9 @@ class ProductsDatasourceImpl extends ProductDatasource {
       }),
     );
   }
+
+  @override
+  Future<void> deleteProduct(String id) async {
+    await dio.delete(ApiEndpoints.product(id));
+  }
 }

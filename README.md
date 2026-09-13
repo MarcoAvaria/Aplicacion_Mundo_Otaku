@@ -59,7 +59,7 @@ flutter test
 flutter build web --release --no-tree-shake-icons
 ```
 
-Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexión y persistencia. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
+Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexión y persistencia; también comprueba edición, rechazo de archivos inválidos y eliminación de publicaciones. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
 
 Las únicas dependencias Node del repositorio pertenecen a Playwright y se administran dentro de `e2e/`. La aplicación usa exclusivamente las dependencias Dart declaradas en `pubspec.yaml`.
 
@@ -68,5 +68,5 @@ El lockfile se actualizó dentro de las restricciones actuales y se verificó co
 ## Trabajo pendiente conocido
 
 - completar edición de perfil y notificaciones si pasan a formar parte del alcance de la demo;
-- ampliar los recorridos con edición, eliminación, permisos de cámara y archivos inválidos;
+- comprobar permisos y captura de cámara en dispositivos Android e iOS;
 - migrar dependencias mayores por grupos pequeños y repetir la matriz después de cada grupo.

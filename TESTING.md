@@ -39,6 +39,9 @@ La suite de Playwright bajo `e2e/` levanta la API, una base PostgreSQL efímera 
 5. desconexión, conservación del mensaje no enviado y reconexión a la sala;
 6. recuperación del historial tras recargar y cierre del intercambio;
 7. error de red durante el login con permanencia en la pantalla y mensaje comprensible.
+8. edición de una publicación propia y persistencia del cambio en la API;
+9. rechazo por contenido de un archivo que suplanta una imagen PNG;
+10. confirmación, eliminación y ausencia posterior de la publicación.
 
 Los tests no usan la base demo conservada ni modifican sus fotografías. Cada ejecución crea usuarios, productos e intercambios propios en `mundo_otaku_e2e_test`, guarda imágenes en `.e2e-artifacts` y elimina ambos recursos al finalizar, incluso si una prueba falla. Consulta [e2e/README.md](e2e/README.md) para preparar el entorno.
 
@@ -46,8 +49,7 @@ Los tests no usan la base demo conservada ni modifican sus fotografías. Cada ej
 
 Los siguientes incrementos pueden añadirse sin rehacer la infraestructura:
 
-- edición y eliminación de una publicación desde navegador;
-- archivo inválido y rechazo de permisos de cámara o galería;
+- rechazo de permisos de cámara o galería en Android e iOS;
 - expiración del JWT durante una sesión activa;
 - cancelación y rechazo del intercambio;
 - perfil, notificaciones y estados vacíos cuando esas funciones entren en el alcance de la demo.

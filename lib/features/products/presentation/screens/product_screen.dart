@@ -1,8 +1,11 @@
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
+import 'package:aplicacion_mundo_otaku/features/products/infrastructure/helpers/image_file_type.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductScreen extends ConsumerWidget {
   final String productId;
@@ -13,6 +16,68 @@ class ProductScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context)
         .showSnackBar(const SnackBar(content: Text('Producto actualizado')));
+  }
+
+  Future<void> _addGalleryImage(
+    BuildContext context,
+    WidgetRef ref,
+    Product product,
+  ) async {
+    final photoPath = await CameraGalleryServiceImpl().selectPhoto();
+    if (photoPath == null) return;
+
+    try {
+      final bytes = await CameraGalleryServiceImpl.readPhotoBytes(photoPath);
+      detectImageFileType(bytes);
+      ref
+          .read(productFormProvider(product).notifier)
+          .updateProductImage(photoPath);
+    } on FormatException catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message.toString())),
+      );
+    }
+  }
+
+  Future<void> _deleteProduct(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar producto'),
+        content: const Text(
+          'Esta publicación se eliminará de forma permanente.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final deleted =
+        await ref.read(productProvider(productId).notifier).deleteProduct();
+    if (!context.mounted) return;
+    if (deleted) {
+      ref.invalidate(productsProvider);
+      context.go(AppRoutes.products);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('No fue posible eliminar el producto.'),
+      ),
+    );
   }
 
   @override
@@ -27,14 +92,9 @@ class ProductScreen extends ConsumerWidget {
           IconButton(
               tooltip: 'Agregar imagen desde galería',
               onPressed: () async {
-                final photoPath =
-                    await CameraGalleryServiceImpl().selectPhoto();
-                if (photoPath == null) return;
-
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath);
-                //photoPath;
+                final product = productState.product;
+                if (product == null) return;
+                await _addGalleryImage(context, ref, product);
               },
               icon: const Icon(Icons.photo_library_outlined)),
           IconButton(
@@ -48,6 +108,12 @@ class ProductScreen extends ConsumerWidget {
                 //photoPath;
               },
               icon: const Icon(Icons.camera_alt_outlined)),
+          if (productId != 'new')
+            IconButton(
+              tooltip: 'Eliminar producto',
+              onPressed: () => _deleteProduct(context, ref),
+              icon: const Icon(Icons.delete_outline),
+            ),
         ]),
         body: productState.isLoading
             ? const FullScreenLoader()

@@ -55,6 +55,16 @@ class ProductNotifier extends StateNotifier<ProductState> {
       throw Exception(e);
     }
   }
+
+  Future<bool> deleteProduct() async {
+    if (state.id == 'new') return false;
+    try {
+      await productsRepository.deleteProduct(state.id);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 }
 
 class ProductState {
