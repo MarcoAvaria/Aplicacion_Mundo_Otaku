@@ -4,6 +4,7 @@ const { spawnSync } = require('node:child_process');
 const {
   backendDirectory,
   backendEnvironment,
+  dockerProject,
   manageDatabase,
 } = require('./environment');
 
@@ -19,7 +20,14 @@ if (artifactsDirectory === expectedArtifactsDirectory) {
 if (manageDatabase) {
   spawnSync(
     'docker',
-    ['compose', '-f', 'docker-compose.test.yml', 'down'],
+    [
+      'compose',
+      '--project-name',
+      dockerProject,
+      '-f',
+      'docker-compose.test.yml',
+      'down',
+    ],
     {
       cwd: backendDirectory,
       env: backendEnvironment,

@@ -1,11 +1,14 @@
 const path = require('node:path');
 
 const frontendUrl = process.env.E2E_FRONTEND_URL || 'http://127.0.0.1:8080';
+const backendUrl = process.env.E2E_BACKEND_URL || 'http://127.0.0.1:3001';
+const frontendDirectory = path.resolve(__dirname, '..', '..');
 const backendDirectory = path.resolve(
   process.env.MUNDO_OTAKU_BACKEND_DIR ||
     path.join(__dirname, '..', '..', '..', 'MundoOtaku-Backend-Repository', 'MundoOtaku-Backend-Repository'),
 );
 const databasePort = process.env.E2E_DB_PORT || '5433';
+const dockerProject = process.env.E2E_DOCKER_PROJECT || 'mundo-otaku-e2e';
 
 const backendEnvironment = {
   ...process.env,
@@ -34,6 +37,10 @@ const backendEnvironment = {
 
 module.exports = {
   backendDirectory,
+  backendUrl,
   backendEnvironment,
+  dockerProject,
+  frontendDirectory,
+  frontendUrl,
   manageDatabase: process.env.E2E_MANAGE_DATABASE !== 'false',
 };

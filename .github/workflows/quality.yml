@@ -74,12 +74,6 @@ jobs:
         working-directory: e2e
         run: npx playwright install --with-deps chromium
 
-      - name: Build web for browser tests
-        run: >-
-          flutter build web --release --web-renderer html
-          --dart-define=API_URL=http://127.0.0.1:3001/api
-          --dart-define=SOCKET_URL=http://127.0.0.1:3001
-
       - name: Run browser journeys
         working-directory: e2e
         env:

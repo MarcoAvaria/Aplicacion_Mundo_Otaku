@@ -3,7 +3,10 @@ const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const {
   backendDirectory,
+  backendUrl,
   backendEnvironment,
+  dockerProject,
+  frontendDirectory,
   manageDatabase,
 } = require('./environment');
 
@@ -22,9 +25,27 @@ if (!fs.existsSync(path.join(backendDirectory, 'package.json'))) {
   throw new Error(`Backend no encontrado en ${backendDirectory}`);
 }
 
+if (process.env.E2E_SKIP_FRONTEND_BUILD !== 'true') {
+  run(
+    process.platform === 'win32' ? 'flutter.bat' : 'flutter',
+    [
+      'build',
+      'web',
+      '--release',
+      '--web-renderer',
+      'html',
+      `--dart-define=API_URL=${backendUrl}/api`,
+      `--dart-define=SOCKET_URL=${backendUrl}`,
+    ],
+    { cwd: frontendDirectory },
+  );
+}
+
 if (manageDatabase) {
   run('docker', [
     'compose',
+    '--project-name',
+    dockerProject,
     '-f',
     'docker-compose.test.yml',
     'up',
@@ -35,6 +56,8 @@ if (manageDatabase) {
   ]);
   run('docker', [
     'compose',
+    '--project-name',
+    dockerProject,
     '-f',
     'docker-compose.test.yml',
     'run',
