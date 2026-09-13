@@ -63,8 +63,10 @@ Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoi
 
 Las únicas dependencias Node del repositorio pertenecen a Playwright y se administran dentro de `e2e/`. La aplicación usa exclusivamente las dependencias Dart declaradas en `pubspec.yaml`.
 
+El lockfile se actualizó dentro de las restricciones actuales y se verificó con análisis, pruebas, build web y el recorrido Playwright completo. Las migraciones mayores de Firebase, Riverpod, GoRouter y Socket.IO se mantienen como entregas independientes.
+
 ## Trabajo pendiente conocido
 
 - completar edición de perfil y notificaciones si pasan a formar parte del alcance de la demo;
 - ampliar los recorridos con edición, eliminación, permisos de cámara y archivos inválidos;
-- actualizar dependencias por etapas después de estabilizar el recorrido principal.
+- migrar dependencias mayores por grupos pequeños y repetir la matriz después de cada grupo.
