@@ -518,6 +518,73 @@ test('informa un error de red sin abandonar la pantalla de acceso', async ({
   await expect(page).toHaveURL(/#\/login$/);
 });
 
+test('informa fallos de listas, permite reintentar y explica estados vacíos', async ({
+  browser,
+}) => {
+  const runId = `${Date.now()}-${process.pid}`;
+  const user = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-empty-${runId}@mundo-otaku.test`,
+      fullName: 'Usuario Listas Vacías',
+      password: 'BrowserEmpty1!',
+    },
+  });
+  const context = await browser.newContext();
+  await prepareAuthenticatedContext(context, user.token);
+  const page = await context.newPage();
+
+  try {
+    let blockProducts = true;
+    await page.route('**/api/products*', (route) => {
+      if (blockProducts && route.request().method() === 'GET') {
+        return route.abort('internetdisconnected');
+      }
+      return route.continue();
+    });
+
+    await openFlutterRoute(page, '/productos');
+    await expect(
+      page.getByLabel('No fue posible cargar los productos.'),
+    ).toBeVisible();
+    blockProducts = false;
+    await page.getByRole('button', { name: 'Reintentar' }).click();
+    await expect(
+      page.getByLabel('Todavía no has publicado productos.'),
+    ).toBeVisible();
+
+    let blockExchanges = true;
+    await page.route('**/api/chat-exchanges/user/**', (route) => {
+      if (blockExchanges) {
+        return route.abort('internetdisconnected');
+      }
+      return route.continue();
+    });
+
+    await openFlutterRoute(page, '/requestedList');
+    await expect(
+      page.getByLabel('No fue posible cargar los intercambios.'),
+    ).toBeVisible();
+    blockExchanges = false;
+    await page.getByRole('button', { name: 'Reintentar' }).click();
+    await expect(
+      page.getByLabel('No tienes solicitudes enviadas pendientes.'),
+    ).toBeVisible();
+
+    await openFlutterRoute(page, '/receivedList');
+    await expect(
+      page.getByLabel('No tienes solicitudes recibidas pendientes.'),
+    ).toBeVisible();
+
+    await openFlutterRoute(page, '/chatList');
+    await expect(
+      page.getByLabel(/No tienes intercambios aceptados/),
+    ).toBeVisible();
+  } finally {
+    await context.close();
+  }
+});
+
 test('cierra la sesión cuando el token se revoca durante una edición', async ({
   browser,
 }) => {

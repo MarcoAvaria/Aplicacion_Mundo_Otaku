@@ -12,6 +12,7 @@ export 'geometrical_background.dart';
 export 'configuration_menu.dart';
 export 'full_screen_loader.dart';
 export 'image_provider_for_path.dart';
+export 'list_status_view.dart';
 export 'custom_product_field.dart';
 export 'chat/my_message_bubble.dart';
 export 'chat/message.dart';

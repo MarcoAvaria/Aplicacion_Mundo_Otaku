@@ -81,6 +81,39 @@ class _DiscoverViewState extends ConsumerState {
   Widget build(BuildContext context) {
     final productsState = ref.watch(productsProvider);
     final authState = ref.watch(authProvider);
+    final products = productsState.products
+        .where((product) => authState.user?.id != product.user?.id)
+        .toList();
+
+    final shouldLoadMore = products.isEmpty &&
+        !productsState.isLoading &&
+        !productsState.isLastPage &&
+        productsState.errorMessage.isEmpty;
+    if (shouldLoadMore) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(productsProvider.notifier).loadNextPage();
+      });
+    }
+
+    if ((productsState.isLoading || shouldLoadMore) && products.isEmpty) {
+      return const ListStatusView(
+        message: 'Cargando productos...',
+        isLoading: true,
+      );
+    }
+
+    if (productsState.errorMessage.isNotEmpty && products.isEmpty) {
+      return ListStatusView(
+        message: productsState.errorMessage,
+        onRetry: () => ref.read(productsProvider.notifier).loadNextPage(),
+      );
+    }
+
+    if (products.isEmpty) {
+      return const ListStatusView(
+        message: 'Aún no hay publicaciones de otros usuarios.',
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -90,18 +123,13 @@ class _DiscoverViewState extends ConsumerState {
         crossAxisCount: 1,
         mainAxisSpacing: 20,
         crossAxisSpacing: 35,
-        itemCount: productsState.products.length,
+        itemCount: products.length,
         itemBuilder: (context, index) {
-          final product = productsState.products[index];
-
-          if (authState.user?.id != product.user?.id) {
-            return GestureDetector(
-                onTap: () => context.push(AppRoutes.otherProduct(product.id)),
-                child: DiscoverCard(product: product));
-          } else {
-            return Container();
-          }
-          //return ProductCard(product: product);
+          final product = products[index];
+          return GestureDetector(
+            onTap: () => context.push(AppRoutes.otherProduct(product.id)),
+            child: DiscoverCard(product: product),
+          );
         },
       ),
     );

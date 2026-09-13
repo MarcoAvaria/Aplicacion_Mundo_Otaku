@@ -1,18 +1,21 @@
+import 'package:aplicacion_mundo_otaku/config/config.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:aplicacion_mundo_otaku/config/config.dart';
+
+import 'exchange_list_support.dart';
 
 class RequestedListScreen extends StatelessWidget {
   static const String name = 'requested_list_screen';
+
   const RequestedListScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
@@ -24,84 +27,68 @@ class RequestedListScreen extends StatelessWidget {
   }
 }
 
-class _RequestedListView extends ConsumerStatefulWidget {
+class _RequestedListView extends ConsumerWidget {
   const _RequestedListView();
-  @override
-  _RequestedListState createState() => _RequestedListState();
-}
-
-class _RequestedListState extends ConsumerState {
-  final ScrollController scrollController = ScrollController();
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final userId = ref.read(authProvider).user?.id as String;
-      ref.read(chatExchangesProvider.notifier).loadAllChatExchanges(userId);
-    });
-
-    scrollController.addListener(() {
-      if ((scrollController.position.pixels + 200) >=
-          scrollController.position.maxScrollExtent) {
-        // También movemos esta llamada aquí para evitar problemas
-        ref.read(chatExchangesProvider.notifier).loadNextPage();
-      }
-    });
-  }
 
   @override
-  void dispose() {
-    scrollController.dispose();
-    super.dispose();
-  }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final exchangesState = ref.watch(chatExchangesProvider);
+    final productsState = ref.watch(productsProvider);
+    final userId = ref.watch(authProvider).user?.id ?? '';
+    final productsById = {
+      for (final product in productsState.products) product.id: product,
+    };
+    final rows = <_ExchangeRow>[];
+    var hasUnresolvedProduct = false;
 
-  @override
-  Widget build(BuildContext context) {
-    var chatExchangesState = ref.watch(chatExchangesProvider);
-    List<ChatExchange> listaTotalChat = chatExchangesState.chatExchanges;
-    var productsState = ref.watch(productsProvider);
-    var authState = ref.watch(authProvider);
-    List<Product> misProductos = productsState.products
-        .where((product) => product.user?.id == authState.user?.id)
-        .toList();
-
-    //List<Product> listafinal = <Product>[];
-    List<List<Object>> listafinal = [];
-
-    for (ChatExchange conversacion in listaTotalChat) {
-      for (Product miProducto in misProductos) {
-        if ((miProducto.id == conversacion.requester1) &&
-            (conversacion.status == 'pending')) {
-          if (conversacion.product1 == miProducto.id) {
-            listafinal.add([
-              productsState.products
-                  .firstWhere((product) => product.id == conversacion.product2),
-              conversacion,
-            ]);
-          } else {
-            listafinal.add([
-              productsState.products
-                  .firstWhere((product) => product.id == conversacion.product1),
-              conversacion,
-            ]);
-          }
-        }
+    for (final exchange in exchangesState.chatExchanges) {
+      if (exchange.status != 'pending' || exchange.owner2 != userId) continue;
+      final product = productsById[exchange.product1];
+      if (product == null) {
+        hasUnresolvedProduct = true;
+      } else {
+        rows.add(_ExchangeRow(product, exchange));
       }
     }
 
+    final waitingForProducts = hasUnresolvedProduct &&
+        !productsState.isLastPage &&
+        productsState.errorMessage.isEmpty;
+    if (waitingForProducts && !productsState.isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(productsProvider.notifier).loadNextPage();
+      });
+    }
+
+    final status = buildExchangeListStatus(
+      ref: ref,
+      userId: userId,
+      exchangesState: exchangesState,
+      productsState: productsState,
+      isEmpty: rows.isEmpty,
+      waitingForProducts: waitingForProducts,
+      emptyMessage: 'No tienes solicitudes enviadas pendientes.',
+    );
+    if (status != null) return status;
+
     return ListView.builder(
-      itemCount: listafinal.length,
+      itemCount: rows.length,
       itemBuilder: (context, index) {
-        final product = listafinal[index][0] as Product;
-        final chatcito = listafinal[index][1] as ChatExchange;
+        final row = rows[index];
         return ListTile(
-          leading:
-              CircleAvatar(backgroundImage: NetworkImage(product.images.first)),
-          title: Text(product.title),
-          //onTap: () {},
-          onTap: () => context.push(AppRoutes.previewRequested(chatcito.id)),
+          leading: ProductListAvatar(product: row.product),
+          title: Text(row.product.title),
+          onTap: () =>
+              context.push(AppRoutes.previewRequested(row.exchange.id)),
         );
       },
     );
   }
+}
+
+class _ExchangeRow {
+  final Product product;
+  final ChatExchange exchange;
+
+  const _ExchangeRow(this.product, this.exchange);
 }
