@@ -1,5 +1,6 @@
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/products_provider.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/product_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -38,10 +39,28 @@ void main() {
     expect(notifier.state.isLastPage, isTrue);
     expect(notifier.state.offset, 0);
   });
+
+  test('permite reintentar la carga de un producto individual', () async {
+    final repository = _ProductsRepository()..failNextProductLoad = true;
+    final notifier = ProductNotifier(
+      productsRepository: repository,
+      productId: 'product-1',
+      loadOnCreate: false,
+    );
+
+    await notifier.loadProduct();
+    expect(notifier.state.errorMessage, 'No fue posible cargar el producto.');
+    expect(notifier.state.product, isNull);
+
+    await notifier.loadProduct();
+    expect(notifier.state.errorMessage, isEmpty);
+    expect(notifier.state.product?.id, 'product-1');
+  });
 }
 
 class _ProductsRepository implements ProductsRepository {
   bool failNextRequest = false;
+  bool failNextProductLoad = false;
   List<int> requestedOffsets = [];
   List<Product> products = [
     Product(
@@ -77,7 +96,13 @@ class _ProductsRepository implements ProductsRepository {
   Future<void> deleteProduct(String id) => throw UnimplementedError();
 
   @override
-  Future<Product> getProductById(String id) => throw UnimplementedError();
+  Future<Product> getProductById(String id) async {
+    if (failNextProductLoad) {
+      failNextProductLoad = false;
+      throw Exception('sin conexión');
+    }
+    return products.first;
+  }
 
   @override
   Future<List<Product>> getProductsForCurrentUser(String userId) =>

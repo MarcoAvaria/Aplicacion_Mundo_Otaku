@@ -17,8 +17,9 @@ class ProductNotifier extends StateNotifier<ProductState> {
   ProductNotifier({
     required this.productsRepository,
     required String productId,
+    bool loadOnCreate = true,
   }) : super(ProductState(id: productId)) {
-    loadProduct();
+    if (loadOnCreate) loadProduct();
   }
 
   Product newEmptyProduct() {
@@ -38,6 +39,7 @@ class ProductNotifier extends StateNotifier<ProductState> {
   }
 
   Future<void> loadProduct() async {
+    state = state.copyWith(isLoading: true, errorMessage: '');
     try {
       if (state.id == 'new') {
         state = state.copyWith(
@@ -49,10 +51,11 @@ class ProductNotifier extends StateNotifier<ProductState> {
 
       final product = await productsRepository.getProductById(state.id);
       state = state.copyWith(isLoading: false, product: product);
-    } catch (e) {
-      // 404 Producto no encontrado
-      //print(e);
-      throw Exception(e);
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'No fue posible cargar el producto.',
+      );
     }
   }
 
@@ -72,12 +75,14 @@ class ProductState {
   final Product? product;
   final bool isLoading;
   final bool isSaving;
+  final String errorMessage;
 
   ProductState({
     required this.id,
     this.product,
     this.isLoading = true,
     this.isSaving = false,
+    this.errorMessage = '',
   });
 
   ProductState copyWith({
@@ -85,11 +90,13 @@ class ProductState {
     Product? product,
     bool? isLoading,
     bool? isSaving,
+    String? errorMessage,
   }) =>
       ProductState(
         id: id ?? this.id,
         product: product ?? this.product,
         isLoading: isLoading ?? this.isLoading,
         isSaving: isSaving ?? this.isSaving,
+        errorMessage: errorMessage ?? this.errorMessage,
       );
 }

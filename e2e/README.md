@@ -26,7 +26,7 @@ npm test
 
 `npm test` construye el cliente con las direcciones del entorno E2E, prepara el backend, crea PostgreSQL temporal en el puerto 5433 y MinIO temporal en el 9000, crea el bucket, ejecuta migraciones, inicia API y web, corre las pruebas y limpia todos los contenedores y objetos. Los servicios usan un proyecto Docker propio y no se mezclan con la base demo local. Para depurar visualmente puede usarse `npm run test:headed`; los rastros, capturas y videos de fallos quedan en `test-results/`.
 
-Los recorridos cubren dos sesiones, publicación con varias imágenes, intercambio y chat por Socket.IO, pérdida de red y reconexión, error de red durante el acceso y las listas, reintentos, estados vacíos, edición de una publicación propia, rechazo de contenido que no corresponde a una imagen, eliminación confirmada, revocación de una sesión activa, cancelación y rechazo de solicitudes.
+Los recorridos cubren dos sesiones, publicación con varias imágenes, intercambio y chat por Socket.IO, pérdida de red y reconexión, error de red durante el acceso, las listas y los detalles, reintentos, estados vacíos, edición de una publicación propia, ausencia de edición en productos ajenos, rechazo de contenido que no corresponde a una imagen, eliminación confirmada, revocación de una sesión activa, cancelación y rechazo de solicitudes.
 
 Variables opcionales:
 

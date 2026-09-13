@@ -287,8 +287,31 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
       expect(imageResponse.status).toBe(200);
     }
 
+    let blockProductDetail = true;
+    await secondPage.route(
+      `**/api/products/${publishedProduct.id}`,
+      (route) => {
+        if (blockProductDetail && route.request().method() === 'GET') {
+          return route.abort('internetdisconnected');
+        }
+        return route.continue();
+      },
+    );
     await openFlutterRoute(secondPage, `/otherproduct/${publishedProduct.id}`);
+    await expect(
+      secondPage.getByLabel('No fue posible cargar el producto.'),
+    ).toBeVisible();
+    blockProductDetail = false;
+    await secondPage.getByRole('button', { name: 'Reintentar' }).click();
     await expect(secondPage.getByLabel(publishedTitle)).toBeVisible();
+    await expect(
+      secondPage.getByRole('button', { name: 'Guardar producto' }),
+    ).toHaveCount(0);
+    await expect(
+      secondPage.getByRole('button', {
+        name: 'Agregar imagen desde galería',
+      }),
+    ).toHaveCount(0);
     await clickFlutterControl(
       secondPage,
       secondPage.getByRole('button', { name: '¡Propone un cambio :)!' }),

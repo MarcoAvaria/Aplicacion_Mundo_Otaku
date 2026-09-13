@@ -91,55 +91,74 @@ class ProductScreen extends ConsumerWidget {
         appBar: AppBar(title: const Text('Editar producto'), actions: [
           IconButton(
               tooltip: 'Agregar imagen desde galería',
-              onPressed: () async {
-                final product = productState.product;
-                if (product == null) return;
-                await _addGalleryImage(context, ref, product);
-              },
+              onPressed: productState.product == null
+                  ? null
+                  : () => _addGalleryImage(
+                        context,
+                        ref,
+                        productState.product!,
+                      ),
               icon: const Icon(Icons.photo_library_outlined)),
           IconButton(
               tooltip: 'Tomar fotografía',
-              onPressed: () async {
-                final photoPath = await CameraGalleryServiceImpl().takePhoto();
-                if (photoPath == null) return;
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath);
-                //photoPath;
-              },
+              onPressed: productState.product == null
+                  ? null
+                  : () async {
+                      final photoPath =
+                          await CameraGalleryServiceImpl().takePhoto();
+                      if (photoPath == null) return;
+                      ref
+                          .read(productFormProvider(productState.product!)
+                              .notifier)
+                          .updateProductImage(photoPath);
+                    },
               icon: const Icon(Icons.camera_alt_outlined)),
           if (productId != 'new')
             IconButton(
               tooltip: 'Eliminar producto',
-              onPressed: () => _deleteProduct(context, ref),
+              onPressed: productState.product == null
+                  ? null
+                  : () => _deleteProduct(context, ref),
               icon: const Icon(Icons.delete_outline),
             ),
         ]),
         body: productState.isLoading
             ? const FullScreenLoader()
-            : _ProductView(product: productState.product!),
+            : productState.errorMessage.isNotEmpty &&
+                    productState.product == null
+                ? ListStatusView(
+                    message: productState.errorMessage,
+                    onRetry: () => ref
+                        .read(productProvider(productId).notifier)
+                        .loadProduct(),
+                  )
+                : productState.product == null
+                    ? const ListStatusView(
+                        message: 'El producto ya no está disponible.',
+                      )
+                    : _ProductView(product: productState.product!),
         floatingActionButton: FloatingActionButton(
           tooltip: 'Guardar producto',
-          onPressed: () async {
-            if (productState.product == null) return;
-
-            final saved = await ref
-                .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit();
-            if (!context.mounted) return;
-            if (saved) {
-              showSnackbar(context);
-              return;
-            }
-            ScaffoldMessenger.of(context).clearSnackBars();
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'No fue posible guardar el producto. Revisa tu conexión e inténtalo nuevamente.',
-                ),
-              ),
-            );
-          },
+          onPressed: productState.product == null
+              ? null
+              : () async {
+                  final saved = await ref
+                      .read(productFormProvider(productState.product!).notifier)
+                      .onFormSubmit();
+                  if (!context.mounted) return;
+                  if (saved) {
+                    showSnackbar(context);
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'No fue posible guardar el producto. Revisa tu conexión e inténtalo nuevamente.',
+                      ),
+                    ),
+                  );
+                },
           child: const Icon(Icons.save_as_outlined),
         ),
       ),

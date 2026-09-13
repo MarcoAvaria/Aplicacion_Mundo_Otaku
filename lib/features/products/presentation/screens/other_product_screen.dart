@@ -11,11 +11,6 @@ import '../../../auth/auth.dart';
 class OtherProductScreen extends ConsumerWidget {
   final String productId;
   const OtherProductScreen({super.key, required this.productId});
-  void showSnackbar(BuildContext context) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Producto actualizado')));
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,47 +27,25 @@ class OtherProductScreen extends ConsumerWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Detalles'), actions: [
-          IconButton(
-              onPressed: () async {
-                final photoPath =
-                    await CameraGalleryServiceImpl().selectPhoto();
-                if (photoPath == null) return;
-
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath); //photoPath;
-              },
-              icon: const Icon(Icons.photo_library_outlined)),
-          IconButton(
-              onPressed: () async {
-                final photoPath = await CameraGalleryServiceImpl().takePhoto();
-                if (photoPath == null) return;
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath); //photoPath;
-              },
-              icon: const Icon(Icons.camera_alt_outlined)),
-        ]),
+        appBar: AppBar(title: const Text('Detalles')),
         body: productState.isLoading
             ? const FullScreenLoader()
-            : _OtherProductView(
-                product: productState.product!,
-                otherProductsState: otherProductsList),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (productState.product == null) return;
-
-            ref
-                .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit()
-                .then((value) {
-              if (!value) return;
-              showSnackbar(context); //FocusScope.of(context).unfocus();
-            });
-          },
-          child: const Icon(Icons.save_as_outlined),
-        ),
+            : productState.errorMessage.isNotEmpty &&
+                    productState.product == null
+                ? ListStatusView(
+                    message: productState.errorMessage,
+                    onRetry: () => ref
+                        .read(productProvider(productId).notifier)
+                        .loadProduct(),
+                  )
+                : productState.product == null
+                    ? const ListStatusView(
+                        message: 'El producto ya no está disponible.',
+                      )
+                    : _OtherProductView(
+                        product: productState.product!,
+                        otherProductsState: otherProductsList,
+                      ),
       ),
     );
   }

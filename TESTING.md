@@ -23,6 +23,7 @@ Las pruebas unitarias verifican reglas con conocimiento de la implementación:
 - conservación del texto de un producto mientras el campo tiene foco y sincronización posterior de cambios externos.
 - errores, reintentos y avance correcto de la paginación de productos e intercambios;
 - carga y actualización fallida de una solicitud individual.
+- carga fallida y reintento de un producto individual.
 
 Los constructores `AppRoutes` y `ApiEndpoints` concentran los segmentos dinámicos y usan `Uri.encodeComponent`. La URL de la API y la del socket se leen desde `.env`; no dependen de una ruta absoluta del equipo.
 
@@ -48,6 +49,7 @@ La suite de Playwright bajo `e2e/` levanta la API, una base PostgreSQL efímera 
 12. cancelación por quien envió y rechazo por quien recibió una solicitud pendiente.
 13. error de red y reintento de las listas de productos e intercambios;
 14. estados vacíos de productos propios, solicitudes enviadas, solicitudes recibidas y chats.
+15. recuperación del detalle de productos ajenos sin exponer acciones de edición.
 
 Los tests no usan la base demo conservada ni modifican sus fotografías. Cada ejecución crea usuarios, productos e intercambios propios en `mundo_otaku_e2e_test`, guarda imágenes en `.e2e-artifacts` y elimina ambos recursos al finalizar, incluso si una prueba falla. Consulta [e2e/README.md](e2e/README.md) para preparar el entorno.
 
