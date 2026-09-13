@@ -18,57 +18,78 @@ class PreviewRequestedScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
     final chatExchangeState = ref.watch(chatExchangeProvider(chatExchangeId));
-    ChatExchange? chatExchangeNullable = chatExchangeState.chatExchange;
+    final chatExchange = chatExchangeState.chatExchange;
 
-    if (chatExchangeNullable != null) {
-      ChatExchange chatExchange = chatExchangeNullable;
-      // Resto del código...
-      return Scaffold(
-        drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
-        //appBar: CustomAppBar.customAppBar(context, '¡Mira la propuesta!'),
-        //appBar: AppBar(title: const Text('¡Mira la propuesta!')),
-        appBar: AppBar(
-          title: const Text('¡Mira la propuesta!'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              // Use Navigator to pop the current route
-              Navigator.of(context).pop();
-            },
-          ),
+    return Scaffold(
+      drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
+      appBar: AppBar(
+        title: const Text('¡Mira la propuesta!'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: chatExchangeState.isLoading
-            ? const FullScreenLoader()
-            : _PreviewRequestedView(
-                chatExchange: chatExchange,
-              ),
-      );
-    } else {
-      // Manejar el caso en que chatExchange sea nulo
-      return const Scaffold();
-    }
+      ),
+      body: chatExchangeState.isLoading
+          ? const FullScreenLoader()
+          : chatExchangeState.errorMessage.isNotEmpty && chatExchange == null
+              ? ListStatusView(
+                  message: chatExchangeState.errorMessage,
+                  onRetry: () => ref
+                      .read(chatExchangeProvider(chatExchangeId).notifier)
+                      .loadChatExchange(),
+                )
+              : chatExchange == null
+                  ? const ListStatusView(
+                      message: 'La solicitud ya no está disponible.',
+                    )
+                  : _PreviewRequestedView(chatExchange: chatExchange),
+    );
   }
 }
 
-class _PreviewRequestedView extends ConsumerWidget {
+class _PreviewRequestedView extends ConsumerStatefulWidget {
   final ChatExchange chatExchange;
   const _PreviewRequestedView({required this.chatExchange});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PreviewRequestedView> createState() =>
+      _PreviewRequestedViewState();
+}
+
+class _PreviewRequestedViewState extends ConsumerState<_PreviewRequestedView> {
+  late Future<List<Product>> productsFuture;
+  ChatExchange get chatExchange => widget.chatExchange;
+
+  @override
+  void initState() {
+    super.initState();
+    productsFuture = _loadProducts(ref);
+  }
+
+  void retryProducts() {
+    setState(() => productsFuture = _loadProducts(ref));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final idUser = ref.watch(authProvider).user!.id;
     return FutureBuilder<List<Product>>(
-      future: _loadProducts(ref),
+      future: productsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const FullScreenLoader();
         } else if (snapshot.hasError) {
-          return const Text('Error loading products');
+          return ListStatusView(
+            message: 'No fue posible cargar los productos de la solicitud.',
+            onRetry: retryProducts,
+          );
         } else if (snapshot.hasData) {
           final List<Product> products = snapshot.data!;
           return _buildContent(context, products, idUser, ref);
         } else {
-          return const Text('No data');
+          return const ListStatusView(
+            message: 'Los productos de la solicitud ya no están disponibles.',
+          );
         }
       },
     );
@@ -129,14 +150,16 @@ class _PreviewRequestedView extends ConsumerWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                await ref
+                final wasUpdated = await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('abort');
                 if (!context.mounted) return;
                 // Muestra el SnackBar
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Se ha cancelado la solicitud'),
+                  SnackBar(
+                    content: Text(wasUpdated
+                        ? 'Se ha cancelado la solicitud'
+                        : 'No fue posible cancelar la solicitud.'),
                   ),
                 );
                 // Puedes realizar otras acciones después de aceptar la conversación

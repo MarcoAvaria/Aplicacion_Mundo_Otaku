@@ -21,7 +21,8 @@ Las pruebas unitarias verifican reglas con conocimiento de la implementación:
 - construcción y codificación de rutas de la aplicación y endpoints REST;
 - compatibilidad del mapper de intercambios con el contrato actual y la forma antigua de relaciones.
 - conservación del texto de un producto mientras el campo tiene foco y sincronización posterior de cambios externos.
-- errores, reintentos y avance correcto de la paginación de productos e intercambios.
+- errores, reintentos y avance correcto de la paginación de productos e intercambios;
+- carga y actualización fallida de una solicitud individual.
 
 Los constructores `AppRoutes` y `ApiEndpoints` concentran los segmentos dinámicos y usan `Uri.encodeComponent`. La URL de la API y la del socket se leen desde `.env`; no dependen de una ruta absoluta del equipo.
 

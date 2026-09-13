@@ -722,10 +722,25 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
       login(receiverPage, receiver.email, password),
     ]);
     const cancelledExchange = await createExchange();
+    let blockRequestDetail = true;
+    await senderPage.route(
+      `**/api/chat-exchanges/${cancelledExchange.id}`,
+      (route) => {
+        if (blockRequestDetail && route.request().method() === 'GET') {
+          return route.abort('internetdisconnected');
+        }
+        return route.continue();
+      },
+    );
     await openFlutterRoute(
       senderPage,
       `/previewrequested/${cancelledExchange.id}`,
     );
+    await expect(
+      senderPage.getByLabel('No fue posible cargar la solicitud.'),
+    ).toBeVisible();
+    blockRequestDetail = false;
+    await senderPage.getByRole('button', { name: 'Reintentar' }).click();
     await expect(
       senderPage.getByLabel(`Tu ofreces: ${offeredProduct.title}`),
     ).toBeVisible();

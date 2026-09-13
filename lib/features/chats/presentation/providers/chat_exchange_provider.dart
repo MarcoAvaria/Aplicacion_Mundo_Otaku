@@ -18,9 +18,11 @@ class ChatExchangeNotifier extends StateNotifier<ChatExchangeState> {
   final ChatExchangesRepository chatExchangesRepository;
 
   ChatExchangeNotifier(
-      {required this.chatExchangesRepository, required String chatExchangeId})
+      {required this.chatExchangesRepository,
+      required String chatExchangeId,
+      bool loadOnCreate = true})
       : super(ChatExchangeState(id: chatExchangeId)) {
-    loadChatExchange();
+    if (loadOnCreate) loadChatExchange();
   }
 
   ChatExchange newEmptyChatExchange() {
@@ -37,6 +39,7 @@ class ChatExchangeNotifier extends StateNotifier<ChatExchangeState> {
   }
 
   Future<void> loadChatExchange() async {
+    state = state.copyWith(isLoading: true, errorMessage: '');
     try {
       if (state.id == 'new') {
         state = state.copyWith(
@@ -49,42 +52,48 @@ class ChatExchangeNotifier extends StateNotifier<ChatExchangeState> {
       final chatExchange =
           await chatExchangesRepository.getChatExchangeById(state.id);
       state = state.copyWith(isLoading: false, chatExchange: chatExchange);
-    } catch (e) {
-      // 404 Producto no encontrado
-      //print(e);
-      throw Exception(e);
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'No fue posible cargar la solicitud.',
+      );
     }
   }
 
-  Future<void> updateChatExchangeStatus(String status) async {
-    if (isValidStatus(status)) {
-      try {
-        state = state.copyWith(isSaving: true);
+  Future<bool> updateChatExchangeStatus(String status) async {
+    if (!isValidStatus(status)) return false;
 
-        final updatedChatExchange = await chatExchangesRepository
-            .changeChatExchangeStatus(state.id, status);
+    try {
+      state = state.copyWith(isSaving: true, errorMessage: '');
 
-        state =
-            state.copyWith(isSaving: false, chatExchange: updatedChatExchange);
-      } catch (e) {
-        state = state.copyWith(isSaving: false);
-        //print('ERROR EN updateChatExchangeStatus EN ChatExchangeNotifier:');
-        //print(e);
-        throw Exception(e);
-        // Manejar el error según tus necesidades
-      }
-    } else {
-      //print('ERROR: Estado no válido');
-      throw Exception();
+      final updatedChatExchange = await chatExchangesRepository
+          .changeChatExchangeStatus(state.id, status);
+
+      state = state.copyWith(
+        isSaving: false,
+        chatExchange: updatedChatExchange,
+      );
+      return true;
+    } catch (_) {
+      state = state.copyWith(
+        isSaving: false,
+        errorMessage: 'No fue posible actualizar la solicitud.',
+      );
+      return false;
     }
   }
 
   bool isValidStatus(String status) {
-  // Agrega lógica para verificar si el estado es válido
-  // Por ejemplo, puedes tener una lista de estados válidos y verificar si el estado está en esa lista.
-  final validStatusList = ['pending','abort', 'rejected', 'inProgress', 'done', 'cancelled'];
-  return validStatusList.contains(status);
-}
+    final validStatusList = [
+      'pending',
+      'abort',
+      'rejected',
+      'inProgress',
+      'done',
+      'cancelled'
+    ];
+    return validStatusList.contains(status);
+  }
 }
 
 class ChatExchangeState {
@@ -92,12 +101,14 @@ class ChatExchangeState {
   final ChatExchange? chatExchange;
   final bool isLoading;
   final bool isSaving;
+  final String errorMessage;
 
   ChatExchangeState({
     required this.id,
     this.chatExchange,
     this.isLoading = true,
     this.isSaving = false,
+    this.errorMessage = '',
   });
 
   ChatExchangeState copyWith({
@@ -105,11 +116,13 @@ class ChatExchangeState {
     ChatExchange? chatExchange,
     bool? isLoading,
     bool? isSaving,
+    String? errorMessage,
   }) =>
       ChatExchangeState(
         id: id ?? this.id,
         chatExchange: chatExchange ?? this.chatExchange,
         isLoading: isLoading ?? this.isLoading,
         isSaving: isSaving ?? this.isSaving,
+        errorMessage: errorMessage ?? this.errorMessage,
       );
 }
