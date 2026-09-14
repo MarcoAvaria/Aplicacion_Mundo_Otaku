@@ -74,9 +74,9 @@ jobs:
         working-directory: e2e
         run: npx playwright install --with-deps chromium
 
-      - name: Check portable paths
+      - name: Check portable and platform configuration
         working-directory: e2e
-        run: npm run check:portability
+        run: npm run check:quality
 
       - name: Run browser journeys
         working-directory: e2e

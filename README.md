@@ -32,6 +32,14 @@ STAGE=dev
 
 Para un emulador Android suele ser necesario cambiar el host a `http://10.0.2.2:3001/api`. En un teléfono físico se usa la IP local del equipo que ejecuta la API. Si el backend se levanta en otro puerto, actualiza `API_URL` y `SOCKET_URL`.
 
+Las URL HTTP son exclusivamente para desarrollo local. Una distribución debe configurar `API_URL` y `SOCKET_URL` con HTTPS/WSS y certificados válidos.
+
+### Firma de Android release
+
+El repositorio no contiene claves ni usa la firma debug para una distribución. Para generar un APK o App Bundle firmado, copia `android/key.properties.template` como `android/key.properties`, crea tu keystore fuera del control de versiones y completa las cuatro propiedades. `storeFile` se resuelve desde `android/app/`; por ejemplo, `../upload-keystore.jks` apunta a `android/upload-keystore.jks`. Sin esa configuración, Gradle puede compilar un artefacto release sin firma, pero no uno distribuible.
+
+Los certificados, perfiles de aprovisionamiento y archivos `key.properties` reales están excluidos por `.gitignore`. Las descripciones de cámara y fototeca de iOS, el permiso de Internet de Android y los metadatos web están declarados en sus archivos nativos.
+
 ## Cuentas demo
 
 | Cuenta | Correo | Contraseña |
@@ -58,6 +66,8 @@ flutter analyze
 flutter test
 flutter build web --release --no-tree-shake-icons
 flutter build apk --debug
+Set-Location e2e
+npm run check:quality
 ```
 
 Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexiones consecutivas e historial sin duplicados; también comprueba edición, rechazo de archivos inválidos, eliminación de publicaciones, revocación de sesión, cancelación y rechazo de solicitudes. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
@@ -71,5 +81,5 @@ El lockfile se actualizó dentro de las restricciones actuales y se verificó co
 ## Trabajo pendiente conocido
 
 - completar edición de perfil y notificaciones si pasan a formar parte del alcance de la demo;
-- comprobar permisos y captura de cámara en dispositivos Android e iOS;
+- comprobar en dispositivos reales la concesión y denegación de permisos de cámara y fototeca;
 - migrar dependencias mayores por grupos pequeños y repetir la matriz después de cada grupo.

@@ -10,7 +10,7 @@ flutter build apk --debug
 Set-Location e2e
 npm ci
 npx playwright install chromium
-npm run check:portability
+npm run check:quality
 npm test
 ```
 
@@ -30,6 +30,8 @@ Las pruebas unitarias verifican reglas con conocimiento de la implementación:
 Los constructores `AppRoutes` y `ApiEndpoints` concentran los segmentos dinámicos y usan `Uri.encodeComponent`. La URL de la API y la del socket se leen desde `.env`; no dependen de una ruta absoluta del equipo.
 
 La prueba Node `e2e/scripts/check-portability.test.js` inspecciona la configuración y el código ejecutable de todas las plataformas. Rechaza rutas de unidad de Windows y directorios personales de Unix; permite URL locales configurables, rutas web y rutas relativas. Android obtiene el JDK de `JAVA_HOME` o del entorno de desarrollo, y Playwright usa su Chromium salvo que se defina `E2E_BROWSER_EXECUTABLE`.
+
+`e2e/scripts/check-platform-security.test.js` impide volver a firmar una release de Android con la clave debug, exige los permisos nativos usados por el selector de imágenes, rechaza receptores retirados y metadatos web genéricos, y detecta claves o perfiles móviles versionados por accidente.
 
 `flutter build apk --debug` forma parte de la matriz aprobada con JDK 17. El 14 de septiembre de 2026 generó correctamente el APK debug con Temurin 17.0.13. Se conservan Gradle 7.5, AGP 7.3.1 y `compileSdkVersion 34`; la ejecución advierte que esa cadena entiende versiones antiguas del XML del SDK y que usa compatibilidad Java 8. Son advertencias de modernización, no un bloqueo del build. JDK 21 no debe usarse con esta configuración porque falla durante D8.
 
