@@ -728,9 +728,6 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
         product1: requestedProduct.id,
         product2: offeredProduct.id,
         requester1: offeredProduct.id,
-        owner1: receiver.id,
-        owner2: sender.id,
-        messages: [],
       },
     });
 
