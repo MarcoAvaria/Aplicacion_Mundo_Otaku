@@ -406,6 +406,14 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await expect(firstPage.getByLabel(firstMessage)).toBeVisible();
     await expect(firstPage.getByLabel(reconnectedMessage)).toBeVisible();
 
+    await firstPage.reload();
+    await enableFlutterAccessibility(firstPage);
+    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(firstPage.getByLabel(firstMessage)).toHaveCount(1);
+    await expect(firstPage.getByLabel(reconnectedMessage)).toHaveCount(1);
+
     const completedResponsePromise = firstPage.waitForResponse(
       (response) =>
         response.url() === `${apiUrl}/chat-exchanges/${exchange.id}/status` &&
