@@ -49,7 +49,7 @@ jobs:
             sleep 1
           done
           curl --fail --silent http://127.0.0.1:18080/products/demo | grep --quiet '<title>Mundo Otaku</title>'
-          docker exec mundo-otaku-web-ci grep --fixed-strings --quiet 'https://api.example.test/api' /usr/share/nginx/html/main.dart.js
+          docker exec mundo-otaku-web-ci grep -F -q 'https://api.example.test/api' /usr/share/nginx/html/main.dart.js
 
   browser-e2e:
     runs-on: ubuntu-latest
