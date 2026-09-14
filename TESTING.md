@@ -6,6 +6,7 @@ El cliente mantiene pruebas rápidas de lógica y componentes. Se ejecutan con:
 flutter analyze
 flutter test
 flutter build web --release --no-tree-shake-icons
+flutter build apk --debug
 Set-Location e2e
 npm ci
 npx playwright install chromium
@@ -30,7 +31,7 @@ Los constructores `AppRoutes` y `ApiEndpoints` concentran los segmentos dinámic
 
 La prueba Node `e2e/scripts/check-portability.test.js` inspecciona la configuración y el código ejecutable de todas las plataformas. Rechaza rutas de unidad de Windows y directorios personales de Unix; permite URL locales configurables, rutas web y rutas relativas. Android obtiene el JDK de `JAVA_HOME` o del entorno de desarrollo, y Playwright usa su Chromium salvo que se defina `E2E_BROWSER_EXECUTABLE`.
 
-`flutter build apk --debug` todavía no forma parte de la matriz aprobada. Con JDK 17 supera la configuración de Gradle, pero falla en el plugin heredado `desktop_webview_auth 0.0.16` porque no define `compileSdkVersion`. El problema quedó aislado para la revisión de Firebase/OAuth; no afecta el build web usado por la demo actual.
+`flutter build apk --debug` forma parte de la matriz aprobada con JDK 17. El 14 de septiembre de 2026 generó correctamente el APK debug con Temurin 17.0.13. Se conservan Gradle 7.5, AGP 7.3.1 y `compileSdkVersion 34`; la ejecución advierte que esa cadena entiende versiones antiguas del XML del SDK y que usa compatibilidad Java 8. Son advertencias de modernización, no un bloqueo del build. JDK 21 no debe usarse con esta configuración porque falla durante D8.
 
 ## Caja negra de componentes
 

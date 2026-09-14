@@ -29,15 +29,25 @@ function containsMachinePath(content) {
   return windowsAbsolutePath.test(content) || userHomePath.test(content);
 }
 
+function existingFiles(files) {
+  return files.filter((file) => fs.existsSync(file));
+}
+
 function listTrackedSourceFiles() {
-  return execFileSync('git', ['ls-files', '-z', '--', ...scannedEntries], {
-    cwd: repositoryDirectory,
-    encoding: 'utf8',
-  })
+  const trackedFiles = execFileSync(
+    'git',
+    ['ls-files', '-z', '--', ...scannedEntries],
+    {
+      cwd: repositoryDirectory,
+      encoding: 'utf8',
+    },
+  )
     .split('\0')
     .filter(Boolean)
     .filter((file) => sourceExtensions.has(path.extname(file)))
     .map((file) => path.join(repositoryDirectory, file));
+
+  return existingFiles(trackedFiles);
 }
 
 function findMachinePaths() {
@@ -56,4 +66,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { containsMachinePath, findMachinePaths };
+module.exports = { containsMachinePath, existingFiles, findMachinePaths };

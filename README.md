@@ -57,15 +57,16 @@ Las imágenes seleccionadas se leen como bytes en todas las plataformas. El clie
 flutter analyze
 flutter test
 flutter build web --release --no-tree-shake-icons
+flutter build apk --debug
 ```
 
 Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexión y persistencia; también comprueba edición, rechazo de archivos inválidos, eliminación de publicaciones, revocación de sesión, cancelación y rechazo de solicitudes. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
 
 Las únicas dependencias Node del repositorio pertenecen a Playwright y se administran dentro de `e2e/`. La aplicación usa exclusivamente las dependencias Dart declaradas en `pubspec.yaml`.
 
-La compilación Android aún tiene un bloqueo heredado en `desktop_webview_auth 0.0.16`: después de seleccionar correctamente JDK 17, el plugin no expone `compileSdkVersion` con la cadena Gradle 7.5/AGP 7.3.1. Debe resolverse junto con la revisión de las funciones Firebase/OAuth antes de declarar Android listo para distribución.
+La compilación Android debug está aprobada con JDK 17. El 14 de septiembre de 2026 se repitió `flutter build apk --debug` con Temurin 17.0.13 y se generó correctamente `app-debug.apk`. La cadena permanece en Gradle 7.5, Android Gradle Plugin 7.3.1 y `compileSdkVersion 34`; por su antigüedad emite advertencias de compatibilidad con el SDK actual y debe modernizarse por separado antes de preparar una distribución. JDK 21 no es compatible con esta configuración y produjo fallos de D8.
 
-El lockfile se actualizó dentro de las restricciones actuales y se verificó con análisis, pruebas, build web y el recorrido Playwright completo. Las migraciones mayores de Firebase, Riverpod, GoRouter y Socket.IO se mantienen como entregas independientes.
+El lockfile se actualizó dentro de las restricciones actuales y se verificó con análisis, pruebas, build web y el recorrido Playwright completo. Firebase y sus flujos incompletos se retiraron; las migraciones mayores pendientes de Riverpod, GoRouter y Socket.IO se mantienen como entregas independientes.
 
 ## Trabajo pendiente conocido
 
