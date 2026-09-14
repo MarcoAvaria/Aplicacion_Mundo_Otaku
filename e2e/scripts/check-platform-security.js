@@ -38,6 +38,8 @@ function findPlatformSecurityProblems() {
   const iosPlist = read('ios/Runner/Info.plist');
   const webIndex = read('web/index.html');
   const webManifest = read('web/manifest.json');
+  const dockerfile = read('Dockerfile');
+  const nginx = read('deploy/nginx.conf');
   const problems = [];
 
   if (containsDebugReleaseSigning(gradle)) {
@@ -57,6 +59,15 @@ function findPlatformSecurityProblems() {
     webManifest.includes('aplicacion_mundo_otaku')
   ) {
     problems.push('Web conserva metadatos genericos de Flutter');
+  }
+  if (
+    !dockerfile.includes('API_URL debe usar HTTPS') ||
+    !dockerfile.includes('SOCKET_URL debe usar HTTPS')
+  ) {
+    problems.push('El contenedor web no exige endpoints HTTPS');
+  }
+  if (!nginx.includes('try_files $uri $uri/ /index.html')) {
+    problems.push('Nginx no conserva la navegacion SPA de Flutter');
   }
 
   for (const file of listTrackedSensitiveArtifacts()) {

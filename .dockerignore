@@ -1,0 +1,14 @@
+.dart_tool/
+.git/
+.github/
+.idea/
+.env
+build/
+e2e/
+test/
+android/
+ios/
+linux/
+macos/
+windows/
+*.log

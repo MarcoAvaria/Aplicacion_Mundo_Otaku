@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: mundo-otaku-web
+    runtime: docker
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: API_URL
+        sync: false
+      - key: SOCKET_URL
+        sync: false

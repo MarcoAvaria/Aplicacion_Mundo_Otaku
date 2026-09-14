@@ -40,10 +40,21 @@ El repositorio no contiene claves ni usa la firma debug para una distribución. 
 
 Los certificados, perfiles de aprovisionamiento y archivos `key.properties` reales están excluidos por `.gitignore`. Las descripciones de cámara y fototeca de iOS, el permiso de Internet de Android y los metadatos web están declarados en sus archivos nativos.
 
+### Despliegue web de portafolio
+
+`render.yaml` y el `Dockerfile` publican Flutter Web detrás de Nginx con fallback para rutas SPA, comprobación `/healthz` y cabeceras defensivas. El build se detiene si `API_URL` o `SOCKET_URL` no usan HTTPS. Al crear el Blueprint de Render se deben introducir valores públicos como:
+
+```text
+API_URL=https://<api-render>/api
+SOCKET_URL=https://<api-render>
+```
+
+La API, PostgreSQL y Cloudflare R2 se preparan primero siguiendo `docs/DEPLOYMENT_RENDER_R2.md` en el repositorio backend. Las URL se incorporan al JavaScript durante la compilación y no deben contener secretos.
+
 ## Cuentas demo
 
-| Cuenta | Correo | Contraseña |
-| --- | --- | --- |
+| Cuenta         | Correo                      | Contraseña         |
+| -------------- | --------------------------- | ------------------ |
 | Usuario Demo 1 | `usuario1@mundo-otaku.demo` | `MundoOtakuDemo1!` |
 | Usuario Demo 2 | `usuario2@mundo-otaku.demo` | `MundoOtakuDemo2!` |
 
