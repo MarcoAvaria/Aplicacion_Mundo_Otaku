@@ -60,7 +60,7 @@ flutter build web --release --no-tree-shake-icons
 flutter build apk --debug
 ```
 
-Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexión y persistencia; también comprueba edición, rechazo de archivos inválidos, eliminación de publicaciones, revocación de sesión, cancelación y rechazo de solicitudes. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
+Las pruebas rápidas cubren formularios, detección de imágenes, rutas y endpoints, compatibilidad de mappers y comportamiento de componentes. La suite de Playwright ejecuta además el flujo completo con dos usuarios, dos imágenes, intercambio, chat, pérdida de red, reconexiones consecutivas e historial sin duplicados; también comprueba edición, rechazo de archivos inválidos, eliminación de publicaciones, revocación de sesión, cancelación y rechazo de solicitudes. [TESTING.md](TESTING.md) describe la estrategia y [e2e/README.md](e2e/README.md) explica su ejecución. GitHub Actions verifica análisis, pruebas, build web y recorridos de navegador en cada push y pull request.
 
 Las únicas dependencias Node del repositorio pertenecen a Playwright y se administran dentro de `e2e/`. La aplicación usa exclusivamente las dependencias Dart declaradas en `pubspec.yaml`.
 

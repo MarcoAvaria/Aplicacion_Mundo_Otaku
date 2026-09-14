@@ -46,7 +46,7 @@ La suite de Playwright bajo `e2e/` levanta la API, una base PostgreSQL efímera 
 3. solicitud y aceptación de un intercambio;
 4. mensajes en vivo por Socket.IO;
 5. desconexión, conservación del mensaje no enviado y reconexión a la sala;
-6. recuperación del historial tras recargar y cierre del intercambio;
+6. dos recargas consecutivas, recuperación del historial sin duplicados y cierre del intercambio;
 7. error de red durante el login con permanencia en la pantalla y mensaje comprensible.
 8. edición de una publicación propia y persistencia del cambio en la API;
 9. rechazo por contenido de un archivo que suplanta una imagen PNG;
