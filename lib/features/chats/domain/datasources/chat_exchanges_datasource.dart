@@ -1,5 +1,4 @@
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
-//import 'package:aplicacion_mundo_otaku/features/products/domain/entities/product.dart';
 
 abstract class ChatExchangeDatasource {
   Future<List<ChatExchange>> getChatExchangeByPage(
@@ -9,7 +8,7 @@ abstract class ChatExchangeDatasource {
 
   Future<ChatExchange> changeChatExchangeStatus(String id, String status);
 
-  Future<ChatExchange> createUpdateChatExchange(
+  Future<ChatExchange> createChatExchange(
       Map<String, dynamic> chatExchangeLike);
 
   Future<List<ChatExchange>> getAllChatExchanges(String id);

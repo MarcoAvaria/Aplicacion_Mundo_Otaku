@@ -7,7 +7,6 @@ import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/cha
 
 final chatExchangesProvider =
     StateNotifierProvider<ChatExchangesNotifier, ChatExchangesState>((ref) {
-  //AutoDisposeStateNotifierProvider<ChatExchangesNotifier, ChatExchangesState>((ref) {
   final chatExchangesRepository = ref.watch(chatExchangesRepositoryProvider);
   final authState = ref.watch(authProvider);
 
@@ -29,45 +28,15 @@ class ChatExchangesNotifier extends StateNotifier<ChatExchangesState> {
     }
   }
 
-  ChatExchange newEmptyProduct() {
-    return ChatExchange(
-      id: 'new',
-      product1: '',
-      product2: '',
-      owner1: '',
-      owner2: '',
-      requester1: '',
-      messages: [],
-      status: 'pending',
-    );
-  }
-
-  Future<bool> createOrUpdateChatExchange(
-      Map<String, dynamic> chatExchangeLike) async {
+  Future<bool> createChatExchange(Map<String, dynamic> chatExchangeLike) async {
     try {
-      final chatExchange = await chatExchangesRepository
-          .createUpdateChatExchange(chatExchangeLike);
-      //print('chatExchange after API call: $chatExchange');
-      final isChatExchangeInList =
-          state.chatExchanges.any((element) => element.id == chatExchange.id);
-
-      if (!isChatExchangeInList) {
-        state = state
-            .copyWith(chatExchanges: [...state.chatExchanges, chatExchange]);
-        return true;
-      }
+      final chatExchange =
+          await chatExchangesRepository.createChatExchange(chatExchangeLike);
       state = state.copyWith(
-          chatExchanges: state.chatExchanges
-              .map(
-                (element) =>
-                    (element.id == chatExchange.id) ? chatExchange : element,
-              )
-              .toList());
-      //print(state); // Agrega esta línea para verificar el estado después de la operación.
+        chatExchanges: [...state.chatExchanges, chatExchange],
+      );
       return true;
-    } catch (e) {
-      //print('Error al crear o actualizar el ChatExchange:');
-      //print(e);
+    } catch (_) {
       return false;
     }
   }

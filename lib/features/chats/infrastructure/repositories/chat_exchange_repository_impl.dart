@@ -3,14 +3,14 @@ import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_excha
 import 'package:aplicacion_mundo_otaku/features/chats/domain/repositories/chat_exchanges_repository.dart';
 
 class ChatExchangesRepositoryImpl extends ChatExchangesRepository {
-
   final ChatExchangeDatasource datasource;
 
-  ChatExchangesRepositoryImpl( this.datasource );
+  ChatExchangesRepositoryImpl(this.datasource);
 
   @override
-  Future<ChatExchange> createUpdateChatExchange(Map<String, dynamic> chatExchangeLike) {
-    return datasource.createUpdateChatExchange(chatExchangeLike);
+  Future<ChatExchange> createChatExchange(
+      Map<String, dynamic> chatExchangeLike) {
+    return datasource.createChatExchange(chatExchangeLike);
   }
 
   @override
@@ -22,16 +22,15 @@ class ChatExchangesRepositoryImpl extends ChatExchangesRepository {
   Future<ChatExchange> getChatExchangeById(String id) {
     return datasource.getChatExchangeById(id);
   }
-  
+
   @override
-  Future<List<ChatExchange>> getChatExchangesByPage({int limit = 10, int offset = 0}) {
+  Future<List<ChatExchange>> getChatExchangesByPage(
+      {int limit = 10, int offset = 0}) {
     return datasource.getChatExchangeByPage(limit: limit, offset: offset);
   }
-  
+
   @override
   Future<List<ChatExchange>> getAllChatExchanges(String id) {
     return datasource.getAllChatExchanges(id);
   }
-  
-  // Implementar los métodos según tus necesidades
 }

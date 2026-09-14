@@ -5,17 +5,16 @@ class User {
   final List<String> roles;
   final String token;
 
-  User({
-    required this.id,
-    required this.email,
-    required this.fullName,
-    required this.roles,
-    required this.token}
-  );
+  User(
+      {required this.id,
+      required this.email,
+      required this.fullName,
+      required this.roles,
+      required this.token});
 
   bool get isAdmin {
     return roles.contains('admin');
-  } 
+  }
   //final String username;
   //final String profileImage;
   //final String lastName;

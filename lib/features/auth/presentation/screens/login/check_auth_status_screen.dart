@@ -8,10 +8,11 @@ class CheckAuthStatusScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return const Scaffold(
       body: Center(
-        child: CircularProgressIndicator(strokeWidth: 2,)),
+          child: CircularProgressIndicator(
+        strokeWidth: 2,
+      )),
     );
   }
 }

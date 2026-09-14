@@ -1,7 +1,6 @@
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchange_provider.dart';
-import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/forms/chat_exchange_form_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -96,20 +95,18 @@ class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
   }
 
   Future<List<Product>> _loadProducts(WidgetRef ref) async {
-    final chatExchangeForm = ref.read(chatExchangeFormProvider(chatExchange));
     final product1 = await ref
         .read(productsRepositoryProvider)
-        .getProductById(chatExchangeForm.product1);
+        .getProductById(chatExchange.product1);
     final product2 = await ref
         .read(productsRepositoryProvider)
-        .getProductById(chatExchangeForm.product2);
+        .getProductById(chatExchange.product2);
 
     return [product1, product2];
   }
 
   Widget _buildContent(BuildContext context, List<Product> products,
       String idUser, WidgetRef ref) {
-    //final textStyles = Theme.of(context).textTheme;
     final customColor = Theme.of(context).primaryColor;
     final Product product1 = products[0];
     final Product product2 = products[1];
@@ -143,14 +140,11 @@ class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
               images: miProducto.images, idProducto: miProducto.id),
         ),
         const SizedBox(height: 15),
-        // Aquí puedes usar product1 y product2 según tus necesidades
-        // Botones "Rechazar" y "Aceptar"
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
               onPressed: () async {
-                //print('Sending request with status: rejected');
                 final wasUpdated = await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('rejected');
@@ -180,7 +174,6 @@ class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('inProgress');
                 if (!context.mounted) return;
-                // Muestra el SnackBar
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(wasUpdated
@@ -188,7 +181,6 @@ class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
                         : 'No fue posible aceptar la solicitud.'),
                   ),
                 );
-                // Puedes realizar otras acciones después de aceptar la conversación
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade100,
@@ -218,7 +210,6 @@ class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
     variable = cadena + variable;
 
     return Container(
-        //width: ,
         margin: const EdgeInsets.only(left: 15.0),
         height: 50,
         alignment: Alignment.center,
@@ -226,7 +217,6 @@ class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
             color: customColor.withAlpha(50),
             borderRadius: BorderRadius.circular(20.0)),
         child: Center(
-          //fit: BoxFit.contain,
           child: Text(
             variable,
             textAlign: TextAlign.center,

@@ -7,9 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
-  // final dio = Dio(BaseOptions(
-  //   baseUrl: Environment.apiUrl,
-  // ));
   final Dio dio;
   final FlutterSecureStorage secureStorage;
 
@@ -21,7 +18,6 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
       final response = await dio.get(ApiEndpoints.authStatus,
           options: Options(headers: {'Authorization': 'Bearer $token'}));
       return UserMapper.userJsonToEntity(response.data);
-      // return user;
     } on DioException catch (e) {
       if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
         throw CustomError('Token no es correcto :o');
@@ -104,12 +100,6 @@ class AuthDataSourceImpl extends AuthDataSource with ChangeNotifier {
       throw CustomError('No se pudo obtener el ID del usuario');
     }
   }
-
-  // @override
-  // Future<void> logout() {
-  //   // TODO: implement logout
-  //   throw UnimplementedError();
-  // }
 
   @override
   Future<void> logout() async {

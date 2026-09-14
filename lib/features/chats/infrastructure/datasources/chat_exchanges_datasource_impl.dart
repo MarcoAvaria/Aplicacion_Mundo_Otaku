@@ -1,4 +1,3 @@
-//import 'package:aplicacion_mundo_otaku/features/products/infrastructure/errors/product_errors.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/datasources/chat_exchanges_datasource.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/errors/chat_exchange_errors.dart';
@@ -23,33 +22,15 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   }
 
   @override
-  Future<ChatExchange> createUpdateChatExchange(
+  Future<ChatExchange> createChatExchange(
       Map<String, dynamic> chatExchangeLike) async {
     try {
-      final String? chatExchangeId = chatExchangeLike['id'];
-      //print(productId);
-      final String method = (chatExchangeId == null) ? 'POST' : 'PATCH';
-      //print(method);
-      final String url = chatExchangeId == null
-          ? ApiEndpoints.chatExchanges
-          : ApiEndpoints.chatExchange(chatExchangeId);
-      //print(url);
-
-      chatExchangeLike.remove('id');
-      chatExchangeLike.remove('status');
-      //print('Request to API: $url, Method: $method, Data: $chatExchangeLike');
-
-      final response = await dio.request(url,
-          data: chatExchangeLike, options: Options(method: method));
-      //print('API Response: $response');
-      final chatExchange = ChatExchangeMapper.jsonToEntity(response.data);
-      return chatExchange;
-    } catch (e) {
-      //print('Error in createUpdateChatExchange: $e');
-      if (e is DioException && e.response != null) {
-        //print('API Response Data: ${e.response!.data}');
-        //print('API Response Headers: ${e.response!.headers}');
-      }
+      final response = await dio.post(
+        ApiEndpoints.chatExchanges,
+        data: chatExchangeLike,
+      );
+      return ChatExchangeMapper.jsonToEntity(response.data);
+    } catch (_) {
       throw Exception();
     }
   }
@@ -65,10 +46,8 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
       final chatExchange = ChatExchangeMapper.jsonToEntity(response.data);
       return chatExchange;
     } on DioException catch (e) {
-      //print('DioException caught in changeChatExchangeStatus: ${e}');
       throw Exception(e);
-    } catch (e) {
-      //print('Error no capturado en changeChatExchangeStatus dentro de\ncreateUpdateChatExchange en\nChatExchangesDatasourceImpl');
+    } catch (_) {
       throw Exception();
     }
   }
@@ -96,24 +75,16 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
     );
     final List<ChatExchange> chatExchanges = [];
     for (final chatExchange in response.data ?? []) {
-      chatExchanges
-          .add(ChatExchangeMapper.jsonToEntity(chatExchange)); // mapper
+      chatExchanges.add(ChatExchangeMapper.jsonToEntity(chatExchange));
     }
     return chatExchanges;
   }
 
   @override
   Future<List<ChatExchange>> getAllChatExchanges(String id) async {
-    // print($dio.options.);
     try {
       final response =
           await dio.get<List<dynamic>>(ApiEndpoints.chatExchangesForUser(id));
-      // print(response.data);
-      // for (final chatExchange in response.data ?? []) {
-      //   print(chatExchange['id']); // ID del intercambio
-      //   print(chatExchange['__owner1__']['fullName']); // Nombre del propietario 1
-      //   print(chatExchange['__owner2__']['fullName']); // Nombre del propietario 2
-      // }
       final List<ChatExchange> allChatExchanges = List<ChatExchange>.from(
         (response.data ?? []).map((dynamic productJson) {
           return ChatExchangeMapper.jsonToEntity(

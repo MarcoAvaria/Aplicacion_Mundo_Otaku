@@ -64,30 +64,21 @@ class ProductsDatasourceImpl extends ProductDatasource {
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async {
     try {
       final String? productId = productLike['id'];
-      //print(productId);
       final String method = (productId == null) ? 'POST' : 'PATCH';
-      //print(method);
       final String url = productId == null
           ? ApiEndpoints.products
           : ApiEndpoints.product(productId);
-      //print(url);
 
       productLike.remove('id');
       productLike['images'] = await _uploadPhotos(productLike['images']);
 
-      //throw Exception();
-
       final response = await dio.request(url,
           data: productLike, options: Options(method: method));
       final product = ProductMapper.jsonToEntity(response.data);
-      //print(product);
       return product;
-    } catch (e) {
-      //print(e);
+    } catch (_) {
       throw Exception();
     }
-
-    //throw UnimplementedError();
   }
 
   @override
@@ -113,7 +104,7 @@ class ProductsDatasourceImpl extends ProductDatasource {
     );
     final List<Product> products = [];
     for (final product in response.data ?? []) {
-      products.add(ProductMapper.jsonToEntity(product)); // mapper
+      products.add(ProductMapper.jsonToEntity(product));
     }
     return products;
   }

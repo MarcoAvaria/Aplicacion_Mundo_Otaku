@@ -104,7 +104,7 @@ class _ChatExchangesRepository implements ChatExchangesRepository {
   }
 
   @override
-  Future<ChatExchange> createUpdateChatExchange(
+  Future<ChatExchange> createChatExchange(
           Map<String, dynamic> chatExchangeLike) =>
       throw UnimplementedError();
 
