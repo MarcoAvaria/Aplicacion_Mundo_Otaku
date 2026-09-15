@@ -25,14 +25,8 @@ const backendEnvironment = {
   CORS_ORIGINS: frontendUrl,
   PUBLIC_DIR: 'public',
   PRODUCT_IMAGES_DIR: '.e2e-artifacts/products',
-  IMAGE_STORAGE_DRIVER: 's3',
-  S3_BUCKET: 'mundo-otaku-test',
-  S3_REGION: 'us-east-1',
-  S3_ENDPOINT: 'http://127.0.0.1:9000',
-  S3_ACCESS_KEY_ID: 'mundo_otaku_test',
-  S3_SECRET_ACCESS_KEY: 'mundo_otaku_test_secret',
-  S3_FORCE_PATH_STYLE: 'true',
-  S3_PREFIX: 'products',
+  // Same image driver as the published demo: bytes stored in PostgreSQL.
+  IMAGE_STORAGE_DRIVER: 'postgres',
 };
 
 module.exports = {

@@ -39,28 +39,6 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-class GoogleOutlookSignIn extends StatelessWidget {
-  const GoogleOutlookSignIn({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        //Boton Google
-        SquareTile(imagePath: 'assets/google_image.png'),
-
-        SizedBox(width: 25),
-
-        //Boton Outlook
-        SquareTile(imagePath: 'assets/outlook_image.png'),
-      ],
-    );
-  }
-}
-
 class _LoginForm extends ConsumerStatefulWidget {
   const _LoginForm();
 

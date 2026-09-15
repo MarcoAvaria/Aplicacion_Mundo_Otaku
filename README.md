@@ -49,7 +49,7 @@ API_URL=https://<api-render>/api
 SOCKET_URL=https://<api-render>
 ```
 
-La API, PostgreSQL y Cloudflare R2 se preparan primero siguiendo `docs/DEPLOYMENT_RENDER_R2.md` en el repositorio backend. Las URL se incorporan al JavaScript durante la compilación y no deben contener secretos.
+La API y la base en Neon (datos y fotos) se preparan primero siguiendo `docs/DEPLOYMENT_RENDER_NEON.md` en el repositorio backend. El Blueprint del cliente usa el plan gratuito de Render en la región `virginia`. Las URL se incorporan al JavaScript durante la compilación y no deben contener secretos.
 
 ## Cuentas demo
 

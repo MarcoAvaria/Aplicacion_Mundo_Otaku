@@ -52,17 +52,6 @@ if (manageDatabase) {
     '-d',
     '--wait',
     'test-db',
-    'test-storage',
-  ]);
-  run('docker', [
-    'compose',
-    '--project-name',
-    dockerProject,
-    '-f',
-    'docker-compose.test.yml',
-    'run',
-    '--rm',
-    'test-storage-init',
   ]);
 }
 

@@ -2,7 +2,6 @@ export 'button_login.dart';
 export 'custom_appbar.dart';
 export 'custom_filled_button.dart';
 export 'my_field_text.dart';
-export 'square_tile.dart';
 export 'geometrical_background.dart';
 export 'configuration_menu.dart';
 export 'full_screen_loader.dart';
