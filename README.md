@@ -2,9 +2,13 @@
 
 Cliente multiplataforma de Mundo Otaku. Permite registrarse, explorar y publicar productos, administrar publicaciones propias, proponer intercambios y conversar en tiempo real cuando una solicitud es aceptada.
 
+Proyecto de título individual de Marco Avaria. Demo pública: **https://mundo-otaku-web.onrender.com**. API: https://mundo-otaku-api.onrender.com/api; documentación: https://mundo-otaku-api.onrender.com/api/docs.
+
+La publicación usa Render Free para Flutter Web/Nginx y NestJS, y Neon Free (PostgreSQL 16) para datos y fotografías. Los servicios gratuitos pueden tardar cerca de un minuto en despertar. El 15 de septiembre de 2026 se verificó la persistencia de un producto y sus fotos tras reiniciar la API.
+
 ## Tecnologías
 
-- Flutter y Dart
+- Flutter 3.16.8 y Dart 3.2.5
 - Riverpod para estado y dependencias
 - Dio para la API REST
 - almacenamiento seguro para el JWT
@@ -45,8 +49,8 @@ Los certificados, perfiles de aprovisionamiento y archivos `key.properties` real
 `render.yaml` y el `Dockerfile` publican Flutter Web detrás de Nginx con fallback para rutas SPA, comprobación `/healthz` y cabeceras defensivas. El build se detiene si `API_URL` o `SOCKET_URL` no usan HTTPS. Al crear el Blueprint de Render se deben introducir valores públicos como:
 
 ```text
-API_URL=https://<api-render>/api
-SOCKET_URL=https://<api-render>
+API_URL=https://mundo-otaku-api.onrender.com/api
+SOCKET_URL=https://mundo-otaku-api.onrender.com
 ```
 
 La API y la base en Neon (datos y fotos) se preparan primero siguiendo `docs/DEPLOYMENT_RENDER_NEON.md` en el repositorio backend. El Blueprint del cliente usa el plan gratuito de Render en la región `virginia`. Las URL se incorporan al JavaScript durante la compilación y no deben contener secretos.
@@ -71,6 +75,8 @@ La sesión se guarda una sola vez en almacenamiento seguro. Al restaurarla se co
 Las imágenes seleccionadas se leen como bytes en todas las plataformas. El cliente reconoce la firma JPEG, PNG, GIF o WebP antes de subir el archivo y usa un proveedor de imagen específico para navegador o sistema de archivos, por lo que la previsualización no depende de `dart:io` en Flutter Web.
 
 ## Verificación
+
+Línea base publicada: 20 pruebas Flutter, 8 controles Node y 6 recorridos Playwright con PostgreSQL efímero y el driver de imágenes `postgres`. GitHub Actions aprobó el commit `fa1858e` (run `35030412956`); consulta de estado repetida el 17 de septiembre de 2026. El backend asociado tiene 40 unitarias y 26 E2E aprobadas. Estos resultados corresponden a esa versión, no a pruebas nuevas de funciones futuras.
 
 ```powershell
 flutter analyze
