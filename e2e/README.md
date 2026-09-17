@@ -28,6 +28,14 @@ npm test
 
 Los recorridos cubren dos sesiones, publicación con varias imágenes, intercambio y chat por Socket.IO, pérdida de red, reconexiones consecutivas e historial sin duplicados, error de red durante el acceso, las listas y los detalles, reintentos, estados vacíos, edición de una publicación propia, ausencia de edición en productos ajenos, rechazo de contenido que no corresponde a una imagen, eliminación confirmada, revocación de una sesión activa, cancelación y rechazo de solicitudes.
 
+El recorrido principal también cierra sesión desde Flutter, vuelve a entrar y detiene/reinicia el proceso de la API mientras conserva PostgreSQL. Comprueba el orden visual y la igualdad del historial persistido; después envía un mensaje nuevo y recarga otra vez. `scripts/managed-backend.js` inicia el backend compilado y recibe órdenes locales en `.e2e-artifacts/api-command.json`; solo termina su propio proceso hijo. Se niega a usar una base que no sea local y termine en `_test`, o una `DATABASE_URL` heredada. El runner elimina los archivos de control junto con los demás artefactos temporales.
+
+Para ejecutar solo ese recorrido desde PowerShell, evitando la interpretación de opciones de npm:
+
+```powershell
+node scripts/run-tests.js --grep 'dos sesiones'
+```
+
 Variables opcionales:
 
 | Variable | Propósito | Valor predeterminado |

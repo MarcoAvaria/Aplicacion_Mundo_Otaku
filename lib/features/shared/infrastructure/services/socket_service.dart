@@ -42,6 +42,8 @@ class SocketService with ChangeNotifier {
     _socket = io.io(
       socketUrl,
       io.OptionBuilder()
+          // El caché por origen puede conservar el JWT de una sesión cerrada.
+          .enableForceNew()
           .setTransports(['websocket'])
           .setAuth({'token': token})
           .setExtraHeaders({'Authorization': 'Bearer $token'})

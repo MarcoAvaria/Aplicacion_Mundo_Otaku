@@ -45,6 +45,10 @@ Los widget tests renderizan componentes a través de su interfaz pública. La pr
 
 ## Recorridos completos en navegador
 
+R-34: el recorrido de dos sesiones verifica mensajes únicos y en orden tras dos recargas, cierre de sesión desde el menú (revocación HTTP y eliminación del JWT local), nuevo acceso y reinicio real del proceso NestJS con la misma base efímera. Se compara el JSON completo del historial antes/después del reinicio y se envía otro mensaje después de reconectar. `managed-backend.js` controla solamente el proceso que creó; no expone un endpoint de reinicio ni controla servicios externos. Esto reproduce localmente la pérdida del proceso durante el reposo, no mide el tiempo de arranque de Render Free.
+
+La prueba `socket_session_test.dart` reproduce la reutilización accidental del socket y del JWT tras cerrar sesión. `SocketService` fuerza un nuevo manager al iniciar una sesión diferente; llamadas repetidas con el mismo token conservan la conexión actual. No se cambió el formato ni la persistencia de los mensajes.
+
 La suite de Playwright bajo `e2e/` levanta la API, una base PostgreSQL efímera y el build web. Cubre:
 
 1. dos sesiones autenticadas e independientes;

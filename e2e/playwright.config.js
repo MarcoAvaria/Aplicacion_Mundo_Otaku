@@ -1,6 +1,6 @@
 const { defineConfig } = require('@playwright/test');
 
-const { backendDirectory, backendEnvironment } = require('./scripts/environment');
+const { backendEnvironment } = require('./scripts/environment');
 const frontendUrl = process.env.E2E_FRONTEND_URL || 'http://127.0.0.1:8080';
 const backendUrl = process.env.E2E_BACKEND_URL || 'http://127.0.0.1:3001';
 const browserExecutable = process.env.E2E_BROWSER_EXECUTABLE || undefined;
@@ -30,8 +30,8 @@ module.exports = defineConfig({
   },
   webServer: [
     {
-      command: 'npm run start:prod',
-      cwd: backendDirectory,
+      command: 'node scripts/managed-backend.js',
+      cwd: __dirname,
       env: backendEnvironment,
       url: `${backendUrl}/api/docs`,
       reuseExistingServer: false,

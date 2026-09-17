@@ -1,4 +1,6 @@
 const path = require('node:path');
+const fs = require('node:fs');
+const { backendDirectory } = require('../scripts/environment');
 const { randomBytes, createCipheriv } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
 
@@ -57,6 +59,10 @@ async function prepareAuthenticatedContext(context, token) {
 
   await context.addInitScript(
     ({ key, encryptedValue }) => {
+      // Sembrar una sola vez: las recargas deben recuperar el JWT real y un
+      // logout no debe ser deshecho por este script de preparación.
+      if (sessionStorage.getItem('e2e-auth-prepared')) return;
+      sessionStorage.setItem('e2e-auth-prepared', 'true');
       localStorage.setItem('FlutterSecureStorage', key);
       localStorage.setItem(
         'FlutterSecureStorage.auth_token',
@@ -179,6 +185,37 @@ async function login(page, email, password) {
   await expect(
     page.getByRole('heading', { name: '¡Cambia y descubre!' }),
   ).toBeVisible();
+  // El snackbar de bienvenida desplaza el botón flotante mientras se anima.
+  await expect(page.getByLabel(
+    '¡Revisa lo que la comunidad tiene para ofrecer! :)',
+  )).toBeHidden();
+}
+
+async function controlTestApi(action) {
+  const id = `${action}-${Date.now()}`;
+  const directory = path.join(backendDirectory, '.e2e-artifacts');
+  fs.writeFileSync(path.join(directory, 'api-command.json'), JSON.stringify({ id, action }));
+  let state;
+  await expect.poll(() => {
+    try { state = JSON.parse(fs.readFileSync(path.join(directory, 'api-state.json'), 'utf8')); }
+    catch { return undefined; }
+    return state.id;
+  }).toBe(id);
+  expect(state.error).toBeUndefined();
+  return state;
+}
+
+async function expectOrderedMessages(page, messages) {
+  let previousY = -Infinity;
+  for (const message of messages) {
+    // Flutter combina el texto y la hora en la etiqueta de la burbuja.
+    const locator = page.getByLabel(message);
+    await expect(locator).toHaveCount(1);
+    await expect(locator).toBeVisible();
+    const box = await locator.boundingBox();
+    expect(box.y).toBeGreaterThan(previousY);
+    previousY = box.y;
+  }
 }
 
 test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
@@ -442,6 +479,61 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await expect(firstPage.getByLabel(firstMessage)).toHaveCount(1);
     await expect(firstPage.getByLabel(reconnectedMessage)).toHaveCount(1);
 
+    const expectedMessages = [firstMessage, reconnectedMessage];
+    await expectOrderedMessages(firstPage, expectedMessages);
+    const beforeRestart = (await apiRequest(`/chat-exchanges/${exchange.id}`, {
+      token: user2.token,
+    })).messages;
+    expect(beforeRestart.map((message) => message.content)).toEqual(expectedMessages);
+
+    // Cierre real desde Flutter y acceso nuevo, sin inyectar el JWT antiguo.
+    await openFlutterRoute(firstPage, '/discover');
+    await firstPage.getByRole('button', { name: 'Open navigation menu' }).click();
+    const logoutResponse = firstPage.waitForResponse((response) =>
+      response.url() === `${apiUrl}/auth/logout` && response.request().method() === 'POST');
+    await firstPage.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+    expect((await logoutResponse).status()).toBe(201);
+    await expect(firstPage).toHaveURL(/#\/login$/);
+    await expect.poll(() => firstPage.evaluate(() =>
+      localStorage.getItem('FlutterSecureStorage.auth_token'))).toBeNull();
+    await login(firstPage, user1Email, password);
+    await openFlutterRoute(firstPage,
+      `/chatscreen/${exchange.id}/${publishedProduct.id}/${offeredProduct.id}`);
+    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible();
+    await expectOrderedMessages(firstPage, expectedMessages);
+
+    const oldState = JSON.parse(fs.readFileSync(
+      path.join(backendDirectory, '.e2e-artifacts', 'api-state.json'), 'utf8'));
+    try {
+      expect((await controlTestApi('stop')).pid).toBeNull();
+      await expect(firstPage.getByLabel('Chat sin conexión')).toBeVisible();
+      await expect(secondPage.getByLabel('Chat sin conexión')).toBeVisible();
+    } finally {
+      const newState = await controlTestApi('start');
+      expect(newState.pid).not.toBe(oldState.pid);
+    }
+    await expect.poll(async () => {
+      try { return (await fetch(`${apiUrl}/health`)).status; }
+      catch { return 0; }
+    }, { timeout: 60_000 }).toBe(200);
+    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible({ timeout: 60_000 });
+    await expect(secondPage.getByLabel('Chat conectado')).toBeVisible({ timeout: 60_000 });
+    await expectOrderedMessages(firstPage, expectedMessages);
+    await expectOrderedMessages(secondPage, expectedMessages);
+    expect((await apiRequest(`/chat-exchanges/${exchange.id}`, {
+      token: user2.token,
+    })).messages).toEqual(beforeRestart);
+
+    const afterWakeMessage = `Mensaje después de despertar ${runId}`;
+    await enterChatMessage(firstPage, afterWakeMessage);
+    await firstPage.getByRole('button', { name: 'Enviar mensaje' }).click();
+    expectedMessages.push(afterWakeMessage);
+    await expectOrderedMessages(secondPage, expectedMessages);
+    await firstPage.reload();
+    await enableFlutterAccessibility(firstPage);
+    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible();
+    await expectOrderedMessages(firstPage, expectedMessages);
+
     const completedResponsePromise = firstPage.waitForResponse(
       (response) =>
         response.url() === `${apiUrl}/chat-exchanges/${exchange.id}/status` &&
@@ -456,10 +548,10 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     expect((await completedResponsePromise).status()).toBe(200);
 
     const completedExchange = await apiRequest(`/chat-exchanges/${exchange.id}`, {
-      token: user1.token,
+      token: user2.token,
     });
     expect(completedExchange.status).toBe('done');
-    expect(completedExchange.messages).toHaveLength(2);
+    expect(completedExchange.messages.map((message) => message.content)).toEqual(expectedMessages);
   } finally {
     await Promise.allSettled([firstContext.close(), secondContext.close()]);
   }
@@ -607,7 +699,7 @@ test('informa fallos de listas, permite reintentar y explica estados vacíos', a
       page.getByLabel('No fue posible cargar los productos.'),
     ).toBeVisible();
     blockProducts = false;
-    await page.getByRole('button', { name: 'Reintentar' }).click();
+    await clickFlutterControl(page, page.getByRole('button', { name: 'Reintentar' }));
     await expect(
       page.getByLabel('Todavía no has publicado productos.'),
     ).toBeVisible();
@@ -625,7 +717,7 @@ test('informa fallos de listas, permite reintentar y explica estados vacíos', a
       page.getByLabel('No fue posible cargar los intercambios.'),
     ).toBeVisible();
     blockExchanges = false;
-    await page.getByRole('button', { name: 'Reintentar' }).click();
+    await clickFlutterControl(page, page.getByRole('button', { name: 'Reintentar' }));
     await expect(
       page.getByLabel('No tienes solicitudes enviadas pendientes.'),
     ).toBeVisible();
