@@ -1,6 +1,7 @@
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_image_scroll_behavior.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -224,16 +225,18 @@ class _ImageGallery extends StatelessWidget {
     }
 
     return PageView(
+      scrollBehavior: const ProductImageScrollBehavior(),
       scrollDirection: Axis.horizontal,
       controller: PageController(viewportFraction: 0.7),
-      children: images.map((image) {
-        final imageProvider = imageProviderForPath(image);
+      children: images.asMap().entries.map((entry) {
+        final imageProvider = imageProviderForPath(entry.value);
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(20)),
               child: FadeInImage(
+                imageSemanticLabel: 'Foto ${entry.key + 1} de ${images.length}',
                 fit: BoxFit.cover,
                 image: imageProvider,
                 placeholder: const AssetImage('assets/images/no-image.jpg'),

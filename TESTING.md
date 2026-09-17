@@ -39,6 +39,8 @@ GitHub Actions construye además la imagen Nginx de producción con URL HTTPS de
 
 ## Caja negra de componentes
 
+R-24: `product_image_scroll_behavior_test.dart` arrastra un carrusel de dos páginas con ratón y con tacto, y comprueba avance y regreso. La prueba con ratón falla con el comportamiento predeterminado de Flutter (permanece en página 0). El comportamiento corregido se aplica solo a las galerías de producto propio y ajeno. Playwright comprueba en ambas pantallas que el centro de la segunda foto ocupa el lugar de la primera tras arrastrar, y que el gesto inverso regresa a la primera; las etiquetas accesibles `Foto N de M` permiten identificar cada imagen.
+
 Los widget tests renderizan componentes a través de su interfaz pública. La prueba del `CustomAppBar` comprueba que el botón Buscar solo existe cuando la pantalla entrega una acción y que un toque ejecuta esa acción.
 
 ## Recorridos completos en navegador

@@ -146,6 +146,31 @@ async function enterChatMessage(page, value) {
   throw new Error('No fue posible ingresar el mensaje en el chat.');
 }
 
+async function swipeProductPhotos(page) {
+  const first = page.getByRole('img', { name: 'Foto 1 de 2', exact: true });
+  const second = page.getByRole('img', { name: 'Foto 2 de 2', exact: true });
+  await expect(first).toBeVisible();
+  const initial = await first.boundingBox();
+  const center = initial.x + initial.width / 2;
+  const y = initial.y + initial.height / 2;
+  await page.mouse.move(center + 200, y);
+  await page.mouse.down();
+  await page.mouse.move(center - 400, y, { steps: 30 });
+  await page.mouse.up();
+  await expect.poll(async () => {
+    const box = await second.boundingBox();
+    return box ? Math.abs(box.x + box.width / 2 - center) : Infinity;
+  }).toBeLessThan(2);
+  await page.mouse.move(center - 200, y);
+  await page.mouse.down();
+  await page.mouse.move(center + 400, y, { steps: 30 });
+  await page.mouse.up();
+  await expect.poll(async () => {
+    const box = await first.boundingBox();
+    return box ? Math.abs(box.x + box.width / 2 - center) : Infinity;
+  }).toBeLessThan(2);
+}
+
 async function login(page, email, password) {
   await openFlutterRoute(page, '/login');
   await enterFlutterText(page, page.getByLabel('El correo de tu cuenta'), email);
@@ -288,6 +313,8 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     }
 
     let blockProductDetail = true;
+    await openFlutterRoute(firstPage, `/product/${publishedProduct.id}`);
+    await swipeProductPhotos(firstPage);
     await secondPage.route(
       `**/api/products/${publishedProduct.id}`,
       (route) => {
@@ -304,6 +331,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     blockProductDetail = false;
     await secondPage.getByRole('button', { name: 'Reintentar' }).click();
     await expect(secondPage.getByLabel(publishedTitle)).toBeVisible();
+    await swipeProductPhotos(secondPage);
     await expect(
       secondPage.getByRole('button', { name: 'Guardar producto' }),
     ).toHaveCount(0);
