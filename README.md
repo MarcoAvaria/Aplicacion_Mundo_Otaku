@@ -76,6 +76,8 @@ Las imágenes seleccionadas se leen como bytes en todas las plataformas. El clie
 
 ## Verificación
 
+Entrega nocturna local del 17 de septiembre de 2026: **23 pruebas Flutter, 8 controles Node y 6 recorridos Playwright aprobados**, análisis sin hallazgos y builds web release/Android debug correctos. R-24 permite arrastrar las fotos con ratón; R-34 renueva la conexión al cambiar de sesión y verifica recargas, logout/login y reinicio real de la API local. [Evidencia de R-34](docs/VERIFICACION_R34.md). Estos commits aún no están publicados y no tienen una nueva CI remota.
+
 Línea base publicada: 20 pruebas Flutter, 8 controles Node y 6 recorridos Playwright con PostgreSQL efímero y el driver de imágenes `postgres`. GitHub Actions aprobó el commit `fa1858e` (run `35030412956`); consulta de estado repetida el 17 de septiembre de 2026. El backend asociado tiene 40 unitarias y 26 E2E aprobadas. Estos resultados corresponden a esa versión, no a pruebas nuevas de funciones futuras.
 
 ```powershell
