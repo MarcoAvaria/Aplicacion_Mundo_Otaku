@@ -69,6 +69,16 @@ La suite de Playwright bajo `e2e/` levanta la API, una base PostgreSQL efímera 
 
 Los tests no usan la base demo conservada ni modifican sus fotografías. Cada ejecución crea usuarios, productos e intercambios propios en `mundo_otaku_e2e_test`, guarda imágenes en `.e2e-artifacts` y elimina ambos recursos al finalizar, incluso si una prueba falla. Consulta [e2e/README.md](e2e/README.md) para preparar el entorno.
 
+## Revisión manual en Android con dos cuentas
+
+La revisión visual y los flujos en tiempo real se pueden ejecutar con dos AVD desde un solo comando Dart. El modo predeterminado usa la API pública y no requiere Docker; `--modo=local` compila y levanta también PostgreSQL/NestJS sin restaurar ni vaciar la base. [PRUEBAS_MANUALES_ANDROID.md](docs/PRUEBAS_MANUALES_ANDROID.md) contiene requisitos, cuentas demo, recorrido recomendado, solución de problemas y el flujo manual alternativo con hot reload.
+
+Para grabar un recorrido automático en un solo Pixel 7 desde la raíz, usa `dart run Aplicacion_Mundo_Otaku/tool/ejecutar_flujo_android.dart`. El flujo 01 recorre catálogo, productos y chat; el flujo 02 revisa una solicitud pendiente con Demo 2 sin aceptarla ni rechazarla; el flujo 03 busca un producto y recorre su ficha. Los tres esperan antes de comenzar para activar Record and Playback y validan el inicio de sesión mediante el almacenamiento local del token. La misma guía explica sus opciones, el alcance de su automatización por coordenadas y cómo extender chats con un segundo actor controlado por API/Socket.IO sin grabar dos AVD.
+
+Para iterar cambios estéticos con hot reload desde la raíz, usa `dart run Aplicacion_Mundo_Otaku/tool/desarrollo_visual.dart` en Chrome o agrega `--plataforma=android` con un emulador iniciado. Ambos modos usan Render y necesitan una sola terminal, sin Docker ni NestJS local.
+
+Durante la evaluación del tema editorial, los macros ADB 01–03 conservan sus casos de uso, pero no sus coordenadas finales: el nuevo menú cambió la geometría. Deben recalibrarse solamente después de aprobar esta dirección visual, para no repetir el trabajo con cada variante.
+
 ## Cobertura pendiente
 
 Los siguientes incrementos pueden añadirse sin rehacer la infraestructura:

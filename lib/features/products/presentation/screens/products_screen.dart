@@ -1,7 +1,6 @@
-import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_card.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_grid_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
@@ -21,14 +20,12 @@ class ProductsScreen extends StatelessWidget {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
-      appBar: AppBar(
-        title: const Text('Mis productos'),
-      ),
+      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
+      appBar: CustomAppBar.customAppBar(context, 'Mis productos'),
       body: const _ProductsView(),
       floatingActionButton: FloatingActionButton.extended(
         label: const Text('Nuevo producto'),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_rounded),
         onPressed: () {
           context.push(AppRoutes.product('new'));
         },
@@ -105,23 +102,46 @@ class _ProductsViewState extends ConsumerState {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: MasonryGridView.count(
-        controller: scrollController,
-        physics: const BouncingScrollPhysics(),
-        crossAxisCount: 2,
-        mainAxisSpacing: 20,
-        crossAxisSpacing: 35,
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return GestureDetector(
-            onTap: () => context.push(AppRoutes.product(product.id)),
-            child: ProductCard(product: product),
-          );
-        },
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final contentWidth = constraints.maxWidth.clamp(0.0, 760.0);
+        const horizontalPadding = AppSpacing.lg;
+        const gap = AppSpacing.lg;
+        final cardWidth = (contentWidth - horizontalPadding * 2 - gap) / 2;
+        final cardHeight = cardWidth * 4 / 3 + 96;
+
+        return Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 760),
+            child: GridView.builder(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
+              padding: const EdgeInsets.fromLTRB(
+                horizontalPadding,
+                AppSpacing.lg,
+                horizontalPadding,
+                104,
+              ),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: gap,
+                crossAxisSpacing: gap,
+                mainAxisExtent: cardHeight,
+              ),
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                final product = products[index];
+                return ProductGridCard(
+                  product: product,
+                  onTap: () => context.push(AppRoutes.product(product.id)),
+                );
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

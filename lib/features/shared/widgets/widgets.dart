@@ -4,6 +4,7 @@ export 'custom_filled_button.dart';
 export 'my_field_text.dart';
 export 'geometrical_background.dart';
 export 'configuration_menu.dart';
+export 'app_navigation_drawer.dart';
 export 'full_screen_loader.dart';
 export 'image_provider_for_path.dart';
 export 'list_status_view.dart';

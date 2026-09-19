@@ -87,7 +87,7 @@ class _CustomProductFieldState extends State<CustomProductField> {
       //padding: const EdgeInsets.only(bottom: 0, top: 15),
       padding: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.surfaceVariant,
           borderRadius: BorderRadius.only(
             topLeft: widget.isTopField ? borderRadius : Radius.zero,
             topRight: widget.isTopField ? borderRadius : Radius.zero,
@@ -112,14 +112,16 @@ class _CustomProductFieldState extends State<CustomProductField> {
         validator: widget.validator,
         obscureText: widget.obscureText,
         keyboardType: widget.keyboardType,
-        style: const TextStyle(fontSize: 15, color: Colors.black54),
+        style: TextStyle(fontSize: 15, color: colors.onSurface),
         maxLines: widget.maxLines,
         decoration: InputDecoration(
           floatingLabelBehavior: widget.maxLines > 1
               ? FloatingLabelBehavior.always
               : FloatingLabelBehavior.auto,
-          floatingLabelStyle: const TextStyle(
-              color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
+          floatingLabelStyle: TextStyle(
+              color: colors.onSurface,
+              fontWeight: FontWeight.bold,
+              fontSize: 15),
           enabledBorder: border,
           focusedBorder: border,
           errorBorder: border.copyWith(

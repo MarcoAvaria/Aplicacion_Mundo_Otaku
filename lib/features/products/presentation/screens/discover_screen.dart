@@ -23,7 +23,7 @@ class DiscoverScreen extends ConsumerWidget {
     final currentUserId = ref.watch(authProvider).user?.id ?? '';
 
     return Scaffold(
-      drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
+      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(
         context,
         '¡Cambia y descubre!',

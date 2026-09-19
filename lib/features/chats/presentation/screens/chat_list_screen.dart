@@ -20,7 +20,7 @@ class ChatListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-      drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
+      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, '¡Chats!'),
       body: const _ChatListView(),
     );

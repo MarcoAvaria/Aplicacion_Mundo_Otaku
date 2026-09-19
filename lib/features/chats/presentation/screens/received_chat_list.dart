@@ -20,7 +20,7 @@ class ReceivedListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-      drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
+      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, '¡Solicitudes recibidas!'),
       body: const _ReceivedListView(),
     );

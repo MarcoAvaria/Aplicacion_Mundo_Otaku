@@ -341,17 +341,22 @@ class _SizeSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: sizes.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -397,17 +402,22 @@ class _TypeSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: typesOf.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -463,17 +473,22 @@ class _GenderSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: genders.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -518,17 +533,22 @@ class _DemographicSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: demographics.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),

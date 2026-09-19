@@ -20,7 +20,7 @@ class RequestedListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-      drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
+      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, 'Solicitudes enviadas'),
       body: const _RequestedListView(),
     );
