@@ -61,9 +61,8 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.otherProductPattern,
-      builder: (context, state) => Scaffold(
-        appBar: AppBar(title: const Text('Producto de otro')),
-        body: const Center(child: Text('Fuera del alcance de esta vista')),
+      builder: (context, state) => InkOtherProductScreen(
+        productId: state.pathParameters['id'] ?? 'no-id',
       ),
     ),
   ],
@@ -92,6 +91,10 @@ class _SampleRepository implements ProductsRepository {
     if (offset > 0) return [];
     return _samples;
   }
+
+  @override
+  Future<Product> getProductById(String id) async =>
+      _samples.firstWhere((product) => product.id == id);
 
   @override
   noSuchMethod(Invocation invocation) =>
@@ -139,14 +142,16 @@ final _samples = <Product>[
   ),
   Product(
     id: '2',
-    title: 'Solo Leveling',
+    title: 'Solo Leveling Vol. 1 al 6',
     typeOf: 'Manga',
-    description: '',
+    description:
+        'Colección completa de los primeros seis tomos, leídos una vez y '
+        'guardados en caja. Sin dobleces en el lomo.',
     tomo: 1,
     sizeOf: '',
     gender: 'Accion peleas',
     demographic: 'Seinen',
-    tags: const [],
+    tags: const ['manhwa', 'acción'],
     images: const [],
     user: _owner,
   ),

@@ -95,6 +95,7 @@ poder volver atrás, según la regla de `ai-handoff/PRECAUCIONES.md`.
 | Menú lateral | `ink_navigation_drawer.dart`, `webtoon_navigation_drawer.dart`, `styled_navigation_drawer.dart` | `app_navigation_drawer.dart` |
 | Descubrir | `screens/ink_discover_screen.dart`, `widgets/ink_discover_card.dart` | `discover_screen.dart` |
 | Mi estante | `screens/ink_products_screen.dart`, `widgets/ink_product_row.dart` | `products_screen.dart` |
+| Producto de otra persona | `screens/ink_other_product_screen.dart` | `other_product_screen.dart` |
 
 Piezas compartidas: `ink_tokens.dart` (colores, botón de menú y botón de sombra
 dura), `halftone_painter.dart` (trama de puntos), `vertical_cjk_label.dart` y

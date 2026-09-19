@@ -80,7 +80,7 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: AppRoutes.otherProductPattern,
-        builder: (context, state) => OtherProductScreen(
+        builder: (context, state) => InkOtherProductScreen(
           productId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
