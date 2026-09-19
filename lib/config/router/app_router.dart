@@ -31,11 +31,11 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
           path: AppRoutes.products,
           name: ProductsScreen.name,
-          builder: (context, state) => const ProductsScreen()),
+          builder: (context, state) => const InkProductsScreen()),
       GoRoute(
           path: AppRoutes.discover,
           name: DiscoverScreen.name,
-          builder: (context, state) => const DiscoverScreen()),
+          builder: (context, state) => const InkDiscoverScreen()),
       GoRoute(
           path: AppRoutes.chatList,
           name: ChatListScreen.name,

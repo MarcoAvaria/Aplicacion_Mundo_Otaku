@@ -4,8 +4,8 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import 'halftone_painter.dart';
 import 'styled_navigation_drawer.dart';
 
 /// Menú "Capítulos": cada destino es una viñeta con borde de tinta, numerada
@@ -91,11 +91,11 @@ class _Header extends StatelessWidget {
               border: Border.all(color: tokens.border, width: 2.5),
             ),
             child: CustomPaint(
-              painter: _HalftonePainter(color: tokens.accent),
+              painter: HalftonePainter(color: tokens.accent),
               child: Center(
                 child: Text(
                   name.substring(0, 1).toUpperCase(),
-                  style: GoogleFonts.bricolageGrotesque(
+                  style: AppFonts.displayStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: tokens.accent,
@@ -123,7 +123,7 @@ class _Header extends StatelessWidget {
                   name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.bricolageGrotesque(
+                  style: AppFonts.displayStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     height: 1.15,
@@ -187,7 +187,7 @@ class _ChapterTile extends StatelessWidget {
                   children: [
                     Text(
                       destination.number,
-                      style: GoogleFonts.bricolageGrotesque(
+                      style: AppFonts.displayStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.1,
@@ -200,7 +200,7 @@ class _ChapterTile extends StatelessWidget {
                     Expanded(
                       child: Text(
                         destination.label,
-                        style: GoogleFonts.bricolageGrotesque(
+                        style: AppFonts.displayStyle(
                           fontSize: 18,
                           fontWeight:
                               selected ? FontWeight.w800 : FontWeight.w700,
@@ -392,28 +392,6 @@ class _StyleOption extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Trama de puntos: el equivalente a la screentone del manga impreso.
-class _HalftonePainter extends CustomPainter {
-  const _HalftonePainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color.withOpacity(0.38);
-    const spacing = 7.0;
-    for (var y = spacing / 2; y < size.height; y += spacing) {
-      for (var x = spacing / 2; x < size.width; x += spacing) {
-        canvas.drawCircle(Offset(x, y), 1.1, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(_HalftonePainter oldDelegate) =>
-      oldDelegate.color != color;
 }
 
 /// Colores del menú de tinta en cada modo.

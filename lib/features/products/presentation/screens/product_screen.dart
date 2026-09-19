@@ -3,23 +3,11 @@ import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/infrastructure/helpers/image_file_type.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_image_scroll_behavior.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_option_labels.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
-/// Etiquetas corregidas para opciones cuyo valor ya está guardado en la base.
-///
-/// El valor almacenado no cambia: los productos existentes conservan su texto
-/// original y el `DropdownButton` los sigue encontrando entre sus opciones.
-const _optionLabels = <String, String>{
-  'Accion peleas': 'Acción / peleas',
-  'Gore Terror': 'Gore / terror',
-  'Magical Girls Maho Shojo': 'Magical girls (mahō shōjo)',
-  'Komodo': 'Kodomo',
-};
-
-String _optionLabel(String value) => _optionLabels[value] ?? value;
 
 class ProductScreen extends ConsumerWidget {
   final String productId;
@@ -365,7 +353,7 @@ class _SizeSelector extends StatelessWidget {
           items: sizes.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(_optionLabel(value),
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -426,7 +414,7 @@ class _TypeSelector extends StatelessWidget {
           items: typesOf.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(_optionLabel(value),
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -497,7 +485,7 @@ class _GenderSelector extends StatelessWidget {
           items: genders.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(_optionLabel(value),
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -557,7 +545,7 @@ class _DemographicSelector extends StatelessWidget {
           items: demographics.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(_optionLabel(value),
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme

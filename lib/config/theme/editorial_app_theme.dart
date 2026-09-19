@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'app_fonts.dart';
 
 abstract final class AppSpacing {
   static const double xs = 4;
@@ -55,8 +56,6 @@ abstract final class EditorialAppTheme {
         cardRadius: AppRadius.lightCard,
         controlRadius: AppRadius.lightControl,
         fabRadius: AppRadius.lightFab,
-        displayTextTheme: GoogleFonts.bricolageGrotesqueTextTheme,
-        bodyTextTheme: GoogleFonts.workSansTextTheme,
         outlinedPrimaryActions: false,
       );
 
@@ -72,8 +71,6 @@ abstract final class EditorialAppTheme {
         cardRadius: AppRadius.darkCard,
         controlRadius: AppRadius.darkControl,
         fabRadius: AppRadius.darkFab,
-        displayTextTheme: GoogleFonts.bricolageGrotesqueTextTheme,
-        bodyTextTheme: GoogleFonts.workSansTextTheme,
         outlinedPrimaryActions: true,
       );
 
@@ -89,8 +86,6 @@ abstract final class EditorialAppTheme {
     required double cardRadius,
     required double controlRadius,
     required double fabRadius,
-    required TextTheme Function([TextTheme?]) displayTextTheme,
-    required TextTheme Function([TextTheme?]) bodyTextTheme,
     required bool outlinedPrimaryActions,
   }) {
     final colorScheme = ColorScheme(
@@ -138,57 +133,55 @@ abstract final class EditorialAppTheme {
       surfaceTint: Colors.transparent,
     );
 
-    final displayBase = displayTextTheme();
-    final bodyBase = bodyTextTheme();
     final textTheme = TextTheme(
-      headlineSmall: displayBase.headlineSmall?.copyWith(
-        color: onSurface,
+      headlineSmall: AppFonts.displayStyle(
         fontSize: 24,
         fontWeight: FontWeight.w700,
         height: 1.2,
-      ),
-      titleLarge: displayBase.titleLarge?.copyWith(
         color: onSurface,
+      ),
+      titleLarge: AppFonts.displayStyle(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         height: 1.25,
-      ),
-      titleMedium: displayBase.titleMedium?.copyWith(
         color: onSurface,
+      ),
+      titleMedium: AppFonts.displayStyle(
         fontSize: 17,
         fontWeight: FontWeight.w600,
         height: 1.3,
-      ),
-      titleSmall: displayBase.titleSmall?.copyWith(
         color: onSurface,
+      ),
+      titleSmall: AppFonts.displayStyle(
         fontSize: 14.5,
         fontWeight: FontWeight.w600,
         height: 1.3,
-      ),
-      bodyLarge: bodyBase.bodyLarge?.copyWith(
         color: onSurface,
+      ),
+      bodyLarge: AppFonts.bodyStyle(
         fontSize: 15,
         height: 1.45,
-      ),
-      bodyMedium: bodyBase.bodyMedium?.copyWith(
         color: onSurface,
+      ),
+      bodyMedium: AppFonts.bodyStyle(
         fontSize: 14.5,
         height: 1.4,
+        color: onSurface,
       ),
-      bodySmall: bodyBase.bodySmall?.copyWith(
-        color: onSurfaceVariant,
+      bodySmall: AppFonts.bodyStyle(
         fontSize: 12,
         height: 1.35,
+        color: onSurfaceVariant,
       ),
-      labelLarge: bodyBase.labelLarge?.copyWith(
-        color: onSurface,
+      labelLarge: AppFonts.bodyStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
+        color: onSurface,
       ),
-      labelMedium: bodyBase.labelMedium?.copyWith(
-        color: onSurfaceVariant,
+      labelMedium: AppFonts.bodyStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
+        color: onSurfaceVariant,
       ),
     );
 

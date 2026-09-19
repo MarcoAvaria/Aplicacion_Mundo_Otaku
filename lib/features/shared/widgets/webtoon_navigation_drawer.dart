@@ -4,7 +4,6 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'styled_navigation_drawer.dart';
 
@@ -81,7 +80,7 @@ class _Header extends StatelessWidget {
             name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.bricolageGrotesque(
+            style: AppFonts.displayStyle(
               fontSize: 27,
               fontWeight: FontWeight.w800,
               height: 1.1,
@@ -143,7 +142,7 @@ class _ThreadTile extends StatelessWidget {
                       children: [
                         Text(
                           destination.label,
-                          style: GoogleFonts.bricolageGrotesque(
+                          style: AppFonts.displayStyle(
                             fontSize: selected ? 25 : 23,
                             fontWeight:
                                 selected ? FontWeight.w800 : FontWeight.w700,
