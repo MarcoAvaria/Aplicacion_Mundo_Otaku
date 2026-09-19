@@ -10,9 +10,11 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/repositories/chat_exchanges_repository.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_repository_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_preview_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
@@ -57,6 +59,24 @@ final _router = GoRouter(
       path: AppRoutes.requestedList,
       builder: (context, state) =>
           const InkExchangeListScreen(inbox: ExchangeInbox.sent),
+    ),
+    GoRoute(
+      path: AppRoutes.previewReceivedPattern,
+      builder: (context, state) => InkExchangePreviewScreen(
+        chatExchangeId: state.pathParameters['id'] ?? 'no-id',
+        inbox: ExchangeInbox.received,
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.previewRequestedPattern,
+      builder: (context, state) => InkExchangePreviewScreen(
+        chatExchangeId: state.pathParameters['id'] ?? 'no-id',
+        inbox: ExchangeInbox.sent,
+      ),
+    ),
+    GoRoute(
+      path: '/vista-chat',
+      builder: (context, state) => const _ChatBubblesPreview(),
     ),
     for (final location in const [
       AppRoutes.chatList,
@@ -142,6 +162,10 @@ class _AuthStub implements AuthRepository, AuthDataSource {
 class _SampleExchangesRepository implements ChatExchangesRepository {
   @override
   Future<List<ChatExchange>> getAllChatExchanges(String id) async => _exchanges;
+
+  @override
+  Future<ChatExchange> getChatExchangeById(String id) async =>
+      _exchanges.firstWhere((exchange) => exchange.id == id);
 
   @override
   noSuchMethod(Invocation invocation) =>
@@ -297,3 +321,41 @@ final _samples = <Product>[
     user: _owner,
   ),
 ];
+
+/// Solo los globos del chat: la pantalla real necesita sockets y GetX.
+class _ChatBubblesPreview extends StatelessWidget {
+  const _ChatBubblesPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = InkTokens.of(context);
+    final now = DateTime(2026, 9, 19, 14, 5);
+
+    return Scaffold(
+      backgroundColor: tokens.paper,
+      appBar: AppBar(title: const Text('Globos del chat')),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        children: [
+          MessageItem(
+            sentByMe: false,
+            message: '¡Hola! Vi tu Berserk deluxe y me encantó. '
+                '¿Sigue disponible?',
+            timestamp: now,
+          ),
+          MessageItem(
+            sentByMe: true,
+            message: '¡Hola Sofía! Sí, sigue disponible. Vi tus tomos de '
+                'Solo Leveling, me interesan un montón.',
+            timestamp: now.add(const Duration(minutes: 3)),
+          ),
+          MessageItem(
+            sentByMe: false,
+            message: 'Perfecto. ¿Te parece si hacemos el cambio esta semana?',
+            timestamp: now.add(const Duration(minutes: 4)),
+          ),
+        ],
+      ),
+    );
+  }
+}

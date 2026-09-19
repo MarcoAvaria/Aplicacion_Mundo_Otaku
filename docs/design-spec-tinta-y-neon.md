@@ -97,6 +97,8 @@ poder volver atrás, según la regla de `ai-handoff/PRECAUCIONES.md`.
 | Mi estante | `screens/ink_products_screen.dart`, `widgets/ink_product_row.dart` | `products_screen.dart` |
 | Producto de otra persona | `screens/ink_other_product_screen.dart` | `other_product_screen.dart` |
 | Solicitudes recibidas y enviadas | `chats/…/screens/ink_exchange_list_screen.dart` | `received_chat_list.dart`, `requested_chat_list.dart` |
+| Propuesta de intercambio | `chats/…/screens/ink_exchange_preview_screen.dart` | `preview_received_screen.dart`, `preview_requested_screen.dart` |
+| Chat | restilizado dentro de `chat_screen.dart` | — (ver nota) |
 
 Piezas compartidas: `ink_tokens.dart` (colores, botón de menú y botón de sombra
 dura), `halftone_painter.dart` (trama de puntos), `vertical_cjk_label.dart` y
@@ -112,6 +114,28 @@ El menú tiene **dos estilos elegibles por la persona usuaria**, "Capítulos" y
 "Hilo webtoon", con el selector dentro del propio menú y la preferencia
 persistida en `drawer_style_provider.dart`, con el mismo patrón del selector de
 tema.
+
+### El chat es la excepción
+
+El chat **no** se rehízo en un archivo nuevo. Su pantalla mezcla la vista con
+la conexión por socket y con GetX, así que duplicarla para cambiarle el aspecto
+habría significado duplicar esa lógica. En su lugar se restilizaron solo el
+globo de mensaje (`MessageItem`) y el campo de entrada, dentro de
+`chat_screen.dart`.
+
+Esa pantalla está cubierta por un recorrido Playwright, así que hay anclas que
+**no se pueden cambiar** al tocarla:
+
+- un único `textbox` en la pantalla: agregar otro campo de texto vuelve
+  ambiguo el selector `getByRole('textbox')`;
+- el botón de enviar debe seguir llamándose `Enviar mensaje`;
+- el texto del mensaje debe seguir siendo su etiqueta de accesibilidad, porque
+  la prueba busca el mensaje recién enviado con `getByLabel`;
+- las etiquetas `Chat conectado` y `Chat sin conexión` del `Semantics` que
+  envuelve la vista.
+
+Conviene recordar que ese recorrido ya falla de forma intermitente en CI
+(T-026 en el tablero), así que cualquier cambio ahí se revisa con cuidado.
 
 ## Trampas encontradas al implementar
 

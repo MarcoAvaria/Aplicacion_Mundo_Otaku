@@ -255,23 +255,42 @@ class _ChatViewState extends ConsumerState<_ChatView> {
             top: false,
             child: Padding(
               padding: const EdgeInsets.all(10),
-              child: TextField(
-                controller: inputController,
-                minLines: 1,
-                maxLines: 4,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
-                decoration: InputDecoration(
-                  hintText: 'Escribe un mensaje',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  suffixIcon: IconButton(
-                    tooltip: 'Enviar mensaje',
-                    onPressed: _sendMessage,
-                    icon: const Icon(Icons.send),
-                  ),
-                ),
+              child: Builder(
+                builder: (context) {
+                  final tokens = InkTokens.of(context);
+                  return TextField(
+                    controller: inputController,
+                    minLines: 1,
+                    maxLines: 4,
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _sendMessage(),
+                    decoration: InputDecoration(
+                      hintText: 'Escribe un mensaje',
+                      filled: true,
+                      fillColor: tokens.panel,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                        borderSide:
+                            BorderSide(color: tokens.ink, width: 2.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                        borderSide:
+                            BorderSide(color: tokens.ink, width: 2.5),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.zero,
+                        borderSide:
+                            BorderSide(color: tokens.halftone, width: 2.5),
+                      ),
+                      suffixIcon: IconButton(
+                        tooltip: 'Enviar mensaje',
+                        onPressed: _sendMessage,
+                        icon: Icon(Icons.send, color: tokens.halftone),
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -295,26 +314,48 @@ class MessageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final tokens = InkTokens.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final time = '${timestamp.hour.toString().padLeft(2, '0')}:'
         '${timestamp.minute.toString().padLeft(2, '0')}';
+
+    // El globo propio se tiñe con el contenedor del acento; el neón del modo
+    // oscuro queda solo para el borde, nunca como relleno.
+    final background = sentByMe ? tokens.chipSelected : tokens.panel;
+    final foreground =
+        sentByMe && !isDark ? tokens.onAccent : tokens.text;
 
     return Align(
       alignment: sentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(maxWidth: 320),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 13),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: sentByMe ? colors.primaryContainer : colors.secondaryContainer,
+          color: background,
+          border: Border.all(
+            color: sentByMe ? tokens.chipSelectedBorder : tokens.ink,
+            width: tokens.borderWidth,
+          ),
+          boxShadow: [
+            BoxShadow(color: tokens.shadow, offset: const Offset(3, 3)),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(message),
+            Text(message, style: TextStyle(fontSize: 14.5, color: foreground)),
             const SizedBox(height: 3),
-            Text(time, style: Theme.of(context).textTheme.labelSmall),
+            Text(
+              time,
+              style: TextStyle(
+                fontSize: 10.5,
+                fontWeight: FontWeight.w600,
+                color: sentByMe && !isDark
+                    ? tokens.onAccent.withOpacity(0.8)
+                    : tokens.muted,
+              ),
+            ),
           ],
         ),
       ),
