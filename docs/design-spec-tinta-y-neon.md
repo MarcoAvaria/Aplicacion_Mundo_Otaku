@@ -96,10 +96,17 @@ poder volver atrás, según la regla de `ai-handoff/PRECAUCIONES.md`.
 | Descubrir | `screens/ink_discover_screen.dart`, `widgets/ink_discover_card.dart` | `discover_screen.dart` |
 | Mi estante | `screens/ink_products_screen.dart`, `widgets/ink_product_row.dart` | `products_screen.dart` |
 | Producto de otra persona | `screens/ink_other_product_screen.dart` | `other_product_screen.dart` |
+| Solicitudes recibidas y enviadas | `chats/…/screens/ink_exchange_list_screen.dart` | `received_chat_list.dart`, `requested_chat_list.dart` |
 
 Piezas compartidas: `ink_tokens.dart` (colores, botón de menú y botón de sombra
 dura), `halftone_painter.dart` (trama de puntos), `vertical_cjk_label.dart` y
 `product_option_labels.dart`.
+
+Las dos bandejas de solicitudes comparten una sola pantalla, parametrizada con
+`ExchangeInbox`: recorren los mismos intercambios pendientes y solo cambian de
+lado, así que duplicarlas habría significado mantener dos copias casi idénticas.
+Cada fila se dibuja como una doble página: lo que entregas y lo que recibes, con
+la flecha de intercambio entre medio.
 
 El menú tiene **dos estilos elegibles por la persona usuaria**, "Capítulos" y
 "Hilo webtoon", con el selector dentro del propio menú y la preferencia

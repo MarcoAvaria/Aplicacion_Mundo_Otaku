@@ -3,6 +3,7 @@ import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/preview_received_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/preview_requested_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/received_chat_list.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/requested_chat_list.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/screens.dart';
@@ -43,11 +44,13 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
           path: AppRoutes.requestedList,
           name: RequestedListScreen.name,
-          builder: (context, state) => const RequestedListScreen()),
+          builder: (context, state) =>
+              const InkExchangeListScreen(inbox: ExchangeInbox.sent)),
       GoRoute(
           path: AppRoutes.receivedList,
           name: ReceivedListScreen.name,
-          builder: (context, state) => const ReceivedListScreen()),
+          builder: (context, state) =>
+              const InkExchangeListScreen(inbox: ExchangeInbox.received)),
       GoRoute(
         path: AppRoutes.previewReceivedPattern,
         builder: (context, state) => PreviewReceivedScreen(

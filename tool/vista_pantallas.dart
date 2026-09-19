@@ -7,7 +7,13 @@
 //   flutter run -d chrome -t tool/vista_pantallas.dart
 //
 import 'package:aplicacion_mundo_otaku/config/config.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/domain/repositories/chat_exchanges_repository.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_repository_provider.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_list_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/screens.dart';
@@ -21,7 +27,10 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [
+        authProvider.overrideWith((ref) => _SampleAuthNotifier()),
         productsRepositoryProvider.overrideWithValue(_SampleRepository()),
+        chatExchangesRepositoryProvider
+            .overrideWithValue(_SampleExchangesRepository()),
       ],
       child: const _ScreensPreviewApp(),
     ),
@@ -39,10 +48,18 @@ final _router = GoRouter(
       path: AppRoutes.products,
       builder: (context, state) => const InkProductsScreen(),
     ),
+    GoRoute(
+      path: AppRoutes.receivedList,
+      builder: (context, state) =>
+          const InkExchangeListScreen(inbox: ExchangeInbox.received),
+    ),
+    GoRoute(
+      path: AppRoutes.requestedList,
+      builder: (context, state) =>
+          const InkExchangeListScreen(inbox: ExchangeInbox.sent),
+    ),
     for (final location in const [
       AppRoutes.chatList,
-      AppRoutes.requestedList,
-      AppRoutes.receivedList,
       AppRoutes.login,
     ])
       GoRoute(
@@ -101,6 +118,77 @@ class _SampleRepository implements ProductsRepository {
       throw UnimplementedError('Fuera del alcance de esta vista');
 }
 
+/// Sesión falsa: evita la comprobación real y deja una persona conectada.
+class _SampleAuthNotifier extends AuthNotifier {
+  _SampleAuthNotifier()
+      : super(
+          authRepository: _AuthStub(),
+          authDataSource: _AuthStub(),
+          secureStorage: const FlutterSecureStorage(),
+        ) {
+    state = AuthState(authStatus: AuthStatus.authenticated, user: _me);
+  }
+
+  @override
+  Future<void> checkAuthStatus() async {}
+}
+
+class _AuthStub implements AuthRepository, AuthDataSource {
+  @override
+  noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('Fuera del alcance de esta vista');
+}
+
+class _SampleExchangesRepository implements ChatExchangesRepository {
+  @override
+  Future<List<ChatExchange>> getAllChatExchanges(String id) async => _exchanges;
+
+  @override
+  noSuchMethod(Invocation invocation) =>
+      throw UnimplementedError('Fuera del alcance de esta vista');
+}
+
+final _exchanges = <ChatExchange>[
+  ChatExchange(
+    id: 'e1',
+    owner1: 'yo',
+    owner2: 'otro-usuario',
+    product1: 'm1',
+    product2: '1',
+    requester1: '1',
+    messages: const [],
+    status: 'pending',
+  ),
+  ChatExchange(
+    id: 'e2',
+    owner1: 'yo',
+    owner2: 'otro-usuario',
+    product1: 'm2',
+    product2: '4',
+    requester1: '4',
+    messages: const [],
+    status: 'pending',
+  ),
+  ChatExchange(
+    id: 'e3',
+    owner1: 'otro-usuario',
+    owner2: 'yo',
+    product1: '2',
+    product2: 'm3',
+    requester1: 'm3',
+    messages: const [],
+    status: 'pending',
+  ),
+];
+
+final _me = User(
+  id: 'yo',
+  email: 'marco@mundootaku.cl',
+  fullName: 'Marco Avaria',
+  token: '',
+  roles: const ['user'],
+);
+
 final _owner = User(
   id: 'otro-usuario',
   email: 'demo@mundootaku.cl',
@@ -120,6 +208,7 @@ Product _mine(String id, String title, String type, int tomo, String demo) => Pr
       demographic: demo,
       tags: const [],
       images: const [],
+      user: _me,
     );
 
 final _samples = <Product>[
