@@ -3,25 +3,23 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final goRouterNotifierProvider = Provider((ref) {
-  final authNotifier = ref.read( authProvider.notifier );
-  return GoRouterNotifier(authNotifier);
+  final notifier = GoRouterNotifier();
+  ref.listen<AuthState>(
+    authProvider,
+    (_, state) => notifier.authStatus = state.authStatus,
+    fireImmediately: true,
+  );
+  ref.onDispose(notifier.dispose);
+  return notifier;
 });
 
 class GoRouterNotifier extends ChangeNotifier {
-  
-  final AuthNotifier _authNotifier;
-
   AuthStatus _authStatus = AuthStatus.checking;
 
-  GoRouterNotifier(this._authNotifier) {
-    _authNotifier.addListener((state) {
-      authStatus = state.authStatus;
-    });
-  }
+  AuthStatus get authStatus => _authStatus;
 
-  AuthStatus get authStatus => _authStatus;  
-  
-  set authStatus( AuthStatus value ) {
+  set authStatus(AuthStatus value) {
+    if (_authStatus == value) return;
     _authStatus = value;
     notifyListeners();
   }

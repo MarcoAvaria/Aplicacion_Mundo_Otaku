@@ -1,8 +1,7 @@
-import 'dart:io';
-import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
-import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/forms/chat_exchange_form_provider.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_image_scroll_behavior.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,11 +11,6 @@ import '../../../auth/auth.dart';
 class OtherProductScreen extends ConsumerWidget {
   final String productId;
   const OtherProductScreen({super.key, required this.productId});
-  void showSnackbar(BuildContext context) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context)
-        .showSnackBar(const SnackBar(content: Text('Producto actualizado')));
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,47 +27,25 @@ class OtherProductScreen extends ConsumerWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Detalles'), actions: [
-          IconButton(
-              onPressed: () async {
-                final photoPath =
-                    await CameraGalleryServiceImpl().selectPhoto();
-                if (photoPath == null) return;
-
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath); //photoPath;
-              },
-              icon: const Icon(Icons.photo_library_outlined)),
-          IconButton(
-              onPressed: () async {
-                final photoPath = await CameraGalleryServiceImpl().takePhoto();
-                if (photoPath == null) return;
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath); //photoPath;
-              },
-              icon: const Icon(Icons.camera_alt_outlined)),
-        ]),
+        appBar: AppBar(title: const Text('Detalles')),
         body: productState.isLoading
             ? const FullScreenLoader()
-            : _OtherProductView(
-                product: productState.product!,
-                otherProductsState: otherProductsList),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (productState.product == null) return;
-
-            ref
-                .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit()
-                .then((value) {
-              if (!value) return;
-              showSnackbar(context); //FocusScope.of(context).unfocus();
-            });
-          },
-          child: const Icon(Icons.save_as_outlined),
-        ),
+            : productState.errorMessage.isNotEmpty &&
+                    productState.product == null
+                ? ListStatusView(
+                    message: productState.errorMessage,
+                    onRetry: () => ref
+                        .read(productProvider(productId).notifier)
+                        .loadProduct(),
+                  )
+                : productState.product == null
+                    ? const ListStatusView(
+                        message: 'El producto ya no está disponible.',
+                      )
+                    : _OtherProductView(
+                        product: productState.product!,
+                        otherProductsState: otherProductsList,
+                      ),
       ),
     );
   }
@@ -100,7 +72,6 @@ class _OtherProductView extends ConsumerWidget {
         Center(
             child: Text(
           productForm.title.value,
-          //style: textStyles.titleSmall,
           style: textStyles.titleLarge,
           textAlign: TextAlign.center,
         )),
@@ -114,7 +85,6 @@ class _OtherProductView extends ConsumerWidget {
 
 class _OtherProductInformation extends ConsumerWidget {
   final Product product;
-  //final ChatExchange conversacion;
   final List<Product> otherProductsState;
   const _OtherProductInformation(
       {required this.product, required this.otherProductsState});
@@ -122,9 +92,7 @@ class _OtherProductInformation extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productForm = ref.watch(productFormProvider(product));
-    //final conversacionForm = ref.watch(chatExchangeFormProvider(conversacion));
     final customColor = Theme.of(context).primaryColor;
-    //print(productForm.title);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -149,19 +117,17 @@ class _OtherProductInformation extends ConsumerWidget {
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                builder: (BuildContext context) {
+                builder: (BuildContext bottomSheetContext) {
                   return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       for (Product product2 in otherProductsState)
                         ListTile(
                             title: Text(product2.title),
-                            //context.push('/chatscreen/${productForm.id}');
                             onTap: () {
-                              // Cierra el BottomSheet
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
+                                  context: bottomSheetContext,
+                                  builder: (BuildContext dialogContext) {
                                     return AlertDialog(
                                       title: const Text('Confirmación'),
                                       content: const Text(
@@ -169,56 +135,35 @@ class _OtherProductInformation extends ConsumerWidget {
                                       actions: [
                                         TextButton(
                                             onPressed: () {
-                                              Navigator.pop(context);
+                                              Navigator.pop(dialogContext);
                                             },
                                             child: const Text(
                                                 'No, me arrepiento jeje')),
                                         TextButton(
                                             onPressed: () async {
-                                              Navigator.of(context).pop();
-                                              ChatExchange conversacion =
-                                                  ChatExchange
-                                                      .createWithProducts(
-                                                          product1:
-                                                              product.id,
-                                                          product2:
-                                                              product2.id,
-                                                          requester1:
-                                                              product2.id);
-
-                                              final chatExchangeFormNotifier =
-                                                  ref.read(
-                                                chatExchangeFormProvider(
-                                                        conversacion)
-                                                    .notifier,
-                                              );
-
-                                              chatExchangeFormNotifier
-                                                  .onFormSubmit()
-                                                  .then((value) async {
-                                                if (value) {
-                                                  Navigator.pop(context);
-                                                  ScaffoldMessenger.of(
-                                                          context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          'Se ha enviado solicitud de conversación :D !'),
-                                                    ),
-                                                  ); // ID del formulario
-                                                } else {
-                                                  Navigator.pop(context);
-                                                  // Muestra un mensaje de error o realiza otras operaciones según tus necesidades.
-                                                  ScaffoldMessenger.of(
-                                                          context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          'Error al enviar la solicitud de cambio :( !'),
-                                                    ),
-                                                  );
-                                                }
+                                              Navigator.of(dialogContext).pop();
+                                              final wasCreated = await ref
+                                                  .read(chatExchangesProvider
+                                                      .notifier)
+                                                  .createChatExchange({
+                                                'product1': product.id,
+                                                'product2': product2.id,
+                                                'requester1': product2.id,
                                               });
+                                              if (!bottomSheetContext.mounted ||
+                                                  !context.mounted) {
+                                                return;
+                                              }
+
+                                              Navigator.pop(bottomSheetContext);
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                  content: Text(wasCreated
+                                                      ? 'Se ha enviado solicitud de conversación :D !'
+                                                      : 'Error al enviar la solicitud de cambio :( !'),
+                                                ),
+                                              );
                                             },
                                             child: const Text(
                                                 '¡Sí! Quiero cambiar :D'))
@@ -250,7 +195,6 @@ class _OtherProductInformation extends ConsumerWidget {
     variable = cadena + variable;
 
     return Container(
-        //width: ,
         margin: const EdgeInsets.only(left: 15.0),
         height: (cadena == 'Descripción: ') ? 200 : 40,
         alignment: Alignment.center,
@@ -258,7 +202,6 @@ class _OtherProductInformation extends ConsumerWidget {
             color: customColor.withAlpha(50),
             borderRadius: BorderRadius.circular(20.0)),
         child: Center(
-          //fit: BoxFit.contain,
           child: Text(
             variable,
             textAlign: TextAlign.center,
@@ -282,22 +225,18 @@ class _ImageGallery extends StatelessWidget {
     }
 
     return PageView(
+      scrollBehavior: const ProductImageScrollBehavior(),
       scrollDirection: Axis.horizontal,
       controller: PageController(viewportFraction: 0.7),
-      children: images.map((image) {
-        late ImageProvider imageProvider;
-
-        if (image.startsWith('http')) {
-          imageProvider = NetworkImage(image);
-        } else {
-          imageProvider = FileImage(File(image));
-        }
+      children: images.asMap().entries.map((entry) {
+        final imageProvider = imageProviderForPath(entry.value);
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(20)),
               child: FadeInImage(
+                imageSemanticLabel: 'Foto ${entry.key + 1} de ${images.length}',
                 fit: BoxFit.cover,
                 image: imageProvider,
                 placeholder: const AssetImage('assets/images/no-image.jpg'),

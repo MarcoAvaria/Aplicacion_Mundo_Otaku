@@ -1,0 +1,237 @@
+// Tema generado a partir del canvas de diseño "Rediseño visual — Menú y
+// Mis productos" (Opción A = claro, Opción C = oscuro).
+// Ver docs/design-spec.md para el detalle de cada token y patrón de
+// componente. Referencia visual: https://claude.ai/artifact/MFE1EvCB4eYk4iqtRq6YkW
+//
+// Requiere el paquete google_fonts:
+//   flutter pub add google_fonts
+//
+// Íconos recomendados (trazo fino, no Material relleno):
+//   flutter pub add lucide_icons
+// o usa los outline de Material (Icons.home_outlined, etc.)
+
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+/// Espaciado y radios compartidos por ambos temas.
+class AppSpacing {
+  AppSpacing._();
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double xl = 20;
+  static const double xxl = 24;
+  static const double xxxl = 32;
+}
+
+class AppRadius {
+  AppRadius._();
+  // Modo claro
+  static const double lightCard = 14;
+  static const double lightControl = 12;
+  static const double lightFab = 16;
+  // Modo oscuro
+  static const double darkCard = 18;
+  static const double darkControl = 14;
+  static const double darkFab = 18;
+}
+
+class AppTheme {
+  AppTheme._();
+
+  // ---------------------------------------------------------------------
+  // MODO CLARO — Opción A, "Magenta editorial"
+  // ---------------------------------------------------------------------
+
+  static const _lightBackground = Color(0xFFFDF9FC);
+  static const _lightSurface = Color(0xFFFFFFFF);
+  static const _lightOnSurface = Color(0xFF241626);
+  static const _lightOnSurfaceVariant = Color(0xFF8A7A88);
+  static const _lightOutline = Color(0xFFECE1EA);
+  static const _lightPrimary = Color(0xFF9A1E74); // acento magenta
+  static const _lightOnPrimary = Color(0xFFFFFFFF);
+
+  static ThemeData get light {
+    final colorScheme = const ColorScheme.light(
+      brightness: Brightness.light,
+      background: _lightBackground,
+      surface: _lightSurface,
+      onBackground: _lightOnSurface,
+      onSurface: _lightOnSurface,
+      onSurfaceVariant: _lightOnSurfaceVariant,
+      outline: _lightOutline,
+      primary: _lightPrimary,
+      onPrimary: _lightOnPrimary,
+      primaryContainer: Color(0x1F9A1E74), // ~12% opacidad
+      onPrimaryContainer: _lightPrimary,
+      secondary: _lightPrimary,
+    );
+
+    final displayFont = GoogleFonts.bricolageGrotesque;
+    final bodyFont = GoogleFonts.workSans;
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: _lightBackground,
+      textTheme: _textTheme(displayFont, bodyFont, _lightOnSurface),
+      appBarTheme: AppBarTheme(
+        backgroundColor: _lightSurface,
+        foregroundColor: _lightOnSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        toolbarHeight: 64,
+        titleTextStyle: displayFont(
+          fontWeight: FontWeight.w700,
+          fontSize: 20,
+          color: _lightOnSurface,
+        ),
+        shape: const Border(bottom: BorderSide(color: _lightOutline, width: 1)),
+      ),
+      cardTheme: CardThemeData(
+        color: _lightSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lightCard),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(color: _lightOutline, thickness: 1),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: _lightPrimary,
+        foregroundColor: _lightOnPrimary,
+        elevation: 4,
+        extendedTextStyle: bodyFont(fontWeight: FontWeight.w600, fontSize: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lightFab),
+        ),
+      ),
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: _lightSurface,
+        surfaceTintColor: Colors.transparent,
+      ),
+      listTileTheme: ListTileThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lightControl),
+        ),
+        iconColor: _lightOnSurface,
+        textColor: _lightOnSurface,
+      ),
+      iconTheme: const IconThemeData(color: _lightOnSurface),
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // MODO OSCURO — Opción C, "Modo oscuro manga"
+  // ---------------------------------------------------------------------
+
+  static const _darkBackground = Color(0xFF131117);
+  static const _darkSurface = Color(0xFF1B1820);
+  static const _darkSurfaceContainer = Color(0xFF17151B); // drawer
+  static const _darkOnSurface = Color(0xFFF1EEF5);
+  static const _darkOnSurfaceVariant = Color(0xFF9089A0);
+  static const _darkOutline = Color(0xFF2C2833);
+  static const _darkPrimary = Color(0xFFFF3FA0); // acento magenta eléctrico
+
+  static ThemeData get dark {
+    final colorScheme = const ColorScheme.dark(
+      brightness: Brightness.dark,
+      background: _darkBackground,
+      surface: _darkSurface,
+      onBackground: _darkOnSurface,
+      onSurface: _darkOnSurface,
+      onSurfaceVariant: _darkOnSurfaceVariant,
+      outline: _darkOutline,
+      primary: _darkPrimary,
+      onPrimary: Color(0xFF1B1820), // solo por si se usa relleno; preferir outline
+      primaryContainer: Color(0x29FF3FA0), // ~16% opacidad
+      onPrimaryContainer: _darkPrimary,
+      secondary: _darkPrimary,
+    );
+
+    final displayFont = GoogleFonts.spaceGrotesk;
+    final bodyFont = GoogleFonts.ibmPlexSans;
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: _darkBackground,
+      textTheme: _textTheme(displayFont, bodyFont, _darkOnSurface),
+      appBarTheme: AppBarTheme(
+        backgroundColor: _darkBackground,
+        foregroundColor: _darkOnSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        toolbarHeight: 64,
+        titleTextStyle: displayFont(
+          fontWeight: FontWeight.w700,
+          fontSize: 20,
+          color: _darkOnSurface,
+        ),
+        shape: const Border(bottom: BorderSide(color: _darkOutline, width: 1)),
+      ),
+      cardTheme: CardThemeData(
+        color: _darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.darkCard),
+          side: BorderSide(color: _darkPrimary.withOpacity(0.2)),
+        ),
+      ),
+      dividerTheme: const DividerThemeData(color: _darkOutline, thickness: 1),
+      // En oscuro el FAB va en estilo "outline" (no relleno) para mantener
+      // contraste — ver nota en design-spec.md.
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: _darkSurface,
+        foregroundColor: _darkPrimary,
+        elevation: 0,
+        extendedTextStyle: bodyFont(fontWeight: FontWeight.w600, fontSize: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.darkFab),
+          side: BorderSide(color: _darkPrimary, width: 1.5),
+        ),
+      ),
+      drawerTheme: const DrawerThemeData(
+        backgroundColor: _darkSurfaceContainer,
+        surfaceTintColor: Colors.transparent,
+      ),
+      listTileTheme: ListTileThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.darkControl),
+        ),
+        iconColor: _darkOnSurface,
+        textColor: _darkOnSurface,
+      ),
+      iconTheme: const IconThemeData(color: _darkOnSurface),
+    );
+  }
+
+  static TextTheme _textTheme(
+    TextStyle Function({FontWeight? fontWeight, double? fontSize, Color? color})
+        displayFont,
+    TextStyle Function({FontWeight? fontWeight, double? fontSize, Color? color})
+        bodyFont,
+    Color onSurface,
+  ) {
+    return TextTheme(
+      titleLarge: displayFont(fontWeight: FontWeight.w700, fontSize: 20, color: onSurface),
+      titleMedium: displayFont(fontWeight: FontWeight.w600, fontSize: 17, color: onSurface),
+      titleSmall: displayFont(fontWeight: FontWeight.w600, fontSize: 14.5, color: onSurface),
+      bodyLarge: bodyFont(fontWeight: FontWeight.w400, fontSize: 15, color: onSurface),
+      bodyMedium: bodyFont(fontWeight: FontWeight.w400, fontSize: 14.5, color: onSurface),
+      bodySmall: bodyFont(fontWeight: FontWeight.w400, fontSize: 12, color: onSurface),
+      labelLarge: bodyFont(fontWeight: FontWeight.w600, fontSize: 14, color: onSurface),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------
+// Uso en tu MaterialApp:
+//
+// MaterialApp(
+//   theme: AppTheme.light,
+//   darkTheme: AppTheme.dark,
+//   themeMode: ThemeMode.system, // o ThemeMode.light / ThemeMode.dark
+//   ...
+// )
+// ---------------------------------------------------------------------

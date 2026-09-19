@@ -1,16 +1,17 @@
-class Message{
+class Message {
+  final String message;
+  final String sendBy;
+  final DateTime timestamp;
 
-  String message;
-  String sentByMe;
-  String sendBy;
+  const Message(
+      {required this.message, required this.sendBy, required this.timestamp});
 
-  Message({required this.message, required this.sentByMe, required this.sendBy});
-  
-  factory Message.fromJson(Map<String,dynamic> json){
+  factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      message: json["message"] as String, 
-      sentByMe: json["fullName"] as String,
-      sendBy: json["productId"] as String,
+      message: (json['content'] ?? json['message'] ?? '').toString(),
+      sendBy: (json['sendBy'] ?? json['userId'] ?? '').toString(),
+      timestamp: DateTime.tryParse(json['timestamp']?.toString() ?? '') ??
+          DateTime.now(),
     );
   }
 }

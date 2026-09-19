@@ -1,146 +1,141 @@
-import 'dart:async';
-
 import 'package:aplicacion_mundo_otaku/config/config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-import '../../shared.dart';
+import 'network_status.dart';
 
-class SocketService {
-  String tokencito;
-  String sendBy;
-  late io.Socket socket;
-  String chatExchangeId;
-  //String productId;
-  SocketService(
-      {required this.tokencito,
-      required this.chatExchangeId, 
-      required this.sendBy,
-      //required this.productId
-  }) {
-    _initSocket();
-    //print('Print desde constructor de SocketService');
+class SocketService with ChangeNotifier {
+  static final SocketService _instance = SocketService._internal();
+  factory SocketService() => _instance;
+  SocketService._internal() {
+    networkStatusChanges.listen(_handleNetworkStatus);
   }
 
-  void _initSocket() {
-    final uri = Uri.parse(Environment.apiUrl.replaceAll('/api', ''));
+  static SocketService get instance => _instance;
 
-    // Añadir parámetros a la URL del socket
-    final query = {
-      'chatExchangeId': chatExchangeId,
-      //'productId': productId,
-      'productId': tokencito,
-      'sendBy': sendBy,
-    };
+  io.Socket? _socket;
+  String? _token;
+  String? _pendingChatId;
+  String? _joinedChatId;
+  bool isConnected = false;
 
-    // Convertir el objeto Uri a una cadena utilizando toString()
-    final urlString = uri.replace(queryParameters: query).toString();
-    print({urlString});
+  bool isChatReady(String chatExchangeId) =>
+      isConnected && _joinedChatId == chatExchangeId;
 
-    socket = io.io(
-      urlString, // Usar la cadena resultante
+  io.Socket get socket {
+    final currentSocket = _socket;
+    if (currentSocket == null) {
+      throw StateError('El socket aún no ha sido inicializado');
+    }
+    return currentSocket;
+  }
+
+  void initialize({required String token}) {
+    if (_token == token && _socket != null) {
+      if (isNetworkOnline && !socket.connected) socket.connect();
+      return;
+    }
+
+    disconnect();
+    _token = token;
+    final socketUrl = Environment.socketUrl;
+    _socket = io.io(
+      socketUrl,
       io.OptionBuilder()
+          // El caché por origen puede conservar el JWT de una sesión cerrada.
+          .enableForceNew()
           .setTransports(['websocket'])
-          .setExtraHeaders({'authentication': tokencito})
+          .setAuth({'token': token})
+          .setExtraHeaders({'Authorization': 'Bearer $token'})
           .disableAutoConnect()
           .build(),
     );
 
-    socket.connect();
+    socket.on('authenticated', (_) {
+      _setConnectionState(true);
+      final chatId = _pendingChatId;
+      if (chatId != null) {
+        socket.emit('join-chat', {'chatExchangeId': chatId});
+      }
+    });
+    socket.on('joined-chat', (data) {
+      if (data is! Map) return;
+      final chatId = data['chatExchangeId']?.toString();
+      if (chatId == null || chatId != _pendingChatId) return;
+      _setJoinedChat(chatId);
+    });
+    socket.onDisconnect((_) => _handleDisconnected());
+    socket.onConnectError((_) => _handleDisconnected());
+    if (isNetworkOnline) socket.connect();
   }
 
-  
-
-  bool isConnected = false;
-  // Actualizar el token y los encabezados del socket
-  void updateToken(String newToken) {
-    tokencito = newToken;
-    socket.io.options?['extraHeaders'] = {'authentication': tokencito};
-    print('Updated token: $tokencito');
-  }
-
-  void mensajeConectado(String string) {
-    if (!isConnected) {
-      
-      socket.once('connect', (_) {
-        print('Socket connected successfully! $string');
-      });
-
-      isConnected = true;
+  void joinChat(String chatExchangeId) {
+    if (_pendingChatId != chatExchangeId || _joinedChatId != null) {
+      _pendingChatId = chatExchangeId;
+      _setJoinedChat(null);
+    }
+    if (isConnected) {
+      socket.emit('join-chat', {'chatExchangeId': chatExchangeId});
     }
   }
 
-  void recibirMensaje(ChatController chatController) {
-    if (!isConnected) {
-      socket.once('message-from-server', (data) {
-        print('Mensaje recibido desde el servidorSEGUNDO: $data');
-        if (data is Map<String, dynamic>) {
-          var receivedMessage = Message.fromJson(data);
-          chatController.addMessage(receivedMessage);
-          print(receivedMessage.message);
-        } else {
-          print('El mensaje no es un mapa válido.');
-        }
-      });
-    }
+  void leaveChat(String chatExchangeId) {
+    if (_pendingChatId == chatExchangeId) _pendingChatId = null;
+    if (_joinedChatId == chatExchangeId) _setJoinedChat(null);
+    _socket?.emit('leave-chat', {'chatExchangeId': chatExchangeId});
   }
 
-  void cambiarEstado() {
-    if (!isConnected) {
-      print('Ya esta conectado');
+  bool sendMessage(String content, String chatExchangeId) {
+    final message = content.trim();
+    if (message.isEmpty || !isNetworkOnline || !isChatReady(chatExchangeId)) {
+      return false;
     }
-    isConnected = true;
-  }
-
-  void enviarMensaje() {
-    if (!isConnected) {
-      socket.on(
-          'message',
-          (data) => {
-                //print(data),
-                socket.emit('message-recive', data)
-              });
-    }
+    socket.emit('send-message', {
+      'chatExchangeId': chatExchangeId,
+      'content': message,
+    });
+    return true;
   }
 
   void disconnect() {
-    print('Se ha desconectado desde -void disconnect()- ');
-    socket.disconnect();
-  }
-
-  void sendMessage(
-      String message, ChatController chatController, String conversacionId, String sendBy) {
-    // Asegúrate de que el socket esté conectado
-    if (socket.connected) {
-      // Enviar el mensaje al servidor
-      socket.emit('message-from-client', {
-        'content': message,
-        'chatExchangeId': conversacionId,
-        'sendBy': sendBy,
-      });
-    } else {
-      print('Socket is not connected. Cannot send message.');
+    final currentSocket = _socket;
+    if (currentSocket != null) {
+      currentSocket.disconnect();
+      currentSocket.dispose();
     }
+    _socket = null;
+    _token = null;
+    _pendingChatId = null;
+    _handleDisconnected();
   }
 
-  Future<void> _reconnectSocket() async {
-    final completer = Completer<void>();
-
-    print('Socket is not connected. Attempting to reconnect...');
-
-    socket.connect();
-    socket.once('connect', (_) {
-      print('Reconnection successful.');
-      completer.complete();
-    });
-
-    return completer.future;
+  void _handleDisconnected() {
+    final changed = isConnected || _joinedChatId != null;
+    isConnected = false;
+    _joinedChatId = null;
+    if (changed) notifyListeners();
   }
 
-  void setUpSocketListener(
-      SocketService socketService, ChatController chatController) {
-    socketService.socket.on('message-from-server', (data) {
-      print(data);
-      chatController.chatMessages.add(Message.fromJson(data));
-    });
+  void _handleNetworkStatus(bool online) {
+    final currentSocket = _socket;
+    if (!online) {
+      currentSocket?.disconnect();
+      _handleDisconnected();
+      return;
+    }
+
+    currentSocket?.connect();
+  }
+
+  void _setJoinedChat(String? chatId) {
+    if (_joinedChatId == chatId) return;
+    _joinedChatId = chatId;
+    notifyListeners();
+  }
+
+  void _setConnectionState(bool connected) {
+    if (isConnected == connected) return;
+    isConnected = connected;
+    notifyListeners();
   }
 }

@@ -1,243 +1,323 @@
-//import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
-//import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchange_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
+
+import '../../../auth/presentation/providers/providers.dart';
+import '../../../chats/presentation/providers/chat_exchange_provider.dart';
+import '../../../chats/presentation/providers/chat_exchanges_provider.dart';
 import '../../../shared/shared.dart';
 import '../providers/providers.dart';
 
 class ChatScreen extends ConsumerWidget {
   static const String name = 'chatscreen';
-  
-  //final String productId;
+
   final String conversacionId;
   final String miProductId;
   final String otroProductId;
-  final SocketService socketService;
 
-  ChatScreen({
+  const ChatScreen({
     super.key,
     required this.miProductId,
     required this.otroProductId,
     required this.conversacionId,
-    //required this.socketService,
-    SocketService? socketService,
-  }): socketService = socketService ?? SocketService(
-        tokencito: miProductId,
-        chatExchangeId: conversacionId,
-        sendBy: miProductId,
-      );
-  
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+  });
 
-  /*
-  ChatScreen(
-      {super.key,
-      required this.miProductId,
-      required this.otroProductId,
-      required this.conversacionId}) //, required this.miProductId})
-      : socketService = SocketService(
-            tokencito: miProductId,
-            chatExchangeId: conversacionId,
-            sendBy: miProductId,
-            ); //, productId: miProductId);
-
-  */
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // IMPORTANTE: chatController se ocupa de todas formas...
-    // ... Aquí lo que es registrarlo
-    final chatController = Get.put(ChatController());
-    final sendBy = miProductId;
-    print('Un print al comienzo, no debería repetirse');
     final productState = ref.watch(productProvider(miProductId));
-    final productState2 = ref.watch(productProvider(otroProductId));
+    final otherProductState = ref.watch(productProvider(otroProductId));
+    final exchangeState = ref.watch(chatExchangeProvider(conversacionId));
 
-    if (productState.product == null || productState2.product == null) {
-      // Muestra un indicador de carga centrado mientras se carga el estado del producto
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    } else {
-      final product2 = productState2.product!; 
-      return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(0),
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(product2.images.first),
-                ),
+    if (productState.product == null ||
+        otherProductState.product == null ||
+        exchangeState.chatExchange == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final otherProduct = otherProductState.product!;
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: otherProduct.images.isEmpty
+                  ? null
+                  : NetworkImage(otherProduct.images.first),
+              child: otherProduct.images.isEmpty
+                  ? const Icon(Icons.inventory_2_outlined)
+                  : null,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(otherProduct.title,
+                  style: const TextStyle(fontSize: 15)),
+            ),
+          ],
+        ),
+        actions: [
+          if (exchangeState.isSaving)
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: SizedBox.square(
+                dimension: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                  child: Text(
-                productState2.product!.title,
-                style: const TextStyle(fontSize: 15),
-              )),
-              const SizedBox(width: 52),
-            ],
+            )
+          else if (exchangeState.chatExchange?.status == 'inProgress')
+            PopupMenuButton<String>(
+              tooltip: 'Opciones del intercambio',
+              onSelected: (status) =>
+                  _confirmStatusChange(context, ref, status),
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'done',
+                  child: ListTile(
+                    leading: Icon(Icons.check_circle_outline),
+                    title: Text('Marcar como completado'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'cancelled',
+                  child: ListTile(
+                    leading: Icon(Icons.cancel_outlined),
+                    title: Text('Cancelar intercambio'),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+      body: _ChatView(conversacionId: conversacionId),
+    );
+  }
+
+  Future<void> _confirmStatusChange(
+    BuildContext context,
+    WidgetRef ref,
+    String status,
+  ) async {
+    final isCompleted = status == 'done';
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          isCompleted ? '¿Completar intercambio?' : '¿Cancelar intercambio?',
+        ),
+        content: Text(
+          isCompleted
+              ? 'El chat se cerrará y el intercambio quedará registrado como completado.'
+              : 'El chat se cerrará y el intercambio quedará registrado como cancelado.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Volver'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(isCompleted ? 'Completar' : 'Cancelar intercambio'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await ref
+          .read(chatExchangeProvider(conversacionId).notifier)
+          .updateChatExchangeStatus(status);
+      ref.invalidate(chatExchangesProvider);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isCompleted ? 'Intercambio completado.' : 'Intercambio cancelado.',
           ),
         ),
-        body: _ChatView(miProductId, socketService, conversacionId, sendBy),
+      );
+      Navigator.of(context).maybePop();
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No fue posible actualizar el intercambio.'),
+        ),
       );
     }
   }
 }
 
 class _ChatView extends ConsumerStatefulWidget {
-  final String productId;
   final String conversacionId;
-  final String sendBy;
-  final SocketService socketService;
-  const _ChatView(this.productId, this.socketService, this.conversacionId, this.sendBy);
+
+  const _ChatView({required this.conversacionId});
+
   @override
-  _ChatViewState createState() =>
-      _ChatViewState(productId, socketService, conversacionId, sendBy);
+  ConsumerState<_ChatView> createState() => _ChatViewState();
 }
 
-class _ChatViewState extends ConsumerState {
-  final SocketService socketService;
-  final String productId;
-  final String conversacionId;
-  final String sendBy;
-  ChatController chatController = Get.find<ChatController>();
-  _ChatViewState(this.productId, this.socketService, this.conversacionId, this.sendBy);
-  @override
-  void dispose() {
-    // Desconectar el socket al salir de la pantalla
-    socketService.disconnect();
-    socketService.socket.off('message-from-server');
-    super.dispose();
-  }
+class _ChatViewState extends ConsumerState<_ChatView> {
+  final chatController = Get.find<ChatController>();
+  final socketService = SocketService.instance;
+  final inputController = TextEditingController();
+  late final String currentUserId;
 
   @override
   void initState() {
     super.initState();
-    //socketService.disconnect();
-    //socketService.updateToken(productId);
-    if (!socketService.socket.connected) {
-      //print('Socket is not connected. Connecting...');
-      socketService.socket.connect();
-    }
-    ChatController chatController = Get.find<ChatController>();
+    currentUserId = ref.read(authProvider).user?.id ?? '';
+    chatController.clearMessages();
+    socketService.socket.on('chat-history', _onHistory);
+    socketService.socket.on('new-message', _onMessage);
+    socketService.socket.on('chat-error', _onChatError);
+    socketService.joinChat(widget.conversacionId);
+  }
 
-    socketService.socket.on('message-from-server', (data) {
-      if (data is Map<String, dynamic>) {
-        var receivedMessage = Message.fromJson(data);
-        chatController.addMessage(receivedMessage);
-      } else {
-        print('El mensaje no es un mapa válido.');
-      }
-    });
+  void _onHistory(dynamic data) {
+    final messages = data is Map ? data['messages'] : null;
+    if (messages is! List) return;
+    chatController.replaceMessages(
+      messages.whereType<Map>().map(
+            (item) => Message.fromJson(Map<String, dynamic>.from(item)),
+          ),
+    );
+  }
+
+  void _onMessage(dynamic data) {
+    if (data is! Map) return;
+    chatController.addMessage(
+      Message.fromJson(Map<String, dynamic>.from(data)),
+    );
+  }
+
+  void _onChatError(dynamic data) {
+    if (!mounted) return;
+    final message = data is Map ? data['message'] : null;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message?.toString() ?? 'Error en el chat.')),
+    );
+  }
+
+  @override
+  void dispose() {
+    socketService.leaveChat(widget.conversacionId);
+    socketService.socket.off('chat-history', _onHistory);
+    socketService.socket.off('new-message', _onMessage);
+    socketService.socket.off('chat-error', _onChatError);
+    inputController.dispose();
+    super.dispose();
+  }
+
+  void _sendMessage() {
+    final sent =
+        socketService.sendMessage(inputController.text, widget.conversacionId);
+    if (sent) {
+      inputController.clear();
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Sin conexión. El mensaje no se envió.')),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    //ChatController chatController = ChatController();
-    TextEditingController msgInputController = TextEditingController();
-    //socketService.mensajeConectado("Hola desde ChatScreen en Widget build(BuildContext context)");
-    return Scaffold(
-        body: Container(
-      child: Column(children: [
-        Expanded(
-          flex: 9,
-          child: Obx(
-            () => ListView.builder(
+    return AnimatedBuilder(
+      animation: socketService,
+      builder: (context, child) => Semantics(
+        container: true,
+        explicitChildNodes: true,
+        label: socketService.isChatReady(widget.conversacionId)
+            ? 'Chat conectado'
+            : 'Chat sin conexión',
+        child: child,
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            child: Obx(
+              () => ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 itemCount: chatController.chatMessages.length,
                 itemBuilder: (context, index) {
-                  Message currentItem = chatController.chatMessages[index];
-                  print('Este es el productId: $productId');
-                  print('Este es el socketService.tokencito ${socketService.tokencito}');
-                  print('-------------currentItem.sendBy: ${currentItem.sendBy}');
+                  final message = chatController.chatMessages[index];
                   return MessageItem(
-                    //sentByMe: (productId == socketService.tokencito),
-                    //sentByMe: (productId == currentItem.sendBy),
-                    sentByMe: (productId == currentItem.sendBy),
-                    message: currentItem.message,
+                    sentByMe: currentUserId == message.sendBy,
+                    message: message.message,
+                    timestamp: message.timestamp,
                   );
-                }),
+                },
+              ),
+            ),
           ),
-        ),
-        Expanded(
-            child: Container(
-                padding: const EdgeInsets.all(10),
-                color: Colors.purple.shade300,
-                child: TextField(
-                  style: TextStyle(
-                    color: Colors.amber.shade200,
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: TextField(
+                controller: inputController,
+                minLines: 1,
+                maxLines: 4,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _sendMessage(),
+                decoration: InputDecoration(
+                  hintText: 'Escribe un mensaje',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  cursorColor: Colors.lightGreenAccent.shade100,
-                  controller: msgInputController,
-                  decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.blue.shade200),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      suffixIcon: Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              color: Colors.lime.shade800),
-                          child: IconButton(
-                            onPressed: () {
-                              //sendMessage(msgInputController.text);
-                              socketService.sendMessage(msgInputController.text,
-                                  chatController, conversacionId, sendBy);
-                              msgInputController.text = '';
-                            },
-                            icon: const Icon(Icons.send, color: Colors.white60),
-                          ))),
-                ))),
-      ]),
-    ));
+                  suffixIcon: IconButton(
+                    tooltip: 'Enviar mensaje',
+                    onPressed: _sendMessage,
+                    icon: const Icon(Icons.send),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
 class MessageItem extends StatelessWidget {
-  const MessageItem({super.key, required this.sentByMe, required this.message});
   final bool sentByMe;
   final String message;
+  final DateTime timestamp;
+
+  const MessageItem({
+    super.key,
+    required this.sentByMe,
+    required this.message,
+    required this.timestamp,
+  });
+
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final time = '${timestamp.hour.toString().padLeft(2, '0')}:'
+        '${timestamp.minute.toString().padLeft(2, '0')}';
+
     return Align(
       alignment: sentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: 5,
-            horizontal: 10,
-          ),
-          margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: sentByMe ? Colors.purple.shade300 : Colors.amber.shade200,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                message,
-                style: TextStyle(
-                  color:
-                      sentByMe ? Colors.amber.shade200 : Colors.purple.shade300,
-                  fontSize: 12,
-                ),
-              ),
-              const SizedBox(width: 5),
-              Text("1:10 AM",
-                  style: TextStyle(
-                    color: sentByMe
-                        ? Colors.amber.shade200
-                        : Colors.purple.shade300,
-                    fontSize: 10,
-                  )),
-            ],
-          )),
+        constraints: const BoxConstraints(maxWidth: 320),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: sentByMe ? colors.primaryContainer : colors.secondaryContainer,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(message),
+            const SizedBox(height: 3),
+            Text(time, style: Theme.of(context).textTheme.labelSmall),
+          ],
+        ),
+      ),
     );
   }
 }

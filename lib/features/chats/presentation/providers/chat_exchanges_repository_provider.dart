@@ -5,12 +5,15 @@ import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/datasources
 import 'package:aplicacion_mundo_otaku/features/chats/infrastructure/repositories/chat_exchange_repository_impl.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 
-final chatExchangesRepositoryProvider = Provider<ChatExchangesRepository>((ref) {
-
-  final accessToken = ref.watch( authProvider ).user?.token ?? '';
+final chatExchangesRepositoryProvider =
+    Provider<ChatExchangesRepository>((ref) {
+  final accessToken = ref.watch(authProvider).user?.token ?? '';
 
   final chatExchangesRepository = ChatExchangesRepositoryImpl(
-    ChatExchangesDatasourceImpl( accessToken: accessToken )
+    ChatExchangesDatasourceImpl(
+      accessToken: accessToken,
+      onUnauthorized: ref.read(authProvider.notifier).expireSession,
+    ),
   );
   return chatExchangesRepository;
 });

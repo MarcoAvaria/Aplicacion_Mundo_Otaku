@@ -1,9 +1,12 @@
-import 'dart:io';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
+import 'package:aplicacion_mundo_otaku/features/products/infrastructure/helpers/image_file_type.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_image_scroll_behavior.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class ProductScreen extends ConsumerWidget {
   final String productId;
@@ -16,6 +19,68 @@ class ProductScreen extends ConsumerWidget {
         .showSnackBar(const SnackBar(content: Text('Producto actualizado')));
   }
 
+  Future<void> _addGalleryImage(
+    BuildContext context,
+    WidgetRef ref,
+    Product product,
+  ) async {
+    final photoPath = await CameraGalleryServiceImpl().selectPhoto();
+    if (photoPath == null) return;
+
+    try {
+      final bytes = await CameraGalleryServiceImpl.readPhotoBytes(photoPath);
+      detectImageFileType(bytes);
+      ref
+          .read(productFormProvider(product).notifier)
+          .updateProductImage(photoPath);
+    } on FormatException catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message.toString())),
+      );
+    }
+  }
+
+  Future<void> _deleteProduct(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Eliminar producto'),
+        content: const Text(
+          'Esta publicación se eliminará de forma permanente.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final deleted =
+        await ref.read(productProvider(productId).notifier).deleteProduct();
+    if (!context.mounted) return;
+    if (deleted) {
+      ref.invalidate(productsProvider);
+      context.go(AppRoutes.products);
+      return;
+    }
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('No fue posible eliminar el producto.'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productState = ref.watch(productProvider(productId));
@@ -26,44 +91,75 @@ class ProductScreen extends ConsumerWidget {
         //appBar: CustomAppBar.myOwnMethodAppBar(context, 'Editar producto'),
         appBar: AppBar(title: const Text('Editar producto'), actions: [
           IconButton(
-              onPressed: () async {
-                final photoPath =
-                    await CameraGalleryServiceImpl().selectPhoto();
-                if (photoPath == null) return;
-
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath);
-                //photoPath;
-              },
+              tooltip: 'Agregar imagen desde galería',
+              onPressed: productState.product == null
+                  ? null
+                  : () => _addGalleryImage(
+                        context,
+                        ref,
+                        productState.product!,
+                      ),
               icon: const Icon(Icons.photo_library_outlined)),
           IconButton(
-              onPressed: () async {
-                final photoPath = await CameraGalleryServiceImpl().takePhoto();
-                if (photoPath == null) return;
-                ref
-                    .read(productFormProvider(productState.product!).notifier)
-                    .updateProductImage(photoPath);
-                //photoPath;
-              },
+              tooltip: 'Tomar fotografía',
+              onPressed: productState.product == null
+                  ? null
+                  : () async {
+                      final photoPath =
+                          await CameraGalleryServiceImpl().takePhoto();
+                      if (photoPath == null) return;
+                      ref
+                          .read(productFormProvider(productState.product!)
+                              .notifier)
+                          .updateProductImage(photoPath);
+                    },
               icon: const Icon(Icons.camera_alt_outlined)),
+          if (productId != 'new')
+            IconButton(
+              tooltip: 'Eliminar producto',
+              onPressed: productState.product == null
+                  ? null
+                  : () => _deleteProduct(context, ref),
+              icon: const Icon(Icons.delete_outline),
+            ),
         ]),
         body: productState.isLoading
             ? const FullScreenLoader()
-            : _ProductView(product: productState.product!),
+            : productState.errorMessage.isNotEmpty &&
+                    productState.product == null
+                ? ListStatusView(
+                    message: productState.errorMessage,
+                    onRetry: () => ref
+                        .read(productProvider(productId).notifier)
+                        .loadProduct(),
+                  )
+                : productState.product == null
+                    ? const ListStatusView(
+                        message: 'El producto ya no está disponible.',
+                      )
+                    : _ProductView(product: productState.product!),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            if (productState.product == null) return;
-
-            ref
-                .read(productFormProvider(productState.product!).notifier)
-                .onFormSubmit()
-                .then((value) {
-              if (!value) return;
-              showSnackbar(context);
-              //FocusScope.of(context).unfocus();
-            });
-          },
+          tooltip: 'Guardar producto',
+          onPressed: productState.product == null
+              ? null
+              : () async {
+                  final saved = await ref
+                      .read(productFormProvider(productState.product!).notifier)
+                      .onFormSubmit();
+                  if (!context.mounted) return;
+                  if (saved) {
+                    showSnackbar(context);
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).clearSnackBars();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'No fue posible guardar el producto. Revisa tu conexión e inténtalo nuevamente.',
+                      ),
+                    ),
+                  );
+                },
           child: const Icon(Icons.save_as_outlined),
         ),
       ),
@@ -87,7 +183,11 @@ class _ProductView extends ConsumerWidget {
         SizedBox(
           height: 250,
           width: 600,
-          child: _ImageGallery(images: productForm.images),
+          child: Semantics(
+            container: true,
+            label: 'Imágenes del producto: ${productForm.images.length}',
+            child: _ImageGallery(images: productForm.images),
+          ),
         ),
         const SizedBox(height: 10),
         Center(
@@ -126,7 +226,6 @@ class _ProductInformation extends ConsumerWidget {
                 ref.read(productFormProvider(product).notifier).onTitleChanged,
             errorMessage: productForm.title.errorMessage,
           ),
-
           const SizedBox(height: 15),
           const Text('Demografía'),
           const SizedBox(height: 5),
@@ -137,7 +236,6 @@ class _ProductInformation extends ConsumerWidget {
                 .read(productFormProvider(product).notifier)
                 .onDemographicChanged,
           ),
-
           const SizedBox(height: 15),
           const Text('Tipo'),
           const SizedBox(height: 5),
@@ -147,7 +245,6 @@ class _ProductInformation extends ConsumerWidget {
             onTypeChanged:
                 ref.read(productFormProvider(product).notifier).onTypeChanged,
           ),
-          
           const SizedBox(height: 15),
           const Text('Género'),
           const SizedBox(height: 5),
@@ -157,7 +254,6 @@ class _ProductInformation extends ConsumerWidget {
             onGendersChanged:
                 ref.read(productFormProvider(product).notifier).onGenderChanged,
           ),
-
           const SizedBox(height: 15),
           CustomProductField(
             isTopField: true,
@@ -206,7 +302,16 @@ class _ProductInformation extends ConsumerWidget {
 
 class _SizeSelector extends StatelessWidget {
   final String selectedSizes;
-  final List<String> sizes = const ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL','Ninguno'];
+  final List<String> sizes = const [
+    'XS',
+    'S',
+    'M',
+    'L',
+    'XL',
+    'XXL',
+    'XXXL',
+    'Ninguno'
+  ];
 
   final void Function(String selectedSizes) onSizesChanged;
 
@@ -236,17 +341,22 @@ class _SizeSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: sizes.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -256,7 +366,6 @@ class _SizeSelector extends StatelessWidget {
 }
 
 class _TypeSelector extends StatelessWidget {
-  
   final String selectedType;
   final void Function(String selectedType) onTypeChanged;
 
@@ -293,17 +402,22 @@ class _TypeSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: typesOf.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -312,9 +426,7 @@ class _TypeSelector extends StatelessWidget {
   }
 }
 
-
 class _GenderSelector extends StatelessWidget {
-  
   final String selectedGenders;
   final void Function(String selectedGenders) onGendersChanged;
 
@@ -361,17 +473,22 @@ class _GenderSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: genders.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -416,17 +533,22 @@ class _DemographicSelector extends StatelessWidget {
             }
           },
           //style: const TextStyle(fontSize: 12),
-          style: const TextStyle(
-              fontSize: 12, color: Colors.black), // Estilo del texto
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface), // Estilo del texto
+          dropdownColor: Theme.of(context).colorScheme.surface,
           //iconSize: 24, // Tamaño del icono
           //elevation: 16, // Elevación del menú desplegable
           items: demographics.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value,
-                    style: const TextStyle(
-                        color: Colors
-                            .black)) // Color del texto dentro del DropdownButton
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface)) // Color del texto dentro del DropdownButton
                 );
           }).toList(),
         ),
@@ -448,22 +570,18 @@ class _ImageGallery extends StatelessWidget {
     }
 
     return PageView(
+      scrollBehavior: const ProductImageScrollBehavior(),
       scrollDirection: Axis.horizontal,
       controller: PageController(viewportFraction: 0.7),
-      children: images.map((image) {
-        late ImageProvider imageProvider;
-
-        if (image.startsWith('http')) {
-          imageProvider = NetworkImage(image);
-        } else {
-          imageProvider = FileImage(File(image));
-        }
+      children: images.asMap().entries.map((entry) {
+        final imageProvider = imageProviderForPath(entry.value);
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(20)),
               child: FadeInImage(
+                imageSemanticLabel: 'Foto ${entry.key + 1} de ${images.length}',
                 fit: BoxFit.cover,
                 image: imageProvider,
                 placeholder: const AssetImage('assets/images/no-image.jpg'),

@@ -1,0 +1,113 @@
+name: Flutter quality
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Use Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.16.8
+          channel: stable
+          cache: true
+
+      - name: Prepare public environment
+        run: cp .env.template .env
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build web
+        run: flutter build web --release --no-tree-shake-icons
+
+      - name: Build production web container
+        run: >-
+          docker build
+          --build-arg API_URL=https://api.example.test/api
+          --build-arg SOCKET_URL=https://api.example.test
+          --tag mundo-otaku-web:ci .
+
+      - name: Smoke test production web container
+        run: |
+          docker run --rm --detach --name mundo-otaku-web-ci --publish 18080:10000 mundo-otaku-web:ci
+          trap 'docker rm --force mundo-otaku-web-ci >/dev/null 2>&1 || true' EXIT
+          for attempt in {1..15}; do
+            if curl --fail --silent http://127.0.0.1:18080/healthz; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:18080/products/demo | grep --quiet '<title>Mundo Otaku</title>'
+          docker exec mundo-otaku-web-ci grep -F -q 'https://api.example.test/api' /usr/share/nginx/html/main.dart.js
+
+  browser-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout client
+        uses: actions/checkout@v5
+
+      - name: Checkout API
+        uses: actions/checkout@v5
+        with:
+          repository: MarcoAvaria/MundoOtaku-Backend-Repository
+          ref: mejora/calidad-portafolio
+          path: backend
+          ssh-key: ${{ secrets.MUNDO_OTAKU_BACKEND_DEPLOY_KEY }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            e2e/package-lock.json
+
+      - name: Use Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.16.8
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          cp .env.template .env
+          flutter pub get
+          npm ci --prefix backend
+          npm ci --prefix e2e
+
+      - name: Install Chromium
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Check portable and platform configuration
+        working-directory: e2e
+        run: npm run check:quality
+
+      - name: Run browser journeys
+        working-directory: e2e
+        env:
+          MUNDO_OTAKU_BACKEND_DIR: ${{ github.workspace }}/backend
+        run: npm test
+
+      - name: Upload Playwright evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7

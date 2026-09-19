@@ -7,7 +7,7 @@ class FullScreenLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     return const SizedBox.expand(
       child: Center(
-        child: CircularProgressIndicator( strokeWidth: 2), 
+        child: CircularProgressIndicator(strokeWidth: 2),
       ),
     );
   }

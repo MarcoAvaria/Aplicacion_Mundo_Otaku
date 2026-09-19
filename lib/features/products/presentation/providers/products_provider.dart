@@ -13,9 +13,11 @@ final productsProvider =
 class ProductsNotifier extends StateNotifier<ProductsState> {
   final ProductsRepository productsRepository;
 
-  ProductsNotifier({required this.productsRepository})
-      : super(ProductsState()) {
-    loadNextPage();
+  ProductsNotifier({
+    required this.productsRepository,
+    bool loadOnCreate = true,
+  }) : super(ProductsState()) {
+    if (loadOnCreate) loadNextPage();
   }
 
   Future<bool> createOrUpdateProduct(Map<String, dynamic> productLike) async {
@@ -45,36 +47,45 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
   Future loadNextPage() async {
     if (state.isLoading || state.isLastPage) return;
 
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, errorMessage: '');
 
-    final products = await productsRepository.getProductsByPage(
-        limit: state.limit, offset: state.offset);
-    if (products.isEmpty) {
-      state = state.copyWith(isLoading: false, isLastPage: true);
-      return;
-    }
+    try {
+      final products = await productsRepository.getProductsByPage(
+          limit: state.limit, offset: state.offset);
+      if (products.isEmpty) {
+        state = state.copyWith(isLoading: false, isLastPage: true);
+        return;
+      }
 
-    state = state.copyWith(
-        isLastPage: false,
+      state = state.copyWith(
+          isLastPage: false,
+          isLoading: false,
+          offset: state.offset + state.limit,
+          products: [...state.products, ...products]);
+    } catch (_) {
+      state = state.copyWith(
         isLoading: false,
-        offset: state.offset + 10,
-        products: [...state.products, ...products]);
+        errorMessage: 'No fue posible cargar los productos.',
+      );
+    }
   }
-
 
   List<Product> get userProducts => state.userProducts;
   bool get isLoading => state.isLoading;
 
-  Future<void> loadUserProducts( {String? userId} ) async {
+  Future<void> loadUserProducts({String? userId}) async {
+    if (userId == null || userId.isEmpty) return;
+
     try {
-      state = state.copyWith(isLoading: true); 
-      // Reemplázalo con tu lógica para obtener el userId
+      state = state.copyWith(isLoading: true, errorMessage: '');
       final products =
-          await productsRepository.getProductsForCurrentUser(userId!);
+          await productsRepository.getProductsForCurrentUser(userId);
       state = state.copyWith(userProducts: products, isLoading: false);
-    } catch (e) {
-      // Maneja el error según tus necesidades
-      state = state.copyWith(isLoading: false);
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'No fue posible cargar tus productos.',
+      );
     }
   }
 }
@@ -86,7 +97,7 @@ class ProductsState {
   final bool isLoading;
   final List<Product> products;
   final List<Product> userProducts;
-
+  final String errorMessage;
 
   ProductsState({
     this.isLastPage = false,
@@ -95,6 +106,7 @@ class ProductsState {
     this.isLoading = false,
     this.products = const [],
     this.userProducts = const [],
+    this.errorMessage = '',
   });
 
   ProductsState copyWith({
@@ -104,6 +116,7 @@ class ProductsState {
     bool? isLoading,
     List<Product>? products,
     List<Product>? userProducts,
+    String? errorMessage,
   }) =>
       ProductsState(
         isLastPage: isLastPage ?? this.isLastPage,
@@ -112,5 +125,6 @@ class ProductsState {
         isLoading: isLoading ?? this.isLoading,
         products: products ?? this.products,
         userProducts: userProducts ?? this.userProducts,
+        errorMessage: errorMessage ?? this.errorMessage,
       );
 }

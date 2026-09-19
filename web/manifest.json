@@ -1,11 +1,11 @@
 {
-    "name": "aplicacion_mundo_otaku",
-    "short_name": "aplicacion_mundo_otaku",
+    "name": "Mundo Otaku",
+    "short_name": "Mundo Otaku",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Publica productos de cultura otaku, propón intercambios y conversa en tiempo real.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

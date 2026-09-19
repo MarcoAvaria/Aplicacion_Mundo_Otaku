@@ -1,89 +1,90 @@
-//import 'package:aplicacion_mundo_otaku/features/products/infrastructure/errors/product_errors.dart';
 import 'package:dio/dio.dart';
 import 'package:aplicacion_mundo_otaku/features/products/infrastructure/infrastructure.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/camera_gallery_service_impl.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/token_interceptor.dart';
+
+import '../helpers/image_file_type.dart';
 
 class ProductsDatasourceImpl extends ProductDatasource {
   late final Dio dio;
   final String accessToken;
 
-  ProductsDatasourceImpl({required this.accessToken})
-      : dio = Dio(BaseOptions(
+  ProductsDatasourceImpl({
+    required this.accessToken,
+    UnauthorizedCallback? onUnauthorized,
+  }) : dio = Dio(BaseOptions(
             baseUrl: Environment.apiUrl,
-            headers: {'Authorization': 'Bearer $accessToken'}));
+            headers: {'Authorization': 'Bearer $accessToken'})) {
+    if (accessToken.isNotEmpty && onUnauthorized != null) {
+      dio.interceptors.add(UnauthorizedInterceptor(onUnauthorized));
+    }
+  }
 
   Future<String> _uploadFile(String path) async {
     try {
-      final fileName = path.split('/').last;
-      final contentType = path.split('.').last;
-      /*
-      final FormData data = FormData.fromMap( {
-        'file': MultipartFile.fromFileSync( path, filename: fileName)
-      });
-      */
+      final bytes = await CameraGalleryServiceImpl.readPhotoBytes(path);
+      final fileType = detectImageFileType(bytes);
+      final fileName = 'product.${fileType.extension}';
       final FormData data = FormData.fromMap({
-        'file': MultipartFile.fromFileSync(
-          path,
+        'file': MultipartFile.fromBytes(
+          bytes,
           filename: fileName,
-          contentType: MediaType('image', contentType),
+          contentType: MediaType('image', fileType.mimeSubtype),
         ),
       });
-      final response = await dio.post('/files/product', data: data);
+      final response = await dio.post(ApiEndpoints.productImages, data: data);
+      CameraGalleryServiceImpl.forgetPhotoBytes(path);
 
       return response.data['image'];
-    } catch (e) {
-      throw Exception();
+    } on FormatException {
+      rethrow;
+    } catch (_) {
+      throw Exception('No fue posible subir la imagen.');
     }
   }
 
   Future<List<String>> _uploadPhotos(List<String> photos) async {
-    final photosToUpload =
-        photos.where((element) => element.contains('/')).toList();
-    final photosToIgnore =
-        photos.where((element) => !element.contains('/')).toList();
+    final photosToUpload = photos.where(isPendingImageUploadPath).toList();
+    final photosToKeep = photos
+        .where((photo) => !isPendingImageUploadPath(photo))
+        .map(imageReferenceForApi)
+        .toList();
 
     final List<Future<String>> uploadJob =
         photosToUpload.map(_uploadFile).toList();
     final newImages = await Future.wait(uploadJob);
 
-    return [...photosToIgnore, ...newImages];
+    return [...photosToKeep, ...newImages];
   }
 
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async {
     try {
       final String? productId = productLike['id'];
-      //print(productId);
       final String method = (productId == null) ? 'POST' : 'PATCH';
-      //print(method);
-      final String url =
-          (productId == null) ? '/products' : '/products/$productId';
-      //print(url);
+      final String url = productId == null
+          ? ApiEndpoints.products
+          : ApiEndpoints.product(productId);
 
       productLike.remove('id');
       productLike['images'] = await _uploadPhotos(productLike['images']);
 
-      //throw Exception();
-
       final response = await dio.request(url,
           data: productLike, options: Options(method: method));
       final product = ProductMapper.jsonToEntity(response.data);
-      //print(product);
       return product;
-    } catch (e) {
-      //print(e);
+    } catch (_) {
       throw Exception();
     }
-
-    //throw UnimplementedError();
   }
 
   @override
   Future<Product> getProductById(String id) async {
     try {
-      final response = await dio.get('/products/$id');
+      final response = await dio.get(ApiEndpoints.product(id));
       final product = ProductMapper.jsonToEntity(response.data);
       return product;
     } on DioException catch (e) {
@@ -97,11 +98,13 @@ class ProductsDatasourceImpl extends ProductDatasource {
   @override
   Future<List<Product>> getProductByPage(
       {int limit = 10, int offset = 0}) async {
-    final response =
-        await dio.get<List>('/products?limit=$limit&offset=$offset');
+    final response = await dio.get<List>(
+      ApiEndpoints.products,
+      queryParameters: {'limit': limit, 'offset': offset},
+    );
     final List<Product> products = [];
     for (final product in response.data ?? []) {
-      products.add(ProductMapper.jsonToEntity(product)); // mapper
+      products.add(ProductMapper.jsonToEntity(product));
     }
     return products;
   }
@@ -109,26 +112,40 @@ class ProductsDatasourceImpl extends ProductDatasource {
   @override
   Future<List<Product>> getProductsForCurrentUser(String userId) async {
     try {
-      final response = await dio.get<List<dynamic>>('/products');
+      final response = await dio.get<List<dynamic>>(ApiEndpoints.myProducts);
 
-      final List<Product> allProducts = List<Product>.from(
+      return List<Product>.from(
         (response.data ?? []).map((dynamic productJson) {
           return ProductMapper.jsonToEntity(
               productJson as Map<String, dynamic>);
         }),
       );
-
-      final userProducts =
-          allProducts.where((product) => product.user?.id == userId).toList();
-
-      return userProducts;
     } catch (e) {
       throw Exception();
     }
   }
 
   @override
-  Future<List<Product>> searchProductByTerm(String term) {
-    throw UnimplementedError();
+  Future<List<Product>> searchProductByTerm(String term) async {
+    final normalizedTerm = term.trim();
+    if (normalizedTerm.length < 2) return [];
+
+    final response = await dio.get<List>(
+      ApiEndpoints.products,
+      queryParameters: {'term': normalizedTerm, 'limit': 50},
+    );
+
+    return List<Product>.from(
+      (response.data ?? []).map((dynamic productJson) {
+        return ProductMapper.jsonToEntity(
+          productJson as Map<String, dynamic>,
+        );
+      }),
+    );
+  }
+
+  @override
+  Future<void> deleteProduct(String id) async {
+    await dio.delete(ApiEndpoints.product(id));
   }
 }

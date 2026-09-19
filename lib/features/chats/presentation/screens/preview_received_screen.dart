@@ -1,15 +1,13 @@
-import 'dart:io';
-
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchange_provider.dart';
-import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/forms/chat_exchange_form_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:go_router/go_router.dart';
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 
 class PreviewReceivedScreen extends ConsumerWidget {
   final String chatExchangeId;
@@ -19,77 +17,96 @@ class PreviewReceivedScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scaffoldKey = GlobalKey<ScaffoldState>();
     final chatExchangeState = ref.watch(chatExchangeProvider(chatExchangeId));
-    ChatExchange? chatExchangeNullable = chatExchangeState.chatExchange;
+    final chatExchange = chatExchangeState.chatExchange;
 
-    if (chatExchangeNullable != null) {
-      ChatExchange chatExchange = chatExchangeNullable;
-      // Resto del código...
-      return Scaffold(
-        drawer: ConfigurationMenu(scaffoldKey: scaffoldKey),
-        //appBar: CustomAppBar.customAppBar(context, '¡Mira la propuesta!'),
-        //appBar: AppBar(title: const Text('¡Mira la propuesta!')),
-        appBar: AppBar(
-          title: const Text('¡Mira la propuesta!'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              // Use Navigator to pop the current route
-              Navigator.of(context).pop();
-            },
-          ),
+    return Scaffold(
+      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
+      appBar: AppBar(
+        title: const Text('¡Mira la propuesta!'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        body: chatExchangeState.isLoading
-            ? const FullScreenLoader()
-            : _PreviewReceivedView(
-                chatExchange: chatExchange,
-              ),
-      );
-    } else {
-      // Manejar el caso en que chatExchange sea nulo
-      return const Scaffold();
-    }
+      ),
+      body: chatExchangeState.isLoading
+          ? const FullScreenLoader()
+          : chatExchangeState.errorMessage.isNotEmpty && chatExchange == null
+              ? ListStatusView(
+                  message: chatExchangeState.errorMessage,
+                  onRetry: () => ref
+                      .read(chatExchangeProvider(chatExchangeId).notifier)
+                      .loadChatExchange(),
+                )
+              : chatExchange == null
+                  ? const ListStatusView(
+                      message: 'La solicitud ya no está disponible.',
+                    )
+                  : _PreviewReceivedView(chatExchange: chatExchange),
+    );
   }
 }
 
-class _PreviewReceivedView extends ConsumerWidget {
+class _PreviewReceivedView extends ConsumerStatefulWidget {
   final ChatExchange chatExchange;
   const _PreviewReceivedView({required this.chatExchange});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_PreviewReceivedView> createState() =>
+      _PreviewReceivedViewState();
+}
+
+class _PreviewReceivedViewState extends ConsumerState<_PreviewReceivedView> {
+  late Future<List<Product>> productsFuture;
+  ChatExchange get chatExchange => widget.chatExchange;
+
+  @override
+  void initState() {
+    super.initState();
+    productsFuture = _loadProducts(ref);
+  }
+
+  void retryProducts() {
+    setState(() => productsFuture = _loadProducts(ref));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final idUser = ref.watch(authProvider).user!.id;
     return FutureBuilder<List<Product>>(
-      future: _loadProducts(ref),
+      future: productsFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
+          return const FullScreenLoader();
         } else if (snapshot.hasError) {
-          return const Text('Error loading products');
+          return ListStatusView(
+            message: 'No fue posible cargar los productos de la solicitud.',
+            onRetry: retryProducts,
+          );
         } else if (snapshot.hasData) {
           final List<Product> products = snapshot.data!;
           return _buildContent(context, products, idUser, ref);
         } else {
-          return const Text('No data');
+          return const ListStatusView(
+            message: 'Los productos de la solicitud ya no están disponibles.',
+          );
         }
       },
     );
   }
 
   Future<List<Product>> _loadProducts(WidgetRef ref) async {
-    final chatExchangeForm = ref.read(chatExchangeFormProvider(chatExchange));
     final product1 = await ref
         .read(productsRepositoryProvider)
-        .getProductById(chatExchangeForm.product1);
+        .getProductById(chatExchange.product1);
     final product2 = await ref
         .read(productsRepositoryProvider)
-        .getProductById(chatExchangeForm.product2);
+        .getProductById(chatExchange.product2);
 
     return [product1, product2];
   }
 
   Widget _buildContent(BuildContext context, List<Product> products,
       String idUser, WidgetRef ref) {
-    //final textStyles = Theme.of(context).textTheme;
     final customColor = Theme.of(context).primaryColor;
     final Product product1 = products[0];
     final Product product2 = products[1];
@@ -123,18 +140,22 @@ class _PreviewReceivedView extends ConsumerWidget {
               images: miProducto.images, idProducto: miProducto.id),
         ),
         const SizedBox(height: 15),
-        // Aquí puedes usar product1 y product2 según tus necesidades
-        // Botones "Rechazar" y "Aceptar"
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             ElevatedButton(
               onPressed: () async {
-                //print('Sending request with status: rejected');
-                await ref
+                final wasUpdated = await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('rejected');
-                // Puedes realizar otras acciones después de rechazar la conversación
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(wasUpdated
+                        ? 'Se ha rechazado la solicitud'
+                        : 'No fue posible rechazar la solicitud.'),
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red.shade100,
@@ -149,16 +170,17 @@ class _PreviewReceivedView extends ConsumerWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                await ref
+                final wasUpdated = await ref
                     .read(chatExchangeProvider(chatExchange.id).notifier)
                     .updateChatExchangeStatus('inProgress');
-                // Muestra el SnackBar
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('¡Acción completada con éxito!'),
+                  SnackBar(
+                    content: Text(wasUpdated
+                        ? '¡Acción completada con éxito!'
+                        : 'No fue posible aceptar la solicitud.'),
                   ),
                 );
-                // Puedes realizar otras acciones después de aceptar la conversación
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade100,
@@ -188,7 +210,6 @@ class _PreviewReceivedView extends ConsumerWidget {
     variable = cadena + variable;
 
     return Container(
-        //width: ,
         margin: const EdgeInsets.only(left: 15.0),
         height: 50,
         alignment: Alignment.center,
@@ -196,7 +217,6 @@ class _PreviewReceivedView extends ConsumerWidget {
             color: customColor.withAlpha(50),
             borderRadius: BorderRadius.circular(20.0)),
         child: Center(
-          //fit: BoxFit.contain,
           child: Text(
             variable,
             textAlign: TextAlign.center,
@@ -221,18 +241,12 @@ class _ImageGallery extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => context.push('/otherproduct/$idProducto'),
+      onTap: () => context.push(AppRoutes.otherProduct(idProducto)),
       child: PageView(
         scrollDirection: Axis.horizontal,
         controller: PageController(viewportFraction: 0.7),
         children: images.map((image) {
-          late ImageProvider imageProvider;
-
-          if (image.startsWith('http')) {
-            imageProvider = NetworkImage(image);
-          } else {
-            imageProvider = FileImage(File(image));
-          }
+          final imageProvider = imageProviderForPath(image);
 
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),

@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/e2e/node_modules/
+/e2e/playwright-report/
+/e2e/test-results/
 
 # Symbolication related
 app.*.symbols
@@ -39,7 +42,17 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# Signing and provisioning credentials
+**/*.jks
+**/*.keystore
+**/*.p12
+**/*.mobileprovision
+**/*.pem
+**/key.properties
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+/node_modules/

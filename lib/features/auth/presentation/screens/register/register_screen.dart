@@ -100,12 +100,14 @@ class _RegisterForm extends ConsumerWidget {
           MyFieldText(
             label: "Vuelva a ingresar la contraseña",
             darkText: true,
-            onChanged:
-                ref.read(registerFormProvider.notifier).onPasswordChanged,
+            onChanged: ref
+                .read(registerFormProvider.notifier)
+                .onConfirmPasswordChanged,
             onFieldSubmitted: (_) =>
                 ref.read(registerFormProvider.notifier).onFormSubmit(),
-            errorMessage: registerForm.isFormPosted
-                ? registerForm.password.errorMessage
+            errorMessage: registerForm.isFormPosted &&
+                    registerForm.confirmPassword != registerForm.password.value
+                ? 'Las contraseñas no coinciden'
                 : null,
           ),
           const SizedBox(height: 15),

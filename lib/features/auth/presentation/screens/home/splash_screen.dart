@@ -1,33 +1,9 @@
-import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
-class SplashScreen extends StatefulWidget {
-  
+class SplashScreen extends StatelessWidget {
   static const String name = 'splash_screen';
 
   const SplashScreen({super.key});
-
-  @override
-  State<SplashScreen> createState() => SplashScreenState();
-}
-
-class SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    //var d = const Duration(seconds: 3);
-    Future.delayed( const Duration (seconds: 3) , () {
-      /*Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-          (route) => false);*/
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen()),
-      );
-      //context.go(location )
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +15,6 @@ class SplashScreenState extends State<SplashScreen> {
         ],
       ),
     );
-    
   }
 }
 
