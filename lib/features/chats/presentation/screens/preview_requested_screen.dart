@@ -20,7 +20,7 @@ class PreviewRequestedScreen extends ConsumerWidget {
     final chatExchange = chatExchangeState.chatExchange;
 
     return Scaffold(
-      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
+      drawer: StyledNavigationDrawer(scaffoldKey: scaffoldKey),
       appBar: AppBar(
         title: const Text('¡Mira la propuesta!'),
         leading: IconButton(

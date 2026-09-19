@@ -20,7 +20,7 @@ class ProductsScreen extends StatelessWidget {
     final scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      drawer: AppNavigationDrawer(scaffoldKey: scaffoldKey),
+      drawer: StyledNavigationDrawer(scaffoldKey: scaffoldKey),
       appBar: CustomAppBar.customAppBar(context, 'Mis productos'),
       body: const _ProductsView(),
       floatingActionButton: FloatingActionButton.extended(
