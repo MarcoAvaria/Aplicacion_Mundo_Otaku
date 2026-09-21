@@ -1,5 +1,11 @@
 # Especificación de diseño — Rediseño visual (modo claro / modo oscuro)
 
+> **Nota (2026-09-19).** La dirección visual vigente es "Tinta y Neón", descrita
+> en [`design-spec-tinta-y-neon.md`](design-spec-tinta-y-neon.md). Conserva la
+> paleta de este documento sin cambios y modifica forma, composición y
+> tipografía. Este archivo sigue siendo la referencia de la paleta y del tema
+> `editorial_app_theme.dart`.
+
 Este archivo resume, en un formato que Claude Code puede leer e implementar
 directamente en tu proyecto Flutter, las decisiones tomadas en el canvas de
 diseño (Opción A = modo claro, Opción C = modo oscuro). Referencia visual

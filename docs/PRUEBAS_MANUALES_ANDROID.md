@@ -1,3 +1,5 @@
+> **Nota de redirección (2026-09-20):** este documento se dividió en dos, porque mezclaba pruebas con emuladores y con teléfono físico y se había vuelto muy largo. Usa [PRUEBAS_MANUALES_ANDROID_EMULADOR.md](PRUEBAS_MANUALES_ANDROID_EMULADOR.md) para dos emuladores (AVD) y [PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md](PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md) para un teléfono conectado por USB. Este archivo se conserva sin cambios como referencia histórica.
+
 # Pruebas manuales con dos emuladores Android
 
 Esta guía permite revisar la estética y probar interacciones entre dos cuentas de Mundo Otaku. El lanzador está escrito en Dart y prepara y abre ambas aplicaciones con un solo comando.

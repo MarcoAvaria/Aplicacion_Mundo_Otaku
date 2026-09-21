@@ -1,5 +1,9 @@
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/products_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/product_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/discover_screen.dart';
+export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_discover_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/other_product_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/chat_screen.dart';
+export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_products_screen.dart';
+export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_other_product_screen.dart';
+export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_product_screen.dart';

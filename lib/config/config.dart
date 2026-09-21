@@ -2,6 +2,8 @@ export 'constants/environment.dart';
 export 'constants/api_endpoints.dart';
 export 'router/app_router.dart';
 export 'router/app_routes.dart';
+export 'theme/app_fonts.dart';
 export 'theme/app_theme.dart';
 export 'theme/editorial_app_theme.dart';
 export 'theme/app_theme_mode_provider.dart';
+export 'theme/drawer_style_provider.dart';

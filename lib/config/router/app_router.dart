@@ -1,8 +1,9 @@
 import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
-import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/preview_received_screen.dart';
-import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/preview_requested_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_chat_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_list_screen.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_preview_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/received_chat_list.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/requested_chat_list.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/screens/screens.dart';
@@ -18,8 +19,7 @@ final goRouterProvider = Provider((ref) {
     routes: [
       GoRoute(
           path: AppRoutes.splash,
-          name: SplashScreen.name,
-          builder: (context, state) => const SplashScreen()),
+          redirect: (context, state) => AppRoutes.authStatus),
       GoRoute(
           path: AppRoutes.login,
           name: LoginScreen.name,
@@ -31,33 +31,37 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
           path: AppRoutes.products,
           name: ProductsScreen.name,
-          builder: (context, state) => const ProductsScreen()),
+          builder: (context, state) => const InkProductsScreen()),
       GoRoute(
           path: AppRoutes.discover,
           name: DiscoverScreen.name,
-          builder: (context, state) => const DiscoverScreen()),
+          builder: (context, state) => const InkDiscoverScreen()),
       GoRoute(
           path: AppRoutes.chatList,
           name: ChatListScreen.name,
-          builder: (context, state) => const ChatListScreen()),
+          builder: (context, state) => const InkChatListScreen()),
       GoRoute(
           path: AppRoutes.requestedList,
           name: RequestedListScreen.name,
-          builder: (context, state) => const RequestedListScreen()),
+          builder: (context, state) =>
+              const InkExchangeListScreen(inbox: ExchangeInbox.sent)),
       GoRoute(
           path: AppRoutes.receivedList,
           name: ReceivedListScreen.name,
-          builder: (context, state) => const ReceivedListScreen()),
+          builder: (context, state) =>
+              const InkExchangeListScreen(inbox: ExchangeInbox.received)),
       GoRoute(
         path: AppRoutes.previewReceivedPattern,
-        builder: (context, state) => PreviewReceivedScreen(
+        builder: (context, state) => InkExchangePreviewScreen(
           chatExchangeId: state.pathParameters['id'] ?? 'no-id',
+          inbox: ExchangeInbox.received,
         ),
       ),
       GoRoute(
         path: AppRoutes.previewRequestedPattern,
-        builder: (context, state) => PreviewRequestedScreen(
+        builder: (context, state) => InkExchangePreviewScreen(
           chatExchangeId: state.pathParameters['id'] ?? 'no-id',
+          inbox: ExchangeInbox.sent,
         ),
       ),
       GoRoute(
@@ -74,13 +78,13 @@ final goRouterProvider = Provider((ref) {
       ),
       GoRoute(
         path: AppRoutes.productPattern,
-        builder: (context, state) => ProductScreen(
+        builder: (context, state) => InkProductScreen(
           productId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
       GoRoute(
         path: AppRoutes.otherProductPattern,
-        builder: (context, state) => OtherProductScreen(
+        builder: (context, state) => InkOtherProductScreen(
           productId: state.pathParameters['id'] ?? 'no-id',
         ),
       ),
@@ -102,8 +106,7 @@ final goRouterProvider = Provider((ref) {
       }
 
       if (authStatus == AuthStatus.authenticated) {
-        if (isGoingTo == AppRoutes.splash ||
-            isGoingTo == AppRoutes.login ||
+        if (isGoingTo == AppRoutes.login ||
             isGoingTo == AppRoutes.register ||
             isGoingTo == AppRoutes.authStatus) {
           return AppRoutes.discover;

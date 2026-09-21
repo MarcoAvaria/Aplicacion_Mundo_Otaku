@@ -1,4 +1,5 @@
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange_message.dart';
 
 class ChatExchangeMapper {
   static ChatExchange jsonToEntity(Map<String, dynamic> json) {
@@ -16,11 +17,17 @@ class ChatExchangeMapper {
       product2: product2?['id'] ?? '',
       requester1: requester1?['id'] ?? '',
       status: json['status'] ?? '',
-      messages: List<String>.from(
-        json['messages']
-            .map((message) => message['content'].toString())
-            .toList(),
-      ),
+      messages: _messagesFrom(json['messages']),
     );
+  }
+
+  static List<ChatExchangeMessage> _messagesFrom(dynamic rawMessages) {
+    if (rawMessages is! List) return const [];
+
+    return rawMessages
+        .whereType<Map>()
+        .map((message) =>
+            ChatExchangeMessage.fromJson(Map<String, dynamic>.from(message)))
+        .toList();
   }
 }

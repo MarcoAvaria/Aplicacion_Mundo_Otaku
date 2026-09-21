@@ -1,3 +1,5 @@
+import 'chat_exchange_message.dart';
+
 class ChatExchange {
   late String id;
   late String owner1;
@@ -5,7 +7,7 @@ class ChatExchange {
   late String product1;
   late String product2;
   late String requester1;
-  late List<String> messages;
+  late List<ChatExchangeMessage> messages;
   late String status;
 
   ChatExchange({

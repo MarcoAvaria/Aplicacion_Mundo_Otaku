@@ -3,6 +3,7 @@ import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/infrastructure/helpers/image_file_type.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_image_scroll_behavior.dart';
+import 'package:aplicacion_mundo_otaku/features/products/presentation/widgets/product_option_labels.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -352,7 +353,7 @@ class _SizeSelector extends StatelessWidget {
           items: sizes.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value,
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -413,7 +414,7 @@ class _TypeSelector extends StatelessWidget {
           items: typesOf.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value,
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -484,7 +485,7 @@ class _GenderSelector extends StatelessWidget {
           items: genders.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value,
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
@@ -544,7 +545,7 @@ class _DemographicSelector extends StatelessWidget {
           items: demographics.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
                 value: value,
-                child: Text(value,
+                child: Text(productOptionLabel(value),
                     style: TextStyle(
                         color: Theme.of(context)
                             .colorScheme
