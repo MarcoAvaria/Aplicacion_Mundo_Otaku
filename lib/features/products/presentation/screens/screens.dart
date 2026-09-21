@@ -6,3 +6,4 @@ export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ot
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/chat_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_products_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_other_product_screen.dart';
+export 'package:aplicacion_mundo_otaku/features/products/presentation/screens/ink_product_screen.dart';

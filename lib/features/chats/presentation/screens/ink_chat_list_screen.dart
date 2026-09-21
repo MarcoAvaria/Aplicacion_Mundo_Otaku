@@ -2,29 +2,26 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_provider.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_read_marks_provider.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/widgets/ink_unread_badge.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/widgets/ink_exchange_card.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
-import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../widgets/ink_exchange_card.dart';
 import 'exchange_list_support.dart';
 
-/// Cuál de las dos bandejas se está mostrando.
+/// Los intercambios ya aceptados, que es donde vive cada conversación.
 ///
-/// Las dos listas recorren los mismos intercambios pendientes y solo cambian
-/// de lado: quién es la persona dueña y cuál producto es el propio.
-enum ExchangeInbox { received, sent }
+/// Conserva el comportamiento de `ChatListScreen`: solo los intercambios en
+/// curso y la misma navegación al chat con los tres identificadores.
+class InkChatListScreen extends ConsumerWidget {
+  static const String name = 'ink_chat_list_screen';
 
-/// Bandeja de solicitudes en la dirección "Tinta y Neón".
-///
-/// Cada fila es una doble página: lo que entregas y lo que recibes.
-class InkExchangeListScreen extends ConsumerWidget {
-  const InkExchangeListScreen({super.key, required this.inbox});
-
-  final ExchangeInbox inbox;
+  const InkChatListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +35,6 @@ class InkExchangeListScreen extends ConsumerWidget {
       body: SafeArea(
         bottom: false,
         child: _View(
-          inbox: inbox,
           tokens: tokens,
           onOpenMenu: () => scaffoldKey.currentState?.openDrawer(),
         ),
@@ -48,13 +44,8 @@ class InkExchangeListScreen extends ConsumerWidget {
 }
 
 class _View extends ConsumerStatefulWidget {
-  const _View({
-    required this.inbox,
-    required this.tokens,
-    required this.onOpenMenu,
-  });
+  const _View({required this.tokens, required this.onOpenMenu});
 
-  final ExchangeInbox inbox;
   final InkTokens tokens;
   final VoidCallback onOpenMenu;
 
@@ -63,37 +54,46 @@ class _View extends ConsumerStatefulWidget {
 }
 
 class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
-  ExchangeInbox get inbox => widget.inbox;
   InkTokens get tokens => widget.tokens;
-
-  bool get _isReceived => inbox == ExchangeInbox.received;
 
   @override
   Widget build(BuildContext context) {
     final exchangesState = ref.watch(chatExchangesProvider);
+    final readMarks = ref.watch(chatReadMarksProvider.notifier);
+    // Se observa el estado además del notifier para que el sello se redibuje
+    // en cuanto se marca una conversación como leída.
+    ref.watch(chatReadMarksProvider);
     final productsState = ref.watch(productsProvider);
     final userId = ref.watch(authProvider).user?.id ?? '';
     final productsById = {
       for (final product in productsState.products) product.id: product,
     };
 
-    final rows = <_Row>[];
+    final rows = <_ChatRow>[];
     var hasUnresolvedProduct = false;
 
     for (final exchange in exchangesState.chatExchanges) {
-      if (exchange.status != 'pending') continue;
-      final owner = _isReceived ? exchange.owner1 : exchange.owner2;
-      if (owner != userId) continue;
+      if (exchange.status != 'inProgress') continue;
 
-      // product1 es lo solicitado y product2 lo ofrecido a cambio.
-      final theirsId = _isReceived ? exchange.product2 : exchange.product1;
-      final minesId = _isReceived ? exchange.product1 : exchange.product2;
-      final theirs = productsById[theirsId];
-      if (theirs == null) {
+      final isOwner1 = exchange.owner1 == userId;
+      final isOwner2 = exchange.owner2 == userId;
+      if (!isOwner1 && !isOwner2) continue;
+
+      final myProductId = isOwner1 ? exchange.product1 : exchange.product2;
+      final otherProductId = isOwner1 ? exchange.product2 : exchange.product1;
+      final otherProduct = productsById[otherProductId];
+      if (otherProduct == null) {
         hasUnresolvedProduct = true;
         continue;
       }
-      rows.add(_Row(exchange, theirs, productsById[minesId]));
+
+      rows.add(_ChatRow(
+        exchange: exchange,
+        theirs: otherProduct,
+        mine: productsById[myProductId],
+        myProductId: myProductId,
+        otherProductId: otherProductId,
+      ));
     }
 
     final waitingForProducts = hasUnresolvedProduct &&
@@ -112,9 +112,8 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
       productsState: productsState,
       isEmpty: rows.isEmpty,
       waitingForProducts: waitingForProducts,
-      emptyMessage: _isReceived
-          ? 'No tienes solicitudes recibidas pendientes.'
-          : 'No tienes solicitudes enviadas pendientes.',
+      emptyMessage: 'Todavía no tienes intercambios aceptados.\n'
+          'Cuando aceptes una propuesta, la conversación aparecerá aquí.',
     );
 
     return Column(
@@ -122,7 +121,6 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
       children: [
         _Header(
           tokens: tokens,
-          title: _isReceived ? 'Recibidas' : 'Enviadas',
           subtitle: _subtitle(rows.length),
           onOpenMenu: widget.onOpenMenu,
         ),
@@ -134,24 +132,37 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
                 ? ScrollableStatus(child: status)
                 : ListView.separated(
                     physics: ExchangeRefreshIndicator.physics,
-                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
+                    // Más aire arriba y entre tarjetas que en las bandejas:
+                    // el sello sobresale 17 px y no debe pisar la tarjeta de
+                    // encima ni su sombra.
+                    padding: const EdgeInsets.fromLTRB(18, 26, 18, 28),
                     itemCount: rows.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 15),
-                    itemBuilder: (context, index) => InkExchangeCard(
-                      tokens: tokens,
-                      kicker: _isReceived ? 'TE PROPONEN' : 'PROPUESTA ENVIADA',
-                      number: (index + 1).toString().padLeft(2, '0'),
-                      theirs: rows[index].theirs,
-                      mine: rows[index].mine,
-                      actionLabel: 'Ver propuesta',
-                      tiltDegrees: index.isEven ? -0.6 : 0.5,
-                      onTap: () => pushAndRefresh(context.push(
-                        _isReceived
-                            ? AppRoutes.previewReceived(rows[index].exchange.id)
-                            : AppRoutes.previewRequested(
-                                rows[index].exchange.id),
-                      )),
-                    ),
+                    separatorBuilder: (_, __) => const SizedBox(height: 22),
+                    itemBuilder: (context, index) {
+                      final row = rows[index];
+                      return InkExchangeCard(
+                        tokens: tokens,
+                        kicker: 'INTERCAMBIO EN CURSO',
+                        number: (index + 1).toString().padLeft(2, '0'),
+                        theirs: row.theirs,
+                        mine: row.mine,
+                        subtitle: row.theirs.user?.fullName.trim(),
+                        actionLabel: 'Abrir la conversación',
+                        tiltDegrees: index.isEven ? -0.6 : 0.5,
+                        badge: InkUnreadBadge(
+                          tokens: tokens,
+                          count: readMarks.unreadCountFor(
+                            exchange: row.exchange,
+                            currentUserId: userId,
+                          ),
+                        ),
+                        onTap: () => pushAndRefresh(context.push(AppRoutes.chat(
+                          conversationId: row.exchange.id,
+                          myProductId: row.myProductId,
+                          otherProductId: row.otherProductId,
+                        ))),
+                      );
+                    },
                   ),
           ),
         ),
@@ -160,44 +171,36 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
   }
 
   String _subtitle(int count) {
-    if (count == 0) {
-      return _isReceived
-          ? 'Nadie te ha propuesto un cambio por ahora'
-          : 'Todavía no has propuesto ningún cambio';
-    }
-    if (count == 1) {
-      return _isReceived
-          ? 'Una persona quiere algo de tu estante'
-          : 'Una propuesta esperando respuesta';
-    }
-    return _isReceived
-        ? '$count personas quieren algo de tu estante'
-        : '$count propuestas esperando respuesta';
+    if (count == 0) return 'Aquí aparecen los cambios que ya acordaste';
+    if (count == 1) return 'Un intercambio en curso';
+    return '$count intercambios en curso';
   }
 }
 
-class _Row {
-  const _Row(this.exchange, this.theirs, this.mine);
+class _ChatRow {
+  const _ChatRow({
+    required this.exchange,
+    required this.theirs,
+    required this.mine,
+    required this.myProductId,
+    required this.otherProductId,
+  });
 
   final ChatExchange exchange;
-
-  /// El producto de la otra persona.
   final Product theirs;
-
-  /// El propio, cuando alcanzó a cargarse.
   final Product? mine;
+  final String myProductId;
+  final String otherProductId;
 }
 
 class _Header extends StatelessWidget {
   const _Header({
     required this.tokens,
-    required this.title,
     required this.subtitle,
     required this.onOpenMenu,
   });
 
   final InkTokens tokens;
-  final String title;
   final String subtitle;
   final VoidCallback onOpenMenu;
 
@@ -218,7 +221,7 @@ class _Header extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      title,
+                      'Chats',
                       style: AppFonts.displayStyle(
                         fontSize: 40,
                         fontWeight: FontWeight.w800,

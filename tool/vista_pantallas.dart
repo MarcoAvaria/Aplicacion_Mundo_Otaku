@@ -10,9 +10,11 @@ import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange_message.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/domain/repositories/chat_exchanges_repository.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_repository_provider.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_chat_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_preview_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -78,8 +80,18 @@ final _router = GoRouter(
       path: '/vista-chat',
       builder: (context, state) => const _ChatBubblesPreview(),
     ),
+    GoRoute(
+      path: AppRoutes.chatList,
+      builder: (context, state) => const InkChatListScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.chatPattern,
+      builder: (context, state) => Scaffold(
+        appBar: AppBar(title: const Text('Chat')),
+        body: const Center(child: Text('Necesita socket y GetX')),
+      ),
+    ),
     for (final location in const [
-      AppRoutes.chatList,
       AppRoutes.login,
     ])
       GoRoute(
@@ -91,9 +103,8 @@ final _router = GoRouter(
       ),
     GoRoute(
       path: AppRoutes.productPattern,
-      builder: (context, state) => Scaffold(
-        appBar: AppBar(title: const Text('Producto')),
-        body: const Center(child: Text('Fuera del alcance de esta vista')),
+      builder: (context, state) => InkProductScreen(
+        productId: state.pathParameters['id'] ?? 'no-id',
       ),
     ),
     GoRoute(
@@ -124,7 +135,8 @@ class _ScreensPreviewApp extends ConsumerWidget {
 /// Repositorio de muestra: entrega una única página de productos inventados.
 class _SampleRepository implements ProductsRepository {
   @override
-  Future<List<Product>> getProductsByPage({int limit = 10, int offset = 0}) async {
+  Future<List<Product>> getProductsByPage(
+      {int limit = 10, int offset = 0}) async {
     if (offset > 0) return [];
     return _samples;
   }
@@ -203,6 +215,44 @@ final _exchanges = <ChatExchange>[
     messages: const [],
     status: 'pending',
   ),
+  // Intercambio en curso sin mensajes nuevos: el sello queda apagado.
+  ChatExchange(
+    id: 'e4',
+    owner1: 'yo',
+    owner2: 'otro-usuario',
+    product1: 'm4',
+    product2: '5',
+    requester1: '5',
+    messages: const [],
+    status: 'inProgress',
+  ),
+  // Intercambio en curso con mensajes nuevos de la otra persona.
+  ChatExchange(
+    id: 'e5',
+    owner1: 'yo',
+    owner2: 'otro-usuario',
+    product1: 'm1',
+    product2: '2',
+    requester1: '2',
+    messages: [
+      ChatExchangeMessage(
+        content: '¿Te sirve el cambio?',
+        sendBy: 'otro-usuario',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 9)),
+      ),
+      ChatExchangeMessage(
+        content: 'Puedo llevarlo el sábado',
+        sendBy: 'otro-usuario',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 4)),
+      ),
+      ChatExchangeMessage(
+        content: 'Dale, lo veo',
+        sendBy: 'yo',
+        timestamp: DateTime.now().subtract(const Duration(minutes: 3)),
+      ),
+    ],
+    status: 'inProgress',
+  ),
 ];
 
 final _me = User(
@@ -221,7 +271,8 @@ final _owner = User(
   roles: const ['user'],
 );
 
-Product _mine(String id, String title, String type, int tomo, String demo) => Product(
+Product _mine(String id, String title, String type, int tomo, String demo) =>
+    Product(
       id: id,
       title: title,
       typeOf: type,

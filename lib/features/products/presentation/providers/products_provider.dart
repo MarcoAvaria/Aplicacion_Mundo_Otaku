@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 //import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
@@ -63,6 +65,35 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
           offset: state.offset + state.limit,
           products: [...state.products, ...products]);
     } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'No fue posible cargar los productos.',
+      );
+    }
+  }
+
+  /// Vuelve a pedir desde cero lo que ya estaba cargado y lo reemplaza.
+  ///
+  /// `loadNextPage` solo sabe agregar al final, así que no sirve para un
+  /// refresco: repetiría productos y no vería los cambios de los que ya están
+  /// en pantalla. Aquí se pide una sola página del tamaño de lo ya cargado.
+  Future<void> reloadLoadedPages() async {
+    final size = math.max(state.products.length, state.limit);
+    state = state.copyWith(isLoading: true, errorMessage: '');
+
+    try {
+      final products =
+          await productsRepository.getProductsByPage(limit: size, offset: 0);
+
+      state = state.copyWith(
+        isLoading: false,
+        isLastPage: products.length < size,
+        offset: products.length,
+        products: products,
+      );
+    } catch (_) {
+      // Se conserva lo que ya se veía: un refresco fallido no debe vaciar
+      // la pantalla.
       state = state.copyWith(
         isLoading: false,
         errorMessage: 'No fue posible cargar los productos.',

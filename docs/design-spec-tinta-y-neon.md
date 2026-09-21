@@ -98,7 +98,13 @@ poder volver atrás, según la regla de `ai-handoff/PRECAUCIONES.md`.
 | Producto de otra persona | `screens/ink_other_product_screen.dart` | `other_product_screen.dart` |
 | Solicitudes recibidas y enviadas | `chats/…/screens/ink_exchange_list_screen.dart` | `received_chat_list.dart`, `requested_chat_list.dart` |
 | Propuesta de intercambio | `chats/…/screens/ink_exchange_preview_screen.dart` | `preview_received_screen.dart`, `preview_requested_screen.dart` |
+| Chats (lista) | `chats/…/screens/ink_chat_list_screen.dart` | `chat_list_screen.dart` |
+| Editar / publicar producto (T-037) | `screens/ink_product_screen.dart` | `product_screen.dart` (la nueva ya no usa `custom_product_field.dart`) |
 | Chat | restilizado dentro de `chat_screen.dart` | — (ver nota) |
+
+La bandeja de solicitudes y la lista de chats muestran lo mismo en distintos
+momentos del flujo, así que comparten `InkExchangeCard`
+(`chats/presentation/widgets/ink_exchange_card.dart`).
 
 Piezas compartidas: `ink_tokens.dart` (colores, botón de menú y botón de sombra
 dura), `halftone_painter.dart` (trama de puntos), `vertical_cjk_label.dart` y

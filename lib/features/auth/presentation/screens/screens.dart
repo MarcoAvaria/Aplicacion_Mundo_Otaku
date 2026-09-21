@@ -1,4 +1,3 @@
-export 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/home/splash_screen.dart';
 export 'package:aplicacion_mundo_otaku/config/theme/app_theme.dart';
 export 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/login/login_screen.dart';
 export 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/register/register_screen.dart';
