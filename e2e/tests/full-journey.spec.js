@@ -105,6 +105,31 @@ async function prepareAuthenticatedContext(context, token) {
   );
 }
 
+// Flutter Web no recibe las teclas hasta que su elemento de edicion oculto tiene
+// el foco del navegador. El clic lo pide, pero el foco no llega en el mismo tick
+// y en un runner headless puede tardar bastante mas que en un equipo de
+// escritorio: de ahi que el recorrido del chat fallara en CI y casi nunca en
+// local (T-026). Se espera la condicion en vez de un tiempo fijo.
+async function waitForEditingFocus(page) {
+  try {
+    await page.waitForFunction(
+      () => {
+        const element = document.activeElement;
+        if (!element) return false;
+        return (
+          element.tagName === 'INPUT' ||
+          element.tagName === 'TEXTAREA' ||
+          element.isContentEditable === true
+        );
+      },
+      { timeout: 5_000 },
+    );
+  } catch {
+    // Mejor esfuerzo: si no se puede confirmar, se intenta escribir igual y el
+    // bucle de reintentos de quien llama sigue haciendo su trabajo.
+  }
+}
+
 async function enterFlutterText(page, locator, value) {
   for (let entryAttempt = 0; entryAttempt < 5; entryAttempt += 1) {
     let field;
@@ -124,7 +149,7 @@ async function enterFlutterText(page, locator, value) {
       field.x + field.width / 2,
       Math.min(895, Math.max(60, field.y + field.height / 2)),
     );
-    await page.waitForTimeout(100);
+    await waitForEditingFocus(page);
     // Se teclea en vez de usar `fill`. `fill` asigna el valor del elemento del
     // DOM por programa y Flutter Web no siempre lo ingiere: el `input` del
     // navegador queda con el texto nuevo mientras el `TextEditingController`
@@ -179,6 +204,7 @@ async function enterChatMessage(page, value) {
       box.x + box.width / 2,
       Math.min(895, Math.max(60, box.y + box.height / 2)),
     );
+    await waitForEditingFocus(page);
     await page.keyboard.press('Control+A');
     await page.keyboard.type(value, { delay: 5 });
     await page.waitForTimeout(150);
