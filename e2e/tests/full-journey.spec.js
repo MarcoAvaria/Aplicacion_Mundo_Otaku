@@ -24,18 +24,47 @@ async function apiRequest(route, { token, method = 'GET', body } = {}) {
   return response.json();
 }
 
+// Páginas cuya semántica ya se activó: el botón solo existe la primera vez, así
+// que volver a esperarlo en cada navegación costaría el tiempo de espera entero.
+const semanticsEnabledPages = new WeakSet();
+
+// Una carga real de documento (una recarga) reinicia la semántica de Flutter y
+// vuelve a inyectar el botón. Un cambio de ruta por hash no, y por eso se
+// escucha `load` y no `framenavigated`: si se olvidara este reinicio, tras un
+// `reload()` la semántica no se activaría nunca y no se encontraría nada.
+const pagesWatchedForReload = new WeakSet();
+
+function forgetSemanticsOnReload(page) {
+  if (pagesWatchedForReload.has(page)) return;
+  pagesWatchedForReload.add(page);
+  page.on('load', () => semanticsEnabledPages.delete(page));
+}
+
 async function enableFlutterAccessibility(page) {
+  forgetSemanticsOnReload(page);
   await page.waitForFunction(() => {
     const glassPane = document.querySelector('flt-glass-pane');
     const sceneHost = glassPane?.shadowRoot?.querySelector('flt-scene-host');
     return (sceneHost?.childElementCount ?? 0) > 0;
   });
+
+  if (semanticsEnabledPages.has(page)) return;
+
+  // Flutter Web inyecta el botón que activa la semántica unos milisegundos
+  // después de pintar la primera escena. Antes se consultaba una sola vez con
+  // `count()`: si todavía no existía, la semántica no se activaba nunca y
+  // cualquier `getByLabel` posterior agotaba su tiempo. De ahí que los
+  // recorridos fallaran de forma intermitente en el acceso. Ahora se espera.
   const enableButton = page.getByRole('button', {
     name: 'Enable accessibility',
   });
-  if ((await enableButton.count()) > 0) {
+  try {
+    await enableButton.waitFor({ state: 'attached', timeout: 15_000 });
     await enableButton.evaluate((element) => element.click());
+  } catch {
+    // No apareció: la semántica ya venía activa en esta página.
   }
+  semanticsEnabledPages.add(page);
 }
 
 async function openFlutterRoute(page, route) {
@@ -96,7 +125,14 @@ async function enterFlutterText(page, locator, value) {
       Math.min(895, Math.max(60, field.y + field.height / 2)),
     );
     await page.waitForTimeout(100);
-    await locator.fill(value);
+    // Se teclea en vez de usar `fill`. `fill` asigna el valor del elemento del
+    // DOM por programa y Flutter Web no siempre lo ingiere: el `input` del
+    // navegador queda con el texto nuevo mientras el `TextEditingController`
+    // del widget conserva el viejo, así que el formulario guardaba el valor
+    // anterior sin avisar. Teclear recorre la ruta real de entrada, que es
+    // además lo que hace una persona.
+    await page.keyboard.press('Control+A');
+    await page.keyboard.type(value, { delay: 5 });
     await page.waitForTimeout(150);
 
     if ((await locator.inputValue()) !== value) continue;
@@ -159,17 +195,18 @@ async function swipeProductPhotos(page) {
   const initial = await first.boundingBox();
   const center = initial.x + initial.width / 2;
   const y = initial.y + initial.height / 2;
-  await page.mouse.move(center + 200, y);
+  const grab = initial.width * 0.3;
+  await page.mouse.move(center + grab, y);
   await page.mouse.down();
-  await page.mouse.move(center - 400, y, { steps: 30 });
+  await page.mouse.move(center - grab, y, { steps: 30 });
   await page.mouse.up();
   await expect.poll(async () => {
     const box = await second.boundingBox();
     return box ? Math.abs(box.x + box.width / 2 - center) : Infinity;
   }).toBeLessThan(2);
-  await page.mouse.move(center - 200, y);
+  await page.mouse.move(center - grab, y);
   await page.mouse.down();
-  await page.mouse.move(center + 400, y, { steps: 30 });
+  await page.mouse.move(center + grab, y, { steps: 30 });
   await page.mouse.up();
   await expect.poll(async () => {
     const box = await first.boundingBox();
@@ -183,7 +220,7 @@ async function login(page, email, password) {
   await enterFlutterText(page, page.getByLabel('Contraseña'), password);
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await expect(
-    page.getByRole('heading', { name: '¡Cambia y descubre!' }),
+    page.getByRole('heading', { name: 'Cambia y descubre' }),
   ).toBeVisible();
   // El snackbar de bienvenida desplaza el botón flotante mientras se anima.
   await expect(page.getByLabel(
@@ -276,14 +313,14 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     ]);
     await Promise.all([
       expect(
-        firstPage.getByRole('heading', { name: '¡Cambia y descubre!' }),
+        firstPage.getByRole('heading', { name: 'Cambia y descubre' }),
       ).toBeVisible(),
       expect(
-        secondPage.getByRole('heading', { name: '¡Cambia y descubre!' }),
+        secondPage.getByRole('heading', { name: 'Cambia y descubre' }),
       ).toBeVisible(),
     ]);
 
-    await firstPage.getByRole('button', { name: 'Nuevo producto' }).click();
+    await firstPage.getByRole('button', { name: 'Publicar' }).click();
     await expect(firstPage.getByLabel('Editar producto')).toBeVisible();
     await enterFlutterText(
       firstPage,
@@ -293,7 +330,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await enterFlutterText(firstPage, firstPage.getByLabel('Volumen | Tomo'), '7');
     await enterFlutterText(
       firstPage,
-      firstPage.getByLabel('Descripción'),
+      firstPage.getByLabel('Descripción', { exact: true }),
       'Publicación creada completamente desde Chromium',
     );
     await enterFlutterText(
@@ -379,13 +416,15 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     ).toHaveCount(0);
     await clickFlutterControl(
       secondPage,
-      secondPage.getByRole('button', { name: '¡Propone un cambio :)!' }),
+      secondPage.getByRole('button', { name: 'Proponer intercambio' }),
     );
     await clickFlutterControl(
       secondPage,
-      secondPage.getByLabel(offeredTitle, { exact: true }),
+      secondPage.getByRole('button', { name: offeredTitle }),
     );
-    await expect(secondPage.getByLabel('Confirmación')).toBeVisible();
+    await expect(
+      secondPage.getByRole('button', { name: 'Sí, enviar' }),
+    ).toBeVisible();
 
     const exchangeResponsePromise = secondPage.waitForResponse(
       (response) =>
@@ -395,18 +434,20 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     );
     await clickFlutterControl(
       secondPage,
-      secondPage.getByRole('button', { name: '¡Sí! Quiero cambiar :D' }),
+      secondPage.getByRole('button', { name: 'Sí, enviar' }),
     );
     const exchangeResponse = await exchangeResponsePromise;
     expect(exchangeResponse.status()).toBe(201);
     const exchange = await exchangeResponse.json();
     await expect(
-      secondPage.getByLabel('Se ha enviado solicitud de conversación :D !'),
+      secondPage.getByLabel('Propuesta enviada. Te avisaremos cuando respondan.'),
     ).toBeVisible();
 
     await openFlutterRoute(firstPage, `/previewreceived/${exchange.id}`);
     await expect(
-      firstPage.getByLabel(`Te ofrecen: ${offeredTitle}`),
+      firstPage.getByRole('img', {
+        name: new RegExp(`TÚ RECIBES.*${offeredTitle}`),
+      }),
     ).toBeVisible();
     const acceptResponsePromise = firstPage.waitForResponse(
       (response) =>
@@ -488,7 +529,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
 
     // Cierre real desde Flutter y acceso nuevo, sin inyectar el JWT antiguo.
     await openFlutterRoute(firstPage, '/discover');
-    await firstPage.getByRole('button', { name: 'Open navigation menu' }).click();
+    await firstPage.getByRole('button', { name: 'Abrir menú' }).click();
     const logoutResponse = firstPage.waitForResponse((response) =>
       response.url() === `${apiUrl}/auth/logout` && response.request().method() === 'POST');
     await firstPage.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
@@ -629,7 +670,7 @@ test('el propietario edita, rechaza una imagen inválida y elimina su producto',
 
     await page.getByRole('button', { name: 'Eliminar producto' }).click();
     await expect(
-      page.getByText('Eliminar producto', { exact: true }),
+      page.getByRole('button', { name: 'Eliminar', exact: true }),
     ).toBeVisible();
     const deleteResponsePromise = page.waitForResponse(
       (response) =>
@@ -701,7 +742,7 @@ test('informa fallos de listas, permite reintentar y explica estados vacíos', a
     blockProducts = false;
     await clickFlutterControl(page, page.getByRole('button', { name: 'Reintentar' }));
     await expect(
-      page.getByLabel('Todavía no has publicado productos.'),
+      page.getByLabel(/Tu estante está vacío/),
     ).toBeVisible();
 
     let blockExchanges = true;
@@ -729,7 +770,7 @@ test('informa fallos de listas, permite reintentar y explica estados vacíos', a
 
     await openFlutterRoute(page, '/chatList');
     await expect(
-      page.getByLabel(/No tienes intercambios aceptados/),
+      page.getByLabel(/[Nn]o tienes intercambios aceptados/),
     ).toBeVisible();
   } finally {
     await context.close();
@@ -890,7 +931,9 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     blockRequestDetail = false;
     await senderPage.getByRole('button', { name: 'Reintentar' }).click();
     await expect(
-      senderPage.getByLabel(`Tu ofreces: ${offeredProduct.title}`),
+      senderPage.getByRole('img', {
+        name: new RegExp(`TÚ ENTREGAS.*${offeredProduct.title}`),
+      }),
     ).toBeVisible();
     const cancelResponse = senderPage.waitForResponse(
       (response) =>
@@ -919,7 +962,9 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
       `/previewreceived/${rejectedExchange.id}`,
     );
     await expect(
-      receiverPage.getByLabel(`Te ofrecen: ${offeredProduct.title}`),
+      receiverPage.getByRole('img', {
+        name: new RegExp(`TÚ RECIBES.*${offeredProduct.title}`),
+      }),
     ).toBeVisible();
     const rejectResponse = receiverPage.waitForResponse(
       (response) =>

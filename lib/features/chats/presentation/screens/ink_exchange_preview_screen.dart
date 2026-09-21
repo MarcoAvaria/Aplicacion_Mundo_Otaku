@@ -47,8 +47,8 @@ class InkExchangePreviewScreen extends ConsumerWidget {
                       ? ListStatusView(
                           message: state.errorMessage,
                           onRetry: () => ref
-                              .read(chatExchangeProvider(chatExchangeId)
-                                  .notifier)
+                              .read(
+                                  chatExchangeProvider(chatExchangeId).notifier)
                               .loadChatExchange(),
                         )
                       : chatExchange == null
@@ -376,8 +376,7 @@ class _Panel extends StatelessWidget {
                                 vertical: 3,
                               ),
                               decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: tokens.ink, width: 2),
+                                border: Border.all(color: tokens.ink, width: 2),
                               ),
                               child: Text(
                                 product.user!.fullName.toUpperCase(),
@@ -480,7 +479,10 @@ class _Actions extends ConsumerWidget {
                     tokens: tokens,
                     label: 'Rechazar',
                     filled: false,
-                    onTap: () => _update(context, ref, 'rejected',
+                    onTap: () => _update(
+                        context,
+                        ref,
+                        'rejected',
                         'Se ha rechazado la solicitud',
                         'No fue posible rechazar la solicitud.'),
                   ),
@@ -492,7 +494,10 @@ class _Actions extends ConsumerWidget {
                     tokens: tokens,
                     label: 'Aceptar el cambio',
                     filled: true,
-                    onTap: () => _update(context, ref, 'inProgress',
+                    onTap: () => _update(
+                        context,
+                        ref,
+                        'inProgress',
                         '¡Acción completada con éxito!',
                         'No fue posible aceptar la solicitud.'),
                   ),
@@ -503,7 +508,10 @@ class _Actions extends ConsumerWidget {
               tokens: tokens,
               label: 'Cancelar la propuesta',
               filled: false,
-              onTap: () => _update(context, ref, 'abort',
+              onTap: () => _update(
+                  context,
+                  ref,
+                  'abort',
                   'Se ha cancelado la solicitud',
                   'No fue posible cancelar la solicitud.'),
             ),
@@ -517,14 +525,24 @@ class _Actions extends ConsumerWidget {
     String successMessage,
     String failureMessage,
   ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
     final wasUpdated = await ref
         .read(chatExchangeProvider(exchangeId).notifier)
         .updateChatExchangeStatus(status);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
+
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(content: Text(wasUpdated ? successMessage : failureMessage)),
     );
+
+    if (!wasUpdated) return;
+
+    // La solicitud dejó de estar pendiente, así que ya no pertenece a esta
+    // pantalla. Se vuelve a la bandeja, que se recarga sola al recibir el
+    // control (`ExchangeListRefresh.pushAndRefresh`).
+    if (navigator.canPop()) navigator.pop();
   }
 }
 
@@ -565,15 +583,21 @@ class _ActionButton extends StatelessWidget {
       ),
     );
 
-    if (!filled) return content;
+    // Sin esto el control queda como texto tocable y no como botón, que es lo
+    // que anuncia un lector de pantalla y lo que busca el recorrido Playwright.
+    // El nombre lo aporta el texto del propio botón.
+    if (!filled) return Semantics(button: true, child: content);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(color: tokens.shadow, offset: const Offset(4, 4)),
-        ],
+    return Semantics(
+      button: true,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(color: tokens.shadow, offset: const Offset(4, 4)),
+          ],
+        ),
+        child: content,
       ),
-      child: content,
     );
   }
 }

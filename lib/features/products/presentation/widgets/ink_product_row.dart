@@ -22,101 +22,106 @@ class InkProductRow extends StatelessWidget {
     final tokens = InkTokens.of(context);
     final details = _details(product);
 
-    return Transform.rotate(
-      angle: tiltDegrees * 0.0174532925,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(color: tokens.shadow, offset: const Offset(4, 4)),
-          ],
-        ),
-        child: Material(
-          color: tokens.panel,
-          shape: Border.all(color: tokens.ink, width: tokens.borderWidth),
-          child: InkWell(
-            onTap: onTap,
-            child: Padding(
-              padding: const EdgeInsets.all(11),
-              child: Row(
-                children: [
-                  Container(
-                    width: 64,
-                    height: 78,
-                    decoration: BoxDecoration(
-                      color: tokens.avatarWash,
-                      border: Border.all(
-                        color: tokens.ink,
-                        width: tokens.borderWidth,
-                      ),
-                    ),
-                    child: product.images.isEmpty
-                        ? Image.asset(
-                            'assets/images/no-image.jpg',
-                            fit: BoxFit.cover,
-                          )
-                        : FadeInImage(
-                            fit: BoxFit.cover,
-                            fadeInDuration: const Duration(milliseconds: 200),
-                            image: NetworkImage(product.images.first),
-                            placeholder: const AssetImage(
-                              'assets/images/no-image.jpg',
-                            ),
-                          ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          product.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppFonts.displayStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
-                            height: 1.1,
-                            color: tokens.text,
-                          ),
+    // La fila entera es tocable, así que se anuncia como botón. El nombre lo
+    // aporta el texto que ya contiene (título y detalles), sin repetirlo aquí.
+    return Semantics(
+      button: true,
+      child: Transform.rotate(
+        angle: tiltDegrees * 0.0174532925,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(color: tokens.shadow, offset: const Offset(4, 4)),
+            ],
+          ),
+          child: Material(
+            color: tokens.panel,
+            shape: Border.all(color: tokens.ink, width: tokens.borderWidth),
+            child: InkWell(
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.all(11),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 78,
+                      decoration: BoxDecoration(
+                        color: tokens.avatarWash,
+                        border: Border.all(
+                          color: tokens.ink,
+                          width: tokens.borderWidth,
                         ),
-                        if (details != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            details,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: tokens.muted,
+                      ),
+                      child: product.images.isEmpty
+                          ? Image.asset(
+                              'assets/images/no-image.jpg',
+                              fit: BoxFit.cover,
+                            )
+                          : FadeInImage(
+                              fit: BoxFit.cover,
+                              fadeInDuration: const Duration(milliseconds: 200),
+                              image: NetworkImage(product.images.first),
+                              placeholder: const AssetImage(
+                                'assets/images/no-image.jpg',
+                              ),
                             ),
-                          ),
-                        ],
-                        const SizedBox(height: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: tokens.ink, width: 2),
-                          ),
-                          child: Text(
-                            product.typeOf.trim().isEmpty
-                                ? 'PRODUCTO'
-                                : product.typeOf.toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.6,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            product.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.displayStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              height: 1.1,
                               color: tokens.text,
                             ),
                           ),
-                        ),
-                      ],
+                          if (details != null) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              details,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: tokens.muted,
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: tokens.ink, width: 2),
+                            ),
+                            child: Text(
+                              product.typeOf.trim().isEmpty
+                                  ? 'PRODUCTO'
+                                  : product.typeOf.toUpperCase(),
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.6,
+                                color: tokens.text,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -278,47 +278,56 @@ class _Header extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cambia',
-                      style: AppFonts.displayStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.w800,
-                        height: 0.95,
-                        letterSpacing: -0.8,
-                        color: tokens.text,
+                // El título se anuncia como un solo encabezado. Partido en dos
+                // `Text` por el salto de línea del diseño, un lector de
+                // pantalla leería dos fragmentos sueltos y la pantalla quedaría
+                // sin ningún elemento con rol de título.
+                child: Semantics(
+                  header: true,
+                  label: 'Cambia y descubre',
+                  excludeSemantics: true,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Cambia',
+                        style: AppFonts.displayStyle(
+                          fontSize: 42,
+                          fontWeight: FontWeight.w800,
+                          height: 0.95,
+                          letterSpacing: -0.8,
+                          color: tokens.text,
+                        ),
                       ),
-                    ),
-                    Stack(
-                      alignment: Alignment.bottomLeft,
-                      children: [
-                        Positioned(
-                          left: 0,
-                          right: -6,
-                          bottom: 5,
-                          child: Transform.rotate(
-                            angle: -0.017,
-                            child: Container(
-                              height: 9,
-                              color: tokens.accent.withOpacity(0.22),
+                      Stack(
+                        alignment: Alignment.bottomLeft,
+                        children: [
+                          Positioned(
+                            left: 0,
+                            right: -6,
+                            bottom: 5,
+                            child: Transform.rotate(
+                              angle: -0.017,
+                              child: Container(
+                                height: 9,
+                                color: tokens.accent.withOpacity(0.22),
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          'y descubre',
-                          style: AppFonts.displayStyle(
-                            fontSize: 42,
-                            fontWeight: FontWeight.w800,
-                            height: 0.95,
-                            letterSpacing: -0.8,
-                            color: tokens.text,
+                          Text(
+                            'y descubre',
+                            style: AppFonts.displayStyle(
+                              fontSize: 42,
+                              fontWeight: FontWeight.w800,
+                              height: 0.95,
+                              letterSpacing: -0.8,
+                              color: tokens.text,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Padding(
