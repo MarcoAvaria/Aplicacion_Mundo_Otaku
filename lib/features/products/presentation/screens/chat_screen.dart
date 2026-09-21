@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,7 @@ import '../../../auth/presentation/providers/providers.dart';
 import '../../../chats/presentation/providers/chat_exchange_provider.dart';
 import '../../../chats/presentation/providers/chat_read_marks_provider.dart';
 import '../../../shared/shared.dart';
+import '../../domain/domain.dart';
 import '../providers/providers.dart';
 
 class ChatScreen extends ConsumerWidget {
@@ -30,66 +32,44 @@ class ChatScreen extends ConsumerWidget {
     final otherProductState = ref.watch(productProvider(otroProductId));
     final exchangeState = ref.watch(chatExchangeProvider(conversacionId));
 
+    final tokens = InkTokens.of(context);
+
     if (productState.product == null ||
         otherProductState.product == null ||
         exchangeState.chatExchange == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: tokens.paper,
+        body: Center(
+          child: SizedBox.square(
+            dimension: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.4,
+              valueColor: AlwaysStoppedAnimation<Color>(tokens.halftone),
+            ),
+          ),
+        ),
+      );
     }
 
     final otherProduct = otherProductState.product!;
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
+      backgroundColor: tokens.paper,
+      body: SafeArea(
+        child: Column(
           children: [
-            CircleAvatar(
-              backgroundImage: otherProduct.images.isEmpty
-                  ? null
-                  : NetworkImage(otherProduct.images.first),
-              child: otherProduct.images.isEmpty
-                  ? const Icon(Icons.inventory_2_outlined)
-                  : null,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(otherProduct.title,
-                  style: const TextStyle(fontSize: 15)),
-            ),
-          ],
-        ),
-        actions: [
-          if (exchangeState.isSaving)
-            const Padding(
-              padding: EdgeInsets.all(16),
-              child: SizedBox.square(
-                dimension: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else if (exchangeState.chatExchange?.status == 'inProgress')
-            PopupMenuButton<String>(
-              tooltip: 'Opciones del intercambio',
+            _InkChatHeader(
+              tokens: tokens,
+              product: otherProduct,
+              isSaving: exchangeState.isSaving,
+              canChangeStatus:
+                  exchangeState.chatExchange?.status == 'inProgress',
               onSelected: (status) =>
                   _confirmStatusChange(context, ref, status),
-              itemBuilder: (context) => const [
-                PopupMenuItem(
-                  value: 'done',
-                  child: ListTile(
-                    leading: Icon(Icons.check_circle_outline),
-                    title: Text('Marcar como completado'),
-                  ),
-                ),
-                PopupMenuItem(
-                  value: 'cancelled',
-                  child: ListTile(
-                    leading: Icon(Icons.cancel_outlined),
-                    title: Text('Cancelar intercambio'),
-                  ),
-                ),
-              ],
             ),
-        ],
+            Expanded(child: _ChatView(conversacionId: conversacionId)),
+          ],
+        ),
       ),
-      body: _ChatView(conversacionId: conversacionId),
     );
   }
 
@@ -150,6 +130,146 @@ class ChatScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+}
+
+/// Cabecera del chat en la dirección "Tinta y Neón".
+///
+/// Reemplaza al `AppBar` de Material sin tocar el cuerpo de la conversación.
+/// Conserva las anclas del recorrido: el menú de opciones se localiza por su
+/// rol con el nombre "Opciones del intercambio", y sus dos entradas mantienen
+/// sus textos. No agrega ningún campo de texto: la pantalla tiene que seguir
+/// teniendo un único `textbox`, que es el de escribir mensajes.
+class _InkChatHeader extends StatelessWidget {
+  const _InkChatHeader({
+    required this.tokens,
+    required this.product,
+    required this.isSaving,
+    required this.canChangeStatus,
+    required this.onSelected,
+  });
+
+  final InkTokens tokens;
+  final Product product;
+  final bool isSaving;
+  final bool canChangeStatus;
+  final ValueChanged<String> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      decoration: BoxDecoration(
+        color: tokens.paper,
+        border: Border(bottom: BorderSide(color: tokens.ink, width: 2)),
+      ),
+      child: Row(
+        children: [
+          Semantics(
+            button: true,
+            label: 'Volver',
+            child: Material(
+              color: tokens.panel,
+              child: InkWell(
+                onTap: () => Navigator.of(context).maybePop(),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: tokens.ink, width: 2.5),
+                  ),
+                  child: Icon(Icons.arrow_back, size: 18, color: tokens.text),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 11),
+          Container(
+            width: 34,
+            height: 42,
+            decoration: BoxDecoration(
+              color: tokens.avatarWash,
+              border: Border.all(color: tokens.chipSelectedBorder, width: 2),
+            ),
+            child: product.images.isEmpty
+                ? Icon(Icons.inventory_2_outlined,
+                    size: 15, color: tokens.muted)
+                : FadeInImage(
+                    fit: BoxFit.cover,
+                    fadeInDuration: const Duration(milliseconds: 200),
+                    image: imageProviderForPath(product.images.first),
+                    placeholder: const AssetImage('assets/images/no-image.jpg'),
+                  ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'INTERCAMBIO EN CURSO',
+                  style: TextStyle(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.3,
+                    color: tokens.halftone,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  product.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppFonts.displayStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    height: 1.1,
+                    color: tokens.text,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isSaving)
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: SizedBox.square(
+                dimension: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  valueColor: AlwaysStoppedAnimation<Color>(tokens.halftone),
+                ),
+              ),
+            )
+          else if (canChangeStatus)
+            PopupMenuButton<String>(
+              tooltip: 'Opciones del intercambio',
+              color: tokens.panel,
+              shape: Border.all(color: tokens.ink, width: 2),
+              icon: Icon(Icons.more_vert, color: tokens.text),
+              onSelected: onSelected,
+              itemBuilder: (context) => const [
+                PopupMenuItem(
+                  value: 'done',
+                  child: ListTile(
+                    leading: Icon(Icons.check_circle_outline),
+                    title: Text('Marcar como completado'),
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'cancelled',
+                  child: ListTile(
+                    leading: Icon(Icons.cancel_outlined),
+                    title: Text('Cancelar intercambio'),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
   }
 }
 
