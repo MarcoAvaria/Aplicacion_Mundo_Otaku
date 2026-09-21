@@ -51,11 +51,12 @@ conviene hacerlos en este orden, verificando la matriz completa entre uno y otro
   de 16 KB, no basta con que compile.**
 - **Borde a borde obligatorio.** Desde Android 15 las aplicaciones que apuntan a API
   35+ se dibujan de borde a borde y la forma de desactivarlo quedó obsoleta en 36.
-  Hay que revisar que las pantallas respeten las áreas seguras: ya se usa `SafeArea`
-  en las pantallas de la dirección "Tinta y Neón". **El acceso quedó cubierto el
-  2026-09-21** al rediseñarlo. Siguen sin revisar el registro, la verificación de
-  sesión y la cabecera del chat, que son las que faltan del rediseño. Conviene
-  aprovechar ese trabajo para dejarlas listas y no volver a pasar por ellas.
+  Hay que revisar que las pantallas respeten las áreas seguras. **Al 2026-09-21
+  esto quedó cubierto en toda la aplicación**: con el cierre del rediseño (T-038 y
+  T-039) las cuatro pantallas que faltaban —acceso, registro, verificación de
+  sesión y chat— pasaron a usar `SafeArea`, igual que las que ya estaban en la
+  dirección "Tinta y Neón". Queda por comprobar en un dispositivo real que no haya
+  recortes con la barra de gestos, pero no hay pantallas sin revisar.
 
 ## Hallazgos que fueron apareciendo mientras se trabajaba
 
