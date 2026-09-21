@@ -1,5 +1,6 @@
 import 'package:aplicacion_mundo_otaku/config/router/app_router_notifier.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
+import 'package:aplicacion_mundo_otaku/features/auth/presentation/screens/login/ink_login_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/chat_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_chat_list_screen.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/screens/ink_exchange_list_screen.dart';
@@ -23,7 +24,7 @@ final goRouterProvider = Provider((ref) {
       GoRoute(
           path: AppRoutes.login,
           name: LoginScreen.name,
-          builder: (context, state) => const LoginScreen()),
+          builder: (context, state) => const InkLoginScreen()),
       GoRoute(
           path: AppRoutes.register,
           name: RegisterScreen.name,
