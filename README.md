@@ -36,7 +36,7 @@ STAGE=dev
 
 Para un emulador Android suele ser necesario cambiar el host a `http://10.0.2.2:3001/api`. En un teléfono físico se usa la IP local del equipo que ejecuta la API. Si el backend se levanta en otro puerto, actualiza `API_URL` y `SOCKET_URL`.
 
-Para revisar la aplicación y probar intercambios/chat con dos cuentas, el proyecto incluye un lanzador Dart que abre dos emuladores desde una sola terminal. Puede usar la API pública sin Docker o levantar el entorno local completo. Consulta [Pruebas manuales con dos emuladores Android](docs/PRUEBAS_MANUALES_ANDROID.md).
+Para revisar la aplicación y probar intercambios/chat con dos cuentas, el proyecto incluye un lanzador Dart que abre dos emuladores desde una sola terminal. Puede usar la API pública sin Docker o levantar el entorno local completo. Consulta [Pruebas manuales con dos emuladores Android](docs/PRUEBAS_MANUALES_ANDROID_EMULADOR.md). Para probar en tu propio teléfono por USB (incluida la instalación, los permisos reales de cámara/galería y los flujos grabables), consulta [Pruebas manuales en dispositivo físico](docs/PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md).
 
 Las URL HTTP son exclusivamente para desarrollo local. Una distribución debe configurar `API_URL` y `SOCKET_URL` con HTTPS/WSS y certificados válidos.
 

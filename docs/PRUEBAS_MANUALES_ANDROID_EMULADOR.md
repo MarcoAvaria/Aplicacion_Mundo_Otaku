@@ -1,8 +1,8 @@
-> **Nota de redirección (2026-09-20):** este documento se dividió en dos, porque mezclaba pruebas con emuladores y con teléfono físico y se había vuelto muy largo. Usa [PRUEBAS_MANUALES_ANDROID_EMULADOR.md](PRUEBAS_MANUALES_ANDROID_EMULADOR.md) para dos emuladores (AVD) y [PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md](PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md) para un teléfono conectado por USB. Este archivo se conserva sin cambios como referencia histórica.
-
 # Pruebas manuales con dos emuladores Android
 
-Esta guía permite revisar la estética y probar interacciones entre dos cuentas de Mundo Otaku. El lanzador está escrito en Dart y prepara y abre ambas aplicaciones con un solo comando.
+Esta guía permite revisar la estética y probar interacciones entre dos cuentas de Mundo Otaku usando emuladores (AVD). El lanzador está escrito en Dart y prepara y abre ambas aplicaciones con un solo comando.
+
+> ¿Vas a probar en tu propio teléfono conectado por USB en vez de un emulador? Usa [PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md](PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md) en su lugar: tiene sus propios requisitos, comandos y solución de problemas, porque un teléfono real se comporta distinto a un AVD (se bloquea solo, no tiene Extended Controls, muestra la advertencia de Google Play Protect, etc.).
 
 ## La forma más sencilla: API pública
 
@@ -49,8 +49,9 @@ El segundo comando sirve tanto si la aplicación no estaba instalada como si
 quieres reinstalar la versión actual. Deja la terminal abierta para usar `r`
 (hot reload), `R` (reinicio) o `q` (cerrar Flutter); no requiere Docker ni la
 API local. Si hay un teléfono físico autorizado por ADB, el lanzador lo
-prefiere automáticamente; en caso contrario usa un emulador activo. Para
-elegir un dispositivo concreto, indica su identificador:
+prefiere automáticamente; en caso contrario usa un emulador activo (por eso,
+si quieres forzar el emulador con un teléfono también conectado, indica su
+identificador):
 
 ```powershell
 dart run Aplicacion_Mundo_Otaku/tool/desarrollo_visual.dart --plataforma=android --dispositivo=emulator-5556
@@ -58,30 +59,6 @@ dart run Aplicacion_Mundo_Otaku/tool/desarrollo_visual.dart --plataforma=android
 
 Puedes consultar los nombres de AVD instalados con `flutter emulators` y los
 identificadores de dispositivos encendidos con `flutter devices`.
-
-### Usar un teléfono Android por USB
-
-En el teléfono activa **Opciones de desarrollador > Depuración USB**, elige
-**Transferencia de archivos** para la conexión y acepta la autorización RSA de
-este computador. Comprueba la conexión desde la raíz:
-
-```powershell
-adb devices -l
-flutter devices
-```
-
-Después ejecuta el mismo lanzador; no es necesario copiar el ID si solo hay un
-teléfono conectado:
-
-```powershell
-dart run Aplicacion_Mundo_Otaku/tool/desarrollo_visual.dart --plataforma=android
-```
-
-La primera instalación puede mostrar una advertencia de Google Play Protect
-porque es una APK debug instalada por cable. En ese caso selecciona **Más
-detalles > Instalar de todas formas**. Las ejecuciones siguientes conservan la
-conexión interactiva para hot reload. El teléfono usa las URL HTTPS públicas,
-por lo que no necesita `10.0.2.2`, Docker ni una API local.
 
 Si Android rechaza la actualización por una instalación realmente dañada o
 por una firma incompatible, desinstala **solo la copia local** de Mundo Otaku
@@ -133,6 +110,8 @@ dart run Aplicacion_Mundo_Otaku/tool/ejecutar_flujo_android.dart --flujo=03
 ```
 
 Los flujos están calibrados y verificados con el perfil Pixel 7 de `1080x2400`; las coordenadas se escalan a la resolución reportada por Android, pero otro perfil puede distribuir el menú de manera diferente. `--sin-pausa` existe solo para comprobar el script y no debe usarse al grabar.
+
+(Estos mismos tres flujos, con los mismos siete pasos cada uno, también existen para un teléfono físico en `ejecutar_flujo_dispositivo.dart`; ver [PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md](PRUEBAS_MANUALES_ANDROID_DISPOSITIVO.md).)
 
 ### Flujo 02: revisión de solicitudes con Demo 2
 
@@ -197,7 +176,7 @@ El script:
 4. espera `http://127.0.0.1:3001/api/health`;
 5. inicia los dos AVD y ejecuta Flutter contra `10.0.2.2:3001`.
 
-`10.0.2.2` es la dirección con la que un emulador Android alcanza al equipo anfitrión. El permiso HTTP está habilitado únicamente en el manifiesto `debug`; una compilación de distribución sigue necesitando HTTPS.
+`10.0.2.2` es la dirección con la que **un emulador Android** alcanza al equipo anfitrión; solo funciona dentro de un AVD. Un teléfono físico no puede usar esa dirección (necesitaría la IP LAN real del equipo), así que este modo local no tiene equivalente documentado para dispositivo físico: la guía de dispositivo físico solo cubre la API pública. El permiso HTTP está habilitado únicamente en el manifiesto `debug`; una compilación de distribución sigue necesitando HTTPS.
 
 Requisitos del modo local:
 
@@ -283,7 +262,7 @@ Si solo hay un AVD, crea otro desde Android Studio: **Tools > Device Manager > C
 
 ### Límites de esta revisión
 
-- La cámara y la galería de un emulador no equivalen a probar permisos en un teléfono físico.
+- La cámara y la galería de un emulador no equivalen a probar permisos en un teléfono físico (para eso, usa la guía de dispositivo físico).
 - El modo público mide además el despertar de Render; el modo local no reproduce esa latencia.
 - Esta es una prueba manual exploratoria. Las regresiones repetibles siguen cubiertas por `flutter test`, las E2E de NestJS y Playwright.
 
