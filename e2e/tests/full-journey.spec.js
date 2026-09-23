@@ -1223,10 +1223,21 @@ test('avisa de un mensaje a quien no tiene la conversación abierta', async ({
 
     // El oyente se instala antes de cargar la página: el socket se abre durante
     // el arranque y después ya sería tarde para engancharlo.
+    //
+    // Se vigilan dos marcos. `authenticated` es el que dice que el socket ya
+    // entró a su sala personal, y hay que esperarlo antes de provocar el aviso:
+    // si el mensaje sale antes, el servidor emite a una sala donde todavía no
+    // hay nadie y el aviso se pierde sin que nada falle. En este equipo el azar
+    // daba tiempo de sobra; en CI, que es más lento, no.
+    let marcarAutenticado;
+    const autenticado = new Promise((resolve) => {
+      marcarAutenticado = resolve;
+    });
     const avisoRecibido = new Promise((resolve) => {
       paginaRecibe.on('websocket', (ws) => {
         ws.on('framereceived', (frame) => {
           const texto = String(frame.payload);
+          if (texto.includes('authenticated')) marcarAutenticado();
           if (texto.includes('exchange-activity')) resolve(texto);
         });
       });
@@ -1237,6 +1248,19 @@ test('avisa de un mensaje a quien no tiene la conversación abierta', async ({
     await expect(
       paginaRecibe.getByRole('heading', { name: 'Cambia y descubre' }),
     ).toBeVisible();
+
+    await Promise.race([
+      autenticado,
+      new Promise((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error('El socket de quien recibe nunca se autenticó.'),
+            ),
+          60_000,
+        ),
+      ),
+    ]);
 
     await openFlutterRoute(
       paginaEscribe,
