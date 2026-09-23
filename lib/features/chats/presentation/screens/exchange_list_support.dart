@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/providers/providers.dart';
 import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_provider.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
+import 'package:aplicacion_mundo_otaku/features/shared/infrastructure/services/socket_service.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +31,7 @@ Future<void> refreshExchangeData(WidgetRef ref, String userId) async {
 mixin ExchangeListRefresh<T extends ConsumerStatefulWidget>
     on ConsumerState<T> {
   AppLifecycleListener? _lifecycleListener;
+  StreamSubscription<ExchangeActivity>? _activitySubscription;
   bool _isRefreshing = false;
 
   @override
@@ -36,10 +40,20 @@ mixin ExchangeListRefresh<T extends ConsumerStatefulWidget>
     // Al volver desde segundo plano puede haber respuestas nuevas de la otra
     // persona: es el momento natural para ponerse al día.
     _lifecycleListener = AppLifecycleListener(onResume: refreshExchanges);
+    // Y mientras la lista está a la vista, el servidor avisa por su cuenta.
+    //
+    // Engancharlo aquí, en el mixin, cubre Chats, Enviadas y Recibidas de una
+    // vez: las tres ya lo comparten para el resto de sus refrescos. El aviso
+    // solo dice que algo pasó; los datos se vuelven a pedir por el camino
+    // normal, que es el que comprueba permisos.
+    _activitySubscription = SocketService.instance.exchangeActivity.listen(
+      (_) => refreshExchanges(),
+    );
   }
 
   @override
   void dispose() {
+    _activitySubscription?.cancel();
     _lifecycleListener?.dispose();
     super.dispose();
   }

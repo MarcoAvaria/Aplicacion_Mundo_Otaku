@@ -581,7 +581,13 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     );
     await clickFlutterControl(
       firstPage,
-      firstPage.getByRole('button', { name: 'Aceptar' }),
+      firstPage.getByRole('button', { name: 'Aceptar el cambio', exact: true }),
+    );
+    // Aceptar tambien pregunta: mueve el estado del intercambio y ese cambio le
+    // llega a la otra persona, asi que deshacerlo no es retroceder.
+    await clickFlutterControl(
+      firstPage,
+      firstPage.getByRole('button', { name: 'Sí, aceptar', exact: true }),
     );
     expect((await acceptResponsePromise).status()).toBe(200);
     await expect(
@@ -656,6 +662,12 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     const logoutResponse = firstPage.waitForResponse((response) =>
       response.url() === `${apiUrl}/auth/logout` && response.request().method() === 'POST');
     await firstPage.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+    // Cerrar la sesion ahora pregunta antes: la fila queda debajo del resto del
+    // menu y era facil salirse sin querer.
+    await clickFlutterControl(
+      firstPage,
+      firstPage.getByRole('button', { name: 'Sí, cerrar', exact: true }),
+    );
     expect((await logoutResponse).status()).toBe(201);
     await expect(firstPage).toHaveURL(/#\/login$/);
     await expect.poll(() => firstPage.evaluate(() =>
@@ -1066,7 +1078,11 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     );
     await clickFlutterControl(
       senderPage,
-      senderPage.getByRole('button', { name: 'Cancelar' }),
+      senderPage.getByRole('button', { name: 'Cancelar la propuesta', exact: true }),
+    );
+    await clickFlutterControl(
+      senderPage,
+      senderPage.getByRole('button', { name: 'Sí, cancelar', exact: true }),
     );
     expect((await cancelResponse).status()).toBe(200);
     await expect(
@@ -1097,7 +1113,11 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     );
     await clickFlutterControl(
       receiverPage,
-      receiverPage.getByRole('button', { name: 'Rechazar' }),
+      receiverPage.getByRole('button', { name: 'Rechazar', exact: true }),
+    );
+    await clickFlutterControl(
+      receiverPage,
+      receiverPage.getByRole('button', { name: 'Sí, rechazar', exact: true }),
     );
     expect((await rejectResponse).status()).toBe(200);
     await expect(
@@ -1113,5 +1133,167 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
       senderContext.close(),
       receiverContext.close(),
     ]);
+  }
+});
+
+test('avisa de un mensaje a quien no tiene la conversación abierta', async ({
+  browser,
+}) => {
+  // T-036, frente A.
+  //
+  // Antes, el servidor solo emitía a la sala de la conversación, así que quien
+  // no la tuviera abierta no se enteraba de nada hasta refrescar a mano. Ahora
+  // cada persona entra a una sala propia al autenticar el socket, y recibe ahí
+  // un aviso liviano.
+  //
+  // Se mide el marco del WebSocket y no la interfaz, a propósito: el aviso es
+  // lo que esta prueba introduce, y medirlo directo no depende de cómo cada
+  // pantalla decida refrescarse. De paso comprueba la garantía que importa, que
+  // por la sala personal **no** viaje el contenido del mensaje.
+  const runId = `${Date.now()}-${process.pid}`;
+  const password = 'BrowserRealtime1!';
+  const quienEscribe = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-writer-${runId}@mundo-otaku.test`,
+      fullName: 'Quien escribe',
+      password,
+    },
+  });
+  const quienRecibe = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-reader-${runId}@mundo-otaku.test`,
+      fullName: 'Quien recibe',
+      password,
+    },
+  });
+  const productoBase = {
+    typeOf: 'Otros',
+    tomo: 1,
+    sizeOf: 'Ninguno',
+    gender: 'Ninguno',
+    demographic: 'Shonen',
+    tags: ['tiempo-real'],
+    images: [],
+  };
+  const productoDeQuienRecibe = await apiRequest('/products', {
+    token: quienRecibe.token,
+    method: 'POST',
+    body: {
+      ...productoBase,
+      title: `Producto solicitado ${runId}`,
+      description: 'Producto de quien recibe',
+    },
+  });
+  const productoDeQuienEscribe = await apiRequest('/products', {
+    token: quienEscribe.token,
+    method: 'POST',
+    body: {
+      ...productoBase,
+      title: `Producto ofrecido ${runId}`,
+      description: 'Producto de quien escribe',
+    },
+  });
+
+  // El intercambio se prepara por la API: esta prueba mide el aviso, no el
+  // recorrido de proponer y aceptar, que ya tiene el suyo.
+  const exchange = await apiRequest('/chat-exchanges', {
+    token: quienEscribe.token,
+    method: 'POST',
+    body: {
+      product1: productoDeQuienRecibe.id,
+      product2: productoDeQuienEscribe.id,
+      requester1: productoDeQuienEscribe.id,
+    },
+  });
+  await apiRequest(`/chat-exchanges/${exchange.id}/status`, {
+    token: quienRecibe.token,
+    method: 'PATCH',
+    body: { status: 'inProgress' },
+  });
+
+  const contextoEscribe = await browser.newContext();
+  const contextoRecibe = await browser.newContext();
+  try {
+    await prepareAuthenticatedContext(contextoEscribe, quienEscribe.token);
+    await prepareAuthenticatedContext(contextoRecibe, quienRecibe.token);
+    const paginaEscribe = await contextoEscribe.newPage();
+    const paginaRecibe = await contextoRecibe.newPage();
+
+    // El oyente se instala antes de cargar la página: el socket se abre durante
+    // el arranque y después ya sería tarde para engancharlo.
+    //
+    // Se vigilan dos marcos. `authenticated` es el que dice que el socket ya
+    // entró a su sala personal, y hay que esperarlo antes de provocar el aviso:
+    // si el mensaje sale antes, el servidor emite a una sala donde todavía no
+    // hay nadie y el aviso se pierde sin que nada falle. En este equipo el azar
+    // daba tiempo de sobra; en CI, que es más lento, no.
+    let marcarAutenticado;
+    const autenticado = new Promise((resolve) => {
+      marcarAutenticado = resolve;
+    });
+    const avisoRecibido = new Promise((resolve) => {
+      paginaRecibe.on('websocket', (ws) => {
+        ws.on('framereceived', (frame) => {
+          const texto = String(frame.payload);
+          if (texto.includes('authenticated')) marcarAutenticado();
+          if (texto.includes('exchange-activity')) resolve(texto);
+        });
+      });
+    });
+
+    // Quien recibe se queda en Descubrir, sin abrir la conversación.
+    await openFlutterRoute(paginaRecibe, '/discover');
+    await expect(
+      paginaRecibe.getByRole('heading', { name: 'Cambia y descubre' }),
+    ).toBeVisible();
+
+    await Promise.race([
+      autenticado,
+      new Promise((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error('El socket de quien recibe nunca se autenticó.'),
+            ),
+          60_000,
+        ),
+      ),
+    ]);
+
+    await openFlutterRoute(
+      paginaEscribe,
+      `/chatscreen/${exchange.id}/${productoDeQuienEscribe.id}/${productoDeQuienRecibe.id}`,
+    );
+    await expect(paginaEscribe.getByLabel('Chat conectado')).toBeVisible({
+      timeout: 60_000,
+    });
+
+    const mensaje = `Aviso en vivo ${runId}`;
+    await sendChatMessage(paginaEscribe, mensaje);
+    // Que el mensaje salió de verdad: el campo solo se vacía al enviarse.
+    await expect(paginaEscribe.getByRole('textbox')).toHaveValue('', {
+      timeout: 30_000,
+    });
+
+    const marco = await Promise.race([
+      avisoRecibido,
+      new Promise((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                'La sesión que no tenía la conversación abierta no recibió ningún aviso.',
+              ),
+            ),
+          30_000,
+        ),
+      ),
+    ]);
+    expect(marco).toContain(exchange.id);
+    expect(marco).not.toContain(mensaje);
+  } finally {
+    await Promise.all([contextoEscribe.close(), contextoRecibe.close()]);
   }
 });

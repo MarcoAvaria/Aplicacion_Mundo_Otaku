@@ -1,4 +1,6 @@
 import 'package:aplicacion_mundo_otaku/config/config.dart';
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -18,6 +20,20 @@ class SocketService with ChangeNotifier {
   String? _pendingChatId;
   String? _joinedChatId;
   bool isConnected = false;
+
+  final _exchangeActivity = StreamController<ExchangeActivity>.broadcast();
+
+  /// Avisos de intercambios que **no** tienes abiertos.
+  ///
+  /// El servidor mete a cada persona en una sala propia al autenticar el
+  /// socket, y empuja por ahí un aviso cuando llega un mensaje o cambia el
+  /// estado de alguno de sus intercambios. No hace falta unirse a nada: el
+  /// socket existe desde que iniciaste sesión, no desde que entraste a un chat.
+  ///
+  /// El aviso trae lo mínimo, nunca el contenido del mensaje. Quien escucha lo
+  /// usa como señal para volver a pedir los datos por los caminos de siempre,
+  /// que son los que comprueban permisos.
+  Stream<ExchangeActivity> get exchangeActivity => _exchangeActivity.stream;
 
   /// Si se puede conversar en este intercambio ahora mismo.
   ///
@@ -76,6 +92,18 @@ class SocketService with ChangeNotifier {
       final chatId = data['chatExchangeId']?.toString();
       if (chatId == null || chatId != _pendingChatId) return;
       _setJoinedChat(chatId);
+    });
+    socket.on('exchange-activity', (data) {
+      if (data is! Map) return;
+      final chatExchangeId = data['chatExchangeId']?.toString();
+      if (chatExchangeId == null || chatExchangeId.isEmpty) return;
+      _exchangeActivity.add(
+        ExchangeActivity(
+          chatExchangeId: chatExchangeId,
+          esMensaje: data['kind']?.toString() == 'message',
+          estado: data['status']?.toString(),
+        ),
+      );
     });
     socket.onDisconnect((_) => _handleDisconnected());
     socket.onConnectError((_) => _handleDisconnected());
@@ -149,4 +177,21 @@ class SocketService with ChangeNotifier {
     isConnected = connected;
     notifyListeners();
   }
+}
+
+/// Un aviso de que algo pasó en un intercambio.
+class ExchangeActivity {
+  const ExchangeActivity({
+    required this.chatExchangeId,
+    required this.esMensaje,
+    this.estado,
+  });
+
+  final String chatExchangeId;
+
+  /// `true` si llegó un mensaje; `false` si lo que cambió fue el estado.
+  final bool esMensaje;
+
+  /// A qué estado pasó el intercambio, cuando el aviso es de estado.
+  final String? estado;
 }

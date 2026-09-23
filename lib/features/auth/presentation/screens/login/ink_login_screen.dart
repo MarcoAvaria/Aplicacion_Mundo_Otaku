@@ -135,13 +135,24 @@ class _FormState extends ConsumerState<_Form> {
               Expanded(
                 child: Semantics(
                   header: true,
-                  label: 'Qué bueno verte',
+                  // El titular dejó de ser un saludo partido en dos.
+                  //
+                  // Antes decía "QUÉ BUENO" pequeño sobre un "Verte" enorme, y
+                  // el peso visual caía en un fragmento verbal que por sí solo
+                  // no significa nada. La pantalla hermana hace lo correcto:
+                  // "ARMA TU" sobre "Estante", donde la palabra grande es un
+                  // sustantivo con sentido propio. Esta ahora la acompaña, y de
+                  // paso las dos quedan emparejadas en torno a la misma idea.
+                  //
+                  // El saludo no se pierde: "QUÉ BUENO VERTE" sigue en el menú
+                  // lateral, que es donde puede saludar por tu nombre.
+                  label: 'Vuelve a tu estante',
                   excludeSemantics: true,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'QUÉ BUENO',
+                        'VUELVE A TU',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -151,7 +162,7 @@ class _FormState extends ConsumerState<_Form> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Verte',
+                        'Estante',
                         style: AppFonts.displayStyle(
                           fontSize: 42,
                           fontWeight: FontWeight.w800,
@@ -172,7 +183,7 @@ class _FormState extends ConsumerState<_Form> {
           ),
           const SizedBox(height: 10),
           Text(
-            '¡Bienvenid@! Te hemos extrañado :(',
+            'Entra y sigue donde lo dejaste.',
             style: TextStyle(fontSize: 13.5, color: tokens.muted),
           ),
           const SizedBox(height: 26),

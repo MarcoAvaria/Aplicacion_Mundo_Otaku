@@ -57,11 +57,41 @@ jobs:
       - name: Checkout client
         uses: actions/checkout@v5
 
+      # Qué rama de la API usar.
+      #
+      # Estaba fija en `mejora/calidad-portafolio`, y eso rompe cualquier cambio
+      # que abarque los dos repositorios: el cliente traía expectativas nuevas y
+      # se probaba contra una API vieja, así que CI salía en rojo sin que
+      # hubiera ningún defecto. Pasó con T-036.
+      #
+      # Ahora, si la API tiene una rama con el mismo nombre que la del cliente,
+      # se usa esa; si no, se sigue usando la de integración de siempre.
+      - name: Elegir la rama de la API
+        id: rama-api
+        env:
+          LLAVE: ${{ secrets.MUNDO_OTAKU_BACKEND_DEPLOY_KEY }}
+          RAMA_CLIENTE: ${{ github.head_ref || github.ref_name }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          echo "$LLAVE" > ~/.ssh/api_key
+          chmod 600 ~/.ssh/api_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/api_key -o IdentitiesOnly=yes"
+          REMOTO=git@github.com:MarcoAvaria/MundoOtaku-Backend-Repository.git
+          if git ls-remote --exit-code --heads "$REMOTO" "$RAMA_CLIENTE" >/dev/null 2>&1; then
+            echo "La API tiene la rama $RAMA_CLIENTE; se usa esa."
+            echo "ref=$RAMA_CLIENTE" >> "$GITHUB_OUTPUT"
+          else
+            echo "La API no tiene $RAMA_CLIENTE; se usa mejora/calidad-portafolio."
+            echo "ref=mejora/calidad-portafolio" >> "$GITHUB_OUTPUT"
+          fi
+          rm -f ~/.ssh/api_key
+
       - name: Checkout API
         uses: actions/checkout@v5
         with:
           repository: MarcoAvaria/MundoOtaku-Backend-Repository
-          ref: mejora/calidad-portafolio
+          ref: ${{ steps.rama-api.outputs.ref }}
           path: backend
           ssh-key: ${{ secrets.MUNDO_OTAKU_BACKEND_DEPLOY_KEY }}
 
