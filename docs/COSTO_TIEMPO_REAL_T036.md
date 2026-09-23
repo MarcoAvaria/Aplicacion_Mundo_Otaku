@@ -1,6 +1,6 @@
 # Cuánto cuesta abrir el tiempo real (T-036)
 
-**Estado:** evaluación hecha y **frente A implementado**. Sin commit · **Fecha:** 2026-09-23 · **Rama:** `feature/tiempo-real`
+**Estado:** frente A **fusionado a `main`**; frente B **hecho en rama, sin fusionar** · **Fecha:** 2026-09-23 · **Rama:** `feature/tiempo-real`
 
 Marco pidió estimar el costo de T-036 antes de comprometerse, y mencionó además
 que "habría que almacenar las conversaciones y algunos metadatos asociados". Al
@@ -82,6 +82,10 @@ propio y corto.
 
 ## Frente B: normalizar las conversaciones
 
+> **Hecho el 2026-09-23** en `feature/mensajes-normalizados`, **sin fusionar**.
+> Lo que sigue describe el problema tal como estaba; el resultado va al final de
+> la sección.
+
 Esto es lo que Marco intuía, y es un trabajo bastante mayor.
 
 Hoy los mensajes viven en **una columna `jsonb` sobre `chat_exchanges`**:
@@ -115,6 +119,55 @@ pasaría del dispositivo al servidor.
 **Costo: medio-alto, y con el único riesgo real de perder datos** de todo lo que
 hemos hecho hasta ahora, porque toca migrar contenido en una base que está
 publicada.
+
+### Cómo quedó
+
+Tabla `chat_messages` con identificador propio, autor, contenido y fecha,
+indexada por conversación y orden. Escribir un mensaje pasa a costar siempre lo
+mismo, en vez de crecer con el largo de la conversación. Se sumaron además
+`createdAt` y `updatedAt` a los intercambios, que son columnas nuevas con valor
+por omisión y no mueven datos.
+
+Dos decisiones cargan con casi todo el valor:
+
+**La migración copia, no destruye.** La columna `jsonb` se deja intacta y llena:
+es el respaldo de lo que ya existía y permite revertir sin perder nada. Borrarla
+será una migración aparte, cuando la tabla nueva lleve tiempo funcionando. Era el
+único riesgo real de este frente, y así queda acotado.
+
+**El contrato de la API no cambia.** Los mensajes se rehidratan desde la tabla al
+devolver los intercambios, así que el cliente no necesitó una sola línea y los
+recorridos que ya existían sirven como verificación del cambio. Es la razón de
+que Playwright diera 7 de 7 sin tocar nada del lado del cliente.
+
+`send_by` no lleva clave foránea a usuarios, a propósito: un mensaje es un
+registro histórico, y vale más conservarlo que perderlo si algún día se borrara
+esa cuenta. Tampoco conviene que una cuenta borrada haga fallar la migración
+entera.
+
+**La prueba que importa** reproduce la situación de producción sobre una base
+real: siembra un intercambio con mensajes en la columna vieja, revierte la
+migración y la vuelve a aplicar, y comprueba que los tres mensajes llegan
+completos —con su autor y su fecha, en orden— y que el `jsonb` sigue intacto.
+Necesita la base efímera levantada:
+
+```powershell
+docker compose -f docker-compose.test.yml up -d test-db
+npm run test:e2e
+```
+
+### Lo que falta de B
+
+El estado de lectura **sigue siendo local por dispositivo**. La tabla nueva ya
+permite llevarlo al servidor —cada mensaje tiene identificador y fecha—, pero eso
+es un paso aparte que sí toca al cliente, porque habría que retirar la marca
+local que introdujo T-035.
+
+### Antes de desplegarlo
+
+La migración corre sobre la base publicada la primera vez que se despliegue.
+Aunque esté probada y no borre nada, **conviene respaldar antes**: es el momento
+de mayor riesgo de todo este trabajo, y el respaldo cuesta minutos.
 
 ## La entidad "Cambio" ya existe
 
