@@ -130,6 +130,36 @@ async function waitForEditingFocus(page) {
   }
 }
 
+// Vuelca los marcos del WebSocket a la salida, para depurar el chat.
+//
+// Se activa con `E2E_TRACE_SOCKETS=1` y esta apagado el resto del tiempo.
+// Reenvia tambien los mensajes de consola que empiecen por `[t026]`, para que
+// una traza temporal puesta en el cliente aparezca intercalada con los marcos
+// y se pueda leer el orden de los hechos. Fue lo que permitio cerrar T-026.
+//
+// Se activa con E2E_TRACE_SOCKETS=1 y no hace nada sin esa variable, asi que no
+// afecta a las corridas normales ni a CI. Es la forma mas directa de ver que
+// emite y que recibe cada sesion sin tocar el cliente Flutter, que se sirve ya
+// compilado. Util sobre todo para T-026, la intermitencia de la reconexion.
+function traceWebSockets(page, tag) {
+  if (!process.env.E2E_TRACE_SOCKETS) return;
+  const at = () => new Date().toISOString().slice(11, 23);
+  page.on('console', (mensaje) => {
+    const texto = mensaje.text();
+    if (texto.includes('[t026]')) console.log(`${at()} [${tag}] ${texto}`);
+  });
+  page.on('websocket', (ws) => {
+    console.log(`${at()} [${tag}] socket abierto`);
+    ws.on('framesent', (frame) =>
+      console.log(`${at()} [${tag}] >> ${String(frame.payload).slice(0, 200)}`));
+    ws.on('framereceived', (frame) =>
+      console.log(`${at()} [${tag}] << ${String(frame.payload).slice(0, 200)}`));
+    ws.on('socketerror', (error) =>
+      console.log(`${at()} [${tag}] error de socket: ${error}`));
+    ws.on('close', () => console.log(`${at()} [${tag}] socket cerrado`));
+  });
+}
+
 async function enterFlutterText(page, locator, value) {
   for (let entryAttempt = 0; entryAttempt < 5; entryAttempt += 1) {
     let field;
@@ -169,6 +199,18 @@ async function enterFlutterText(page, locator, value) {
   throw new Error(`No fue posible ingresar el texto en ${await locator.getAttribute('aria-label')}.`);
 }
 
+// Hace clic releyendo la posicion del control y reintentando.
+//
+// Hace falta en Flutter Web: Playwright pulsa sobre la capa de accesibilidad
+// que Flutter superpone al lienzo, y tras un redibujado esa capa puede moverse
+// o reemplazarse entre que se resuelve el elemento y se pulsa. El clic se
+// pierde sin error: no se ejecuta el manejador y no aparece ningun aviso.
+//
+// Fue la causa de T-026. Tras reconectar el chat, el boton de enviar se
+// redibuja y un `.click()` pelado se perdia en cerca de la mitad de las
+// corridas: el mensaje se quedaba escrito en el campo y nunca se emitia. Una
+// persona en un dispositivo real no pasa por esto, porque su toque lo resuelve
+// Flutter en el lienzo y no la capa del DOM.
 async function clickFlutterControl(page, locator, { direction = 1 } = {}) {
   for (let attempt = 0; attempt < 15; attempt += 1) {
     if ((await locator.count()) > 0) {
@@ -212,6 +254,54 @@ async function enterChatMessage(page, value) {
   }
 
   throw new Error('No fue posible ingresar el mensaje en el chat.');
+}
+
+// Si el elemento de edicion del navegador tiene ahora mismo el foco.
+//
+// Flutter Web escribe el texto en un elemento oculto del DOM. Si ese elemento
+// pierde el foco, las teclas se van a la pagina y la aplicacion no se entera.
+async function hasEditingFocus(page) {
+  return page.evaluate(() => {
+    const element = document.activeElement;
+    if (!element) return false;
+    return (
+      element.tagName === 'INPUT' ||
+      element.tagName === 'TEXTAREA' ||
+      element.isContentEditable === true
+    );
+  });
+}
+
+// Escribe un mensaje y lo envia con Enter, comprobando antes que el campo
+// conserve el foco.
+//
+// El campo del chat declara `onSubmitted`, asi que Enter envia igual que pulsar
+// el boton, y ademas es lo que hace una persona en un teclado.
+//
+// La comprobacion del foco es lo que arregla T-026. Al reconectar el chat, el
+// arbol se reconstruye y Flutter Web **le quita el foco** al elemento de
+// edicion oculto. El texto ya escrito se queda en el, asi que todas las señales
+// enganan: el elemento existe, esta visible y `inputValue()` devuelve el texto
+// correcto. Pero como no esta enfocado, la tecla Enter se va a la pagina y la
+// aplicacion no llega a ejecutar su manejador: no se emite nada y no hay ningun
+// error. Se midio con un censo del DOM en el momento del fallo, que mostro un
+// unico campo, conectado y visible, con el texto dentro y `activeElement`
+// apuntando a otra parte.
+//
+// Por eso no basta con reintentar el envio: hay que rehacer el ciclo completo,
+// porque el clic de `enterChatMessage` es lo que devuelve el foco al elemento.
+//
+// Una persona no pasa por esto: vuelve a tocar el campo antes de escribir.
+async function sendChatMessage(page, value) {
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    await enterChatMessage(page, value);
+    if (await hasEditingFocus(page)) {
+      await page.keyboard.press('Enter');
+      return;
+    }
+  }
+
+  throw new Error('El campo del chat perdio el foco antes de poder enviar.');
 }
 
 async function swipeProductPhotos(page) {
@@ -331,6 +421,8 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
   await prepareAuthenticatedContext(secondContext, user2.token);
   const firstPage = await firstContext.newPage();
   const secondPage = await secondContext.newPage();
+  traceWebSockets(firstPage, 'sesion-1');
+  traceWebSockets(secondPage, 'sesion-2');
 
   try {
     await Promise.all([
@@ -505,14 +597,13 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
       expect(secondPage.getByLabel('Chat conectado')).toBeVisible(),
     ]);
 
-    await enterChatMessage(secondPage, firstMessage);
-    await secondPage.getByRole('button', { name: 'Enviar mensaje' }).click();
+    await sendChatMessage(secondPage, firstMessage);
     await expect(firstPage.getByLabel(firstMessage)).toBeVisible();
 
     await secondContext.setOffline(true);
     await expect(secondPage.getByLabel('Chat sin conexión')).toBeVisible();
-    await enterChatMessage(secondPage, reconnectedMessage);
-    await secondPage.getByRole('button', { name: 'Enviar mensaje' }).click();
+    // Este envio TIENE que fallar y conservar el texto.
+    await sendChatMessage(secondPage, reconnectedMessage);
     await expect(
       secondPage.getByLabel('Sin conexión. El mensaje no se envió.'),
     ).toBeVisible();
@@ -524,7 +615,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await expect(secondPage.getByLabel('Chat conectado')).toBeVisible({
       timeout: 30_000,
     });
-    await secondPage.getByRole('button', { name: 'Enviar mensaje' }).click();
+    await sendChatMessage(secondPage, reconnectedMessage);
     await expect(firstPage.getByLabel(reconnectedMessage)).toBeVisible();
 
     expect(firstPage.url()).toContain(
@@ -592,8 +683,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     })).messages).toEqual(beforeRestart);
 
     const afterWakeMessage = `Mensaje después de despertar ${runId}`;
-    await enterChatMessage(firstPage, afterWakeMessage);
-    await firstPage.getByRole('button', { name: 'Enviar mensaje' }).click();
+    await sendChatMessage(firstPage, afterWakeMessage);
     expectedMessages.push(afterWakeMessage);
     await expectOrderedMessages(secondPage, expectedMessages);
     await firstPage.reload();
