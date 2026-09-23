@@ -75,10 +75,17 @@ API pública.
 
 ## Grabar un caso de uso automático en un solo emulador
 
-> **Estado durante el rediseño:** los flujos 01–03 siguen describiendo casos
-> válidos, pero sus coordenadas corresponden a la interfaz anterior. El nuevo
-> menú editorial cambia la posición de sus filas; no los uses para una toma
-> definitiva hasta que Marco apruebe la dirección visual y se recalibren.
+> **Actualización del 2026-09-22 (T-021):** el aviso anterior decía que las
+> coordenadas de los flujos 01–03 correspondían a la interfaz previa al rediseño
+> y que no se usaran para una toma definitiva. Ya está resuelto, pero por otro
+> camino: en vez de volver a medir las coordenadas a mano existe ahora
+> **`ejecutar_flujo_por_nombres.dart`**, que apunta por nombre accesible y se
+> calibra solo. Los tres flujos se verificaron de punta a punta con él. Ver
+> [Flujos que se calibran solos](#flujos-que-se-calibran-solos), más abajo.
+>
+> `ejecutar_flujo_android.dart` **sigue existiendo y sin cambios**, con sus
+> coordenadas de la interfaz anterior. Se conserva como referencia; para grabar,
+> usa el nuevo.
 
 El primer flujo grabable usa **Usuario Demo 1** y la API pública. No requiere Docker, una API local ni un segundo emulador:
 
@@ -280,3 +287,60 @@ Si solo hay un AVD, crea otro desde Android Studio: **Tools > Device Manager > C
 | La app local dice error de red | Confirma que las URL usan `10.0.2.2`, no `localhost`. |
 | Una sesión antigua aparece sola | Repite con `--limpiar-sesiones`. |
 | El equipo se vuelve lento | Reduce RAM de cada AVD desde Device Manager o usa un emulador y un teléfono físico. |
+
+## Flujos que se calibran solos
+
+`ejecutar_flujo_por_nombres.dart` recorre los mismos tres casos, con los mismos
+siete pasos, pero no usa coordenadas.
+
+```powershell
+dart run Aplicacion_Mundo_Otaku/tool/ejecutar_flujo_por_nombres.dart --flujo=01
+dart run Aplicacion_Mundo_Otaku/tool/ejecutar_flujo_por_nombres.dart --flujo=02
+dart run Aplicacion_Mundo_Otaku/tool/ejecutar_flujo_por_nombres.dart --flujo=03
+```
+
+Acepta las mismas opciones que el original (`--dispositivo`, `--sin-compilar`,
+`--sin-pausa`, `--ayuda`) y añade `--solo-nombres`, que imprime todo lo que la
+pantalla actual expone y sirve para averiguar por qué un paso no encuentra su
+objetivo.
+
+### Por qué existe
+
+El flujo original apunta con coordenadas absolutas sobre un lienzo de referencia
+de 1080 × 2400 y las escala a la resolución del dispositivo. Eso funciona hasta
+que la interfaz cambia de sitio: cada rediseño obliga a volver a medir más de
+veinte puntos a mano, y mientras tanto los pasos tocan el vacío **sin avisar**,
+porque un toque en una zona sin nada no produce ningún error. Fue exactamente lo
+que dejó a T-021 esperando meses a que terminara el rediseño.
+
+El flujo nuevo busca cada objetivo en el árbol de accesibilidad que Flutter le
+publica a Android: lo vuelca con `uiautomator dump` y toca el centro del nodo
+que lleva ese nombre. Tres consecuencias que valen la pena:
+
+- **Se calibra solo.** No hay ninguna coordenada escrita en el archivo. Funciona
+  en cualquier resolución y sobrevive al próximo rediseño.
+- **Falla diciendo qué pasó.** Si un nombre no aparece, se detiene con el nombre
+  que estaba buscando, en vez de seguir tocando el vacío.
+- **Vigila la accesibilidad de paso.** El nombre que usa el flujo es el mismo que
+  lee un lector de pantalla. Un paso que deja de encontrar su objetivo está
+  avisando de un problema real de accesibilidad, no de un píxel corrido.
+
+Un ejemplo de lo primero, salido de la verificación: el campo de la contraseña se
+resolvió en `(540, 847)` y no en los `(540, 1238)` que ocupa con el teclado
+cerrado, porque al escribir el correo el formulario se desplaza hacia arriba. Una
+coordenada fija habría fallado ahí; el nombre no.
+
+### Esperas por condición en vez de pausas
+
+El otro cambio es que las esperas dejaron de ser a ciegas. Donde el flujo
+original hacía `_pause(12)` confiando en que la pantalla hubiera cargado, el
+nuevo espera **hasta que aparezca** el nombre que identifica esa pantalla. Es más
+rápido cuando la red responde bien y no se rompe cuando responde mal, que es la
+misma lección que dejó T-026 en los recorridos Playwright.
+
+### Verificación
+
+Los tres flujos se corrieron de punta a punta el 2026-09-22 sobre un **teléfono
+real**, un Samsung SM-S938B con Android 16 y pantalla de 1080 × 2340 —es decir,
+una resolución distinta de la de referencia—, y los tres terminaron en cierre de
+sesión sin un solo ajuste manual.

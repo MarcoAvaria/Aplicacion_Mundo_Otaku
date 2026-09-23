@@ -7,6 +7,16 @@ const backendDirectory = path.resolve(
   process.env.MUNDO_OTAKU_BACKEND_DIR ||
     path.join(__dirname, '..', '..', '..', 'MundoOtaku-Backend-Repository', 'MundoOtaku-Backend-Repository'),
 );
+// El puerto en el que escucha la API se deduce de su URL, en vez de escribirse
+// aparte. Antes `PORT` estaba fijo en 3001 mientras que la URL sí era
+// configurable, así que apuntar `E2E_BACKEND_URL` a otro puerto dejaba a
+// Playwright esperando en un sitio donde la API nunca iba a levantar.
+//
+// Importa en Windows: al arrancar, Hyper-V reserva rangos de puertos dinámicos,
+// y si 3001 cae dentro de uno la API falla con `EACCES` aunque no haya nadie
+// escuchando. Con esto, mover la suite a otro puerto es una variable de entorno
+// y no hace falta tocar la configuración de red del equipo.
+const backendPort = new URL(backendUrl).port || '3001';
 const databasePort = process.env.E2E_DB_PORT || '5433';
 const dockerProject = process.env.E2E_DOCKER_PROJECT || 'mundo-otaku-e2e';
 
@@ -19,7 +29,7 @@ const backendEnvironment = {
   DB_PORT: databasePort,
   DB_USERNAME: 'postgres',
   DB_SYNCHRONIZE: 'false',
-  PORT: '3001',
+  PORT: backendPort,
   API_PREFIX: 'api',
   JWT_SECRET: 'browser-e2e-secret-with-at-least-32-characters',
   CORS_ORIGINS: frontendUrl,

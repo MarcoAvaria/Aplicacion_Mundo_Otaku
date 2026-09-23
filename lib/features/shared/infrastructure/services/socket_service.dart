@@ -19,8 +19,21 @@ class SocketService with ChangeNotifier {
   String? _joinedChatId;
   bool isConnected = false;
 
+  /// Si se puede conversar en este intercambio ahora mismo.
+  ///
+  /// Es **la única** condición: la usan tanto el indicador de la cabecera como
+  /// `sendMessage`. Antes el envío exigía además `isNetworkOnline` por su
+  /// cuenta, y las dos señales podían discrepar: Socket.IO se reconecta solo,
+  /// así que el socket volvía y se unía a la sala mientras `navigator.onLine`
+  /// seguía en falso unos instantes. En esa ventana la cabecera decía "Chat
+  /// conectado" mientras el envío se habría rechazado en silencio, que es
+  /// justo lo que un indicador de estado no debe hacer.
+  ///
+  /// Se unificó mientras se investigaba T-026. **No era su causa**: la
+  /// intermitencia siguió igual después de este cambio. Se conserva porque
+  /// tener una sola definición de "se puede enviar" es correcto por sí mismo.
   bool isChatReady(String chatExchangeId) =>
-      isConnected && _joinedChatId == chatExchangeId;
+      isNetworkOnline && isConnected && _joinedChatId == chatExchangeId;
 
   io.Socket get socket {
     final currentSocket = _socket;
@@ -87,9 +100,7 @@ class SocketService with ChangeNotifier {
 
   bool sendMessage(String content, String chatExchangeId) {
     final message = content.trim();
-    if (message.isEmpty || !isNetworkOnline || !isChatReady(chatExchangeId)) {
-      return false;
-    }
+    if (message.isEmpty || !isChatReady(chatExchangeId)) return false;
     socket.emit('send-message', {
       'chatExchangeId': chatExchangeId,
       'content': message,

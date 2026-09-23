@@ -1,6 +1,6 @@
 # Reparación de los recorridos Playwright tras el rediseño (T-037)
 
-**Estado:** reparada; queda abierta la intermitencia del chat (T-026). Sin commit · **Fecha:** 2026-09-21 · **Rama:** `mejora/calidad-portafolio` (cliente Flutter)
+**Estado:** reparada, y **T-026 cerrada el 2026-09-22**. Sin commit · **Fecha:** 2026-09-21 · **Rama:** `mejora/calidad-portafolio` (cliente Flutter)
 
 ## Qué pasó
 
@@ -323,3 +323,106 @@ Verificación al cerrar: `flutter analyze` sin hallazgos, `flutter test` 65 de 6
 `npm run check:quality` 8 de 8, y las tres corridas de Playwright citadas arriba.
 Las salidas completas quedaron en `e2e/pw_run10.log`, `pw_run11.log` y
 `pw_run12.log` (fuera de git).
+
+## Anexo del 2026-09-22: lo que T-026 **no** es
+
+Esta sesión se dedicó a acorralar la intermitencia de la reconexión. No se cerró,
+pero se descartaron con evidencia seis explicaciones que parecían razonables. Se
+dejan escritas porque el costo de volver a probarlas es alto y el de leerlas es
+bajo.
+
+**La cara de CI sí se cerró** y no debe confundirse con esta. Era otra cosa: en el
+runner sin ventana, Flutter Web no recibía teclas hasta que su elemento de edición
+oculto tomaba el foco del navegador. Con una espera por condición, CI pasó de 5 de
+6 a 6 de 6. Lo que sigue abierto es solo la cara local.
+
+Descartado, con el motivo:
+
+1. **Un token nuevo tras `check-status`.** El servidor devuelve el mismo token, así
+   que el socket no se reautentica con otra credencial.
+2. **`_pendingChatId` perdido al caer la red.** Sobrevive: `_handleDisconnected`
+   limpia `isConnected` y `_joinedChatId`, pero no el pendiente, que es justamente
+   lo que permite volver a unirse al reconectar.
+3. **El *gateway* no reenvía el historial al re-unirse.** Sí lo reenvía completo:
+   `handleJoinChat` emite `chat-history` con todos los mensajes.
+4. **La vista del chat se reconstruye y pierde estado.** Una traza mostró que el
+   historial se recibe una sola vez, así que no hay reconstrucción.
+5. **Dos señales de conexión que discrepan.** `sendMessage` exigía `isNetworkOnline`
+   por su cuenta además de `isChatReady`. Se unificó en una sola condición, y **la
+   intermitencia siguió igual**. El cambio se conserva por ser correcto en sí
+   mismo, no como arreglo.
+6. **El clic perdido sobre la capa de accesibilidad.** Esta llegó a parecer la
+   respuesta: en Flutter Web, Playwright pulsa sobre una capa del DOM superpuesta
+   al lienzo, y tras un redibujado puede quedar desfasada, de modo que el clic no
+   ejecuta el manejador ni da error. Reintentar el clic no ayudó —releer la
+   posición devuelve la misma coordenada— y **enviar con Enter, que no pasa por esa
+   capa, tampoco**: volvió a fallar en el mismo punto. Así que el clic perdido no
+   era la causa. El envío con Enter se conservó igual, porque es más estable y se
+   parece más a lo que hace una persona con un teclado.
+
+También conviene no repetir dos trampas propias de medición:
+
+- Un diagnóstico puesto **antes** del clic hizo pasar 3 de 3 corridas: la propia
+  instrumentación tapaba la carrera. Desde entonces solo se mide **después** de la
+  acción.
+- El aviso "Sin conexión. El mensaje no se envió." **no sirve** como señal de que
+  el envío se rechazó, porque el del intento sin conexión anterior sigue en
+  pantalla unos segundos. El discriminador limpio es el campo de texto: el chat
+  solo lo vacía cuando el envío salió de verdad.
+
+## La causa de T-026: el campo pierde el foco al reconectar
+
+Después de descartar las seis explicaciones de arriba, un censo del DOM tomado en
+el instante del fallo dio la respuesta:
+
+```
+campo tras Enter: "Mensaje tras reconexión …"
+censo del DOM: [{ etiqueta: "TEXTAREA", valor: "Mensaje tras reconexión …",
+                  enfocado: false, conectado: true, visible: true }]
+```
+
+Hay **un solo** campo de edición, está conectado al documento, está visible y
+contiene exactamente el texto que se quería enviar. Lo único que le falta es el
+foco.
+
+Flutter Web no escribe en un widget: escribe en un elemento oculto del DOM y de
+ahí alimenta al framework. Al reconectar el chat, el árbol se reconstruye —cambia
+el indicador de conexión y llega `chat-history`— y en esa reconstrucción el
+elemento pierde el foco. El texto ya tecleado se queda dentro, pero la tecla Enter
+se va a la página: la aplicación nunca ejecuta su manejador, no emite nada y no
+muestra ningún error.
+
+Lo confirma la traza del lado del cliente. En toda la corrida hay **dos** llamadas
+a `_sendMessage` —el envío en vivo y el intento sin conexión, que debe fallar— y
+**ninguna tercera**: el envío posterior a la reconexión no llega siquiera a
+intentarse.
+
+**Por qué costó tanto.** Todas las señales disponibles mentían a la vez. El
+elemento existe, está visible, y `inputValue()` devuelve el texto correcto, así
+que la comprobación que hacía el ayudante de tecleo se daba por satisfecha. Y el
+ayudante de foco, `waitForEditingFocus`, aceptaba cualquier `input` enfocado, de
+modo que tampoco lo detectaba. No había ninguna señal que dijera la verdad, salvo
+preguntar directamente por `document.activeElement`.
+
+**El arreglo.** Comprobar el foco justo antes de pulsar Enter y, si se perdió,
+rehacer el ciclo completo. Esto es lo importante: no basta con volver a pulsar,
+porque ni el clic ni la tecla devuelven el foco. Lo que lo devuelve es el clic
+sobre el campo, que es lo que hace `enterChatMessage`. Por eso el reintento tiene
+que abarcar clic, tecleo y envío, y no solo el último paso. Los dos intentos
+anteriores fallaron justamente por reintentar solo la pulsación.
+
+**No es un defecto de la aplicación.** Una persona vuelve a tocar el campo antes
+de escribir, con lo que recupera el foco sin darse cuenta; y su toque sobre el
+botón lo resuelve Flutter en el lienzo, no en la capa del DOM. El problema aparece
+solo cuando algo maneja la aplicación desde fuera, por el DOM, que es lo que hace
+Playwright.
+
+**Verificación del arreglo.** Seis corridas seguidas del recorrido del chat, las
+seis en verde, frente a una línea base de **~55 % de fallo** medida sobre once
+corridas con el código anterior. Las salidas quedaron fuera de git.
+
+Vale la pena dejar dicho el método, porque fue lo que permitió cerrarlo: la
+intermitencia solo se puede dar por resuelta con una tanda de corridas comparable
+a la que midió el problema. Una sola corrida en verde no dice nada cuando el fallo
+aparece una de cada dos veces, y de hecho dos arreglos anteriores parecieron
+funcionar por eso mismo.
