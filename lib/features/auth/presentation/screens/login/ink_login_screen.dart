@@ -135,24 +135,23 @@ class _FormState extends ConsumerState<_Form> {
               Expanded(
                 child: Semantics(
                   header: true,
-                  // El titular dejó de ser un saludo partido en dos.
+                  // El peso visual va sobre el nombre del producto.
                   //
-                  // Antes decía "QUÉ BUENO" pequeño sobre un "Verte" enorme, y
-                  // el peso visual caía en un fragmento verbal que por sí solo
-                  // no significa nada. La pantalla hermana hace lo correcto:
-                  // "ARMA TU" sobre "Estante", donde la palabra grande es un
-                  // sustantivo con sentido propio. Esta ahora la acompaña, y de
-                  // paso las dos quedan emparejadas en torno a la misma idea.
-                  //
-                  // El saludo no se pierde: "QUÉ BUENO VERTE" sigue en el menú
-                  // lateral, que es donde puede saludar por tu nombre.
-                  label: 'Vuelve a tu estante',
+                  // Este titular pasó por dos versiones antes. Decía "QUÉ
+                  // BUENO" sobre un "Verte" enorme, y el peso caía en un
+                  // fragmento verbal que por sí solo no significa nada; después
+                  // "VUELVE A TU" sobre "Estante", que ya era un sustantivo con
+                  // sentido, pero repetía la palabra grande de la pantalla de
+                  // registro. Ahora la palabra grande es **Mundo Otaku**, que es
+                  // lo único aquí que vale la pena destacar: la primera pantalla
+                  // que alguien ve es donde conviene que aparezca el nombre.
+                  label: 'Bienvenid@ a Mundo Otaku',
                   excludeSemantics: true,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'VUELVE A TU',
+                        'BIENVENID@ A',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
@@ -162,7 +161,7 @@ class _FormState extends ConsumerState<_Form> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Estante',
+                        'Mundo Otaku',
                         style: AppFonts.displayStyle(
                           fontSize: 42,
                           fontWeight: FontWeight.w800,
