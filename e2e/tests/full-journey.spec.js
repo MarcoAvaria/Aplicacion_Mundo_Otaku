@@ -581,7 +581,13 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     );
     await clickFlutterControl(
       firstPage,
-      firstPage.getByRole('button', { name: 'Aceptar' }),
+      firstPage.getByRole('button', { name: 'Aceptar el cambio', exact: true }),
+    );
+    // Aceptar tambien pregunta: mueve el estado del intercambio y ese cambio le
+    // llega a la otra persona, asi que deshacerlo no es retroceder.
+    await clickFlutterControl(
+      firstPage,
+      firstPage.getByRole('button', { name: 'Sí, aceptar', exact: true }),
     );
     expect((await acceptResponsePromise).status()).toBe(200);
     await expect(

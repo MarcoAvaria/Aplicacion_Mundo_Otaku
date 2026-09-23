@@ -82,6 +82,59 @@ pasaría del dispositivo al servidor.
 hemos hecho hasta ahora, porque toca migrar contenido en una base que está
 publicada.
 
+## La entidad "Cambio" ya existe
+
+Marco preguntó si había un objeto "Cambio" con un atributo de estado, o si había
+que crearlo. **Ya está**: es `ChatExchange`, la tabla `chat_exchanges`, y su
+atributo `status` es exactamente eso.
+
+```ts
+@Column({
+  type: 'enum',
+  enum: ['pending', 'abort', 'rejected', 'inProgress', 'done', 'cancelled'],
+  default: 'pending',
+})
+status: string;
+```
+
+Cada intercambio guarda además los dos productos, los dos dueños y quién lo
+propuso. Las transiciones que usa la aplicación hoy:
+
+| Desde | Acción | Hacia |
+| --- | --- | --- |
+| `pending` | quien propuso se arrepiente | `abort` |
+| `pending` | quien recibe rechaza | `rejected` |
+| `pending` | quien recibe acepta | `inProgress` |
+| `inProgress` | el intercambio se concreta | `done` |
+| `inProgress` | alguno lo deja sin efecto | `cancelled` |
+
+Esto confirma el punto de Marco sobre la confirmación al aceptar: **no hay
+ninguna transición que devuelva a `pending`**. Arrepentirse de aceptar no es
+retroceder, es avanzar a `cancelled`, y ese movimiento la otra persona también
+lo ve. Por eso aceptar ahora pregunta, igual que rechazar y cancelar.
+
+### Lo que sí falta, y es lo que conviene planificar
+
+El objeto existe, pero **no guarda nada sobre su propia historia**:
+
+- **No hay fechas.** La tabla no tiene `createdAt` ni `updatedAt`, así que no se
+  puede saber cuándo se propuso un intercambio ni cuándo se aceptó. Ordenar las
+  bandejas por antigüedad hoy no es posible.
+- **No hay registro de quién cambió el estado.** Con dos participantes y
+  transiciones que ambos pueden disparar (`cancelled` la puede provocar
+  cualquiera), no queda rastro de quién hizo qué.
+- **Solo se conserva el estado actual.** Al pasar a `cancelled` se pierde que
+  antes estuvo `inProgress`; no hay historial.
+- Dos estados se parecen lo suficiente como para confundir a quien lea el código
+  más adelante: `abort` (quien propuso retiró la propuesta) y `cancelled` (el
+  intercambio ya aceptado se deja sin efecto). Los nombres no lo dicen solos.
+
+Lo mínimo razonable sería agregar `createdAt` y `updatedAt` —barato, sin migrar
+contenido, solo columnas nuevas con valor por omisión— y dejar el historial de
+transiciones para el frente B, que ya va a tocar el esquema de todos modos. Ese
+historial encaja naturalmente con la tabla de mensajes: ambos son "cosas que
+pasaron en este intercambio, en orden".
+
 ## Recomendación
 
 **Hacer A primero y B aparte, en ese orden.** Tres razones:

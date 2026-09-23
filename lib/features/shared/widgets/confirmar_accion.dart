@@ -12,10 +12,16 @@ import 'package:flutter/material.dart';
 /// solicitud, cancelar una propuesta y cerrar la sesión no lo hacían, aunque
 /// las tres son igual de difíciles de deshacer.
 ///
-/// El criterio que se siguió al repartirlas: **se pregunta cuando deshacer la
-/// acción exige que intervenga otra persona, o cuando interrumpe lo que estabas
-/// haciendo.** Por eso aceptar un intercambio *no* pregunta: es el camino
-/// constructivo y además se puede cancelar después desde el mismo chat.
+/// El criterio: **se pregunta cuando deshacer la acción no consiste en
+/// retroceder, sino en provocar otro cambio que alguien más va a ver; o cuando
+/// la acción interrumpe lo que estabas haciendo.**
+///
+/// Las tres acciones sobre un intercambio —aceptar, rechazar y cancelar— caen
+/// en el primer caso: mueven el `status` de la entidad y ese movimiento le
+/// llega a la otra persona. Aceptar estuvo un rato sin preguntar por creerse
+/// "reversible desde el chat"; lo es, pero deshacerlo cuesta otra transición
+/// que la otra persona también ve, y los botones quedan lo bastante juntos como
+/// para rozar el que no era.
 Future<bool> confirmarAccion(
   BuildContext context, {
   required String titulo,

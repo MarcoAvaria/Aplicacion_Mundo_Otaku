@@ -502,11 +502,20 @@ class _Actions extends ConsumerWidget {
                     label: 'Aceptar el cambio',
                     filled: true,
                     onTap: () => _update(
-                        context,
-                        ref,
-                        'inProgress',
-                        '¡Acción completada con éxito!',
-                        'No fue posible aceptar la solicitud.'),
+                      context,
+                      ref,
+                      'inProgress',
+                      '¡Acción completada con éxito!',
+                      'No fue posible aceptar la solicitud.',
+                      confirmacion: const _Confirmacion(
+                        titulo: '¿Aceptar el intercambio?',
+                        mensaje: 'Se le avisará a la otra persona y se abrirá '
+                            'el chat para que se pongan de acuerdo. Para '
+                            'deshacerlo tendrías que cancelar el intercambio '
+                            'desde ahí.',
+                        etiqueta: 'Sí, aceptar',
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -532,12 +541,18 @@ class _Actions extends ConsumerWidget {
     );
   }
 
-  /// Cambia el estado del intercambio, preguntando antes si corresponde.
+  /// Cambia el estado del intercambio, preguntando siempre antes.
   ///
-  /// Solo rechazar y cancelar piden confirmación, porque deshacerlas exige que
-  /// la otra persona vuelva a proponer. Aceptar no pregunta: es el camino
-  /// constructivo y se puede cancelar después desde el propio chat, así que un
-  /// diálogo ahí solo estorbaría.
+  /// Las tres acciones mueven el `status` de la entidad `ChatExchange`, y ese
+  /// cambio le llega a la otra persona. Ninguna se deshace retrocediendo: hay
+  /// que emitir **otra** transición, que la otra persona también verá. Por eso
+  /// las tres preguntan, incluida aceptar.
+  ///
+  /// Aceptar estuvo un rato sin preguntar, con el argumento de que era el
+  /// camino constructivo y se podía cancelar después desde el chat. El
+  /// argumento era flojo: estos botones quedan juntos y es fácil rozar el que
+  /// no era, y "se puede deshacer" no es lo mismo que "sale gratis deshacerlo"
+  /// cuando deshacerlo implica avisarle de nuevo a la otra persona.
   Future<void> _update(
     BuildContext context,
     WidgetRef ref,
