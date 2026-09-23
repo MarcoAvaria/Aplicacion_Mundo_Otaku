@@ -162,7 +162,7 @@ class _Header extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 4, left: 10),
-                child: VerticalCjkLabel(color: tokens.accent),
+                child: VerticalCjkLabel(color: tokens.halftone),
               ),
             ],
           ),
@@ -197,7 +197,11 @@ class _SpineStrip extends StatelessWidget {
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.6,
-              color: tokens.accent,
+              // `halftone`, no `accent`: en modo oscuro `accent` es un ciruela
+              // muy oscuro pensado para rellenar superficies, y sobre el papel
+              // casi negro este rótulo quedaba ilegible. El magenta que se lee
+              // vive en `halftone`, que es lo que usan las otras seis pantallas.
+              color: tokens.halftone,
             ),
           ),
           const SizedBox(height: 11),
@@ -229,7 +233,7 @@ class _SpineStrip extends StatelessWidget {
                         ),
                       ),
                       child: CustomPaint(
-                        painter: HalftonePainter(color: tokens.accent),
+                        painter: HalftonePainter(color: tokens.halftone),
                         child: Center(
                           child: Container(
                             color: tokens.paper,
