@@ -205,6 +205,8 @@ Future<void> _login(int demoNumber) async {
 
 Future<void> _logout() async {
   await _irDesdeElMenu('Cerrar sesión');
+  // Cerrar la sesión pregunta antes de hacerlo.
+  await _tocar('Sí, cerrar');
   await _esperarNombre('El correo de tu cuenta', segundos: 60);
 }
 

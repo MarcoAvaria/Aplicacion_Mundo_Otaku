@@ -1,6 +1,8 @@
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/auth.dart';
 import 'package:flutter/material.dart';
+
+import 'confirmar_accion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -82,7 +84,22 @@ extension DrawerActions on GlobalKey<ScaffoldState> {
     context.go(location);
   }
 
+  /// Cierra la sesión, preguntando antes.
+  ///
+  /// Antes se cerraba de golpe al tocar la fila del menú, sin ningún aviso, y
+  /// la fila queda justo debajo del resto de opciones: era fácil salirse sin
+  /// querer y tener que volver a escribir el correo y la contraseña.
   Future<void> logout(BuildContext context, WidgetRef ref) async {
+    final confirmado = await confirmarAccion(
+      context,
+      titulo: '¿Cerrar la sesión?',
+      mensaje: 'Tendrás que escribir tu correo y tu contraseña para volver a '
+          'entrar. Tus publicaciones y tus intercambios no se tocan.',
+      etiquetaConfirmar: 'Sí, cerrar',
+      etiquetaVolver: 'Seguir aquí',
+    );
+    if (!confirmado || !context.mounted) return;
+
     currentState?.closeDrawer();
     await ref.read(authProvider.notifier).logout();
     if (context.mounted) context.go(AppRoutes.login);

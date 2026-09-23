@@ -480,11 +480,18 @@ class _Actions extends ConsumerWidget {
                     label: 'Rechazar',
                     filled: false,
                     onTap: () => _update(
-                        context,
-                        ref,
-                        'rejected',
-                        'Se ha rechazado la solicitud',
-                        'No fue posible rechazar la solicitud.'),
+                      context,
+                      ref,
+                      'rejected',
+                      'Se ha rechazado la solicitud',
+                      'No fue posible rechazar la solicitud.',
+                      confirmacion: const _Confirmacion(
+                        titulo: '¿Rechazar la propuesta?',
+                        mensaje: 'La otra persona tendrá que proponerte el '
+                            'intercambio de nuevo si cambias de opinión.',
+                        etiqueta: 'Sí, rechazar',
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 11),
@@ -509,22 +516,47 @@ class _Actions extends ConsumerWidget {
               label: 'Cancelar la propuesta',
               filled: false,
               onTap: () => _update(
-                  context,
-                  ref,
-                  'abort',
-                  'Se ha cancelado la solicitud',
-                  'No fue posible cancelar la solicitud.'),
+                context,
+                ref,
+                'abort',
+                'Se ha cancelado la solicitud',
+                'No fue posible cancelar la solicitud.',
+                confirmacion: const _Confirmacion(
+                  titulo: '¿Cancelar la propuesta?',
+                  mensaje: 'Se retirará de las solicitudes de la otra persona. '
+                      'Si te arrepientes, tendrás que proponerla otra vez.',
+                  etiqueta: 'Sí, cancelar',
+                ),
+              ),
             ),
     );
   }
 
+  /// Cambia el estado del intercambio, preguntando antes si corresponde.
+  ///
+  /// Solo rechazar y cancelar piden confirmación, porque deshacerlas exige que
+  /// la otra persona vuelva a proponer. Aceptar no pregunta: es el camino
+  /// constructivo y se puede cancelar después desde el propio chat, así que un
+  /// diálogo ahí solo estorbaría.
   Future<void> _update(
     BuildContext context,
     WidgetRef ref,
     String status,
     String successMessage,
-    String failureMessage,
-  ) async {
+    String failureMessage, {
+    _Confirmacion? confirmacion,
+  }) async {
+    if (confirmacion != null) {
+      final sigue = await confirmarAccion(
+        context,
+        titulo: confirmacion.titulo,
+        mensaje: confirmacion.mensaje,
+        etiquetaConfirmar: confirmacion.etiqueta,
+        etiquetaVolver: 'Volver',
+      );
+      if (!sigue || !context.mounted) return;
+    }
+
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
@@ -600,4 +632,20 @@ class _ActionButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Los textos de una confirmación, para no pasar cuatro cadenas sueltas.
+class _Confirmacion {
+  const _Confirmacion({
+    required this.titulo,
+    required this.mensaje,
+    required this.etiqueta,
+  });
+
+  final String titulo;
+  final String mensaje;
+
+  /// Texto del botón que confirma. Nombra la acción ("Rechazar") en vez de
+  /// decir "Aceptar", que aquí se confundiría con aceptar el intercambio.
+  final String etiqueta;
 }

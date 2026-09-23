@@ -656,6 +656,12 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     const logoutResponse = firstPage.waitForResponse((response) =>
       response.url() === `${apiUrl}/auth/logout` && response.request().method() === 'POST');
     await firstPage.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
+    // Cerrar la sesion ahora pregunta antes: la fila queda debajo del resto del
+    // menu y era facil salirse sin querer.
+    await clickFlutterControl(
+      firstPage,
+      firstPage.getByRole('button', { name: 'Sí, cerrar', exact: true }),
+    );
     expect((await logoutResponse).status()).toBe(201);
     await expect(firstPage).toHaveURL(/#\/login$/);
     await expect.poll(() => firstPage.evaluate(() =>
@@ -1066,7 +1072,11 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     );
     await clickFlutterControl(
       senderPage,
-      senderPage.getByRole('button', { name: 'Cancelar' }),
+      senderPage.getByRole('button', { name: 'Cancelar la propuesta', exact: true }),
+    );
+    await clickFlutterControl(
+      senderPage,
+      senderPage.getByRole('button', { name: 'Sí, cancelar', exact: true }),
     );
     expect((await cancelResponse).status()).toBe(200);
     await expect(
@@ -1097,7 +1107,11 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     );
     await clickFlutterControl(
       receiverPage,
-      receiverPage.getByRole('button', { name: 'Rechazar' }),
+      receiverPage.getByRole('button', { name: 'Rechazar', exact: true }),
+    );
+    await clickFlutterControl(
+      receiverPage,
+      receiverPage.getByRole('button', { name: 'Sí, rechazar', exact: true }),
     );
     expect((await rejectResponse).status()).toBe(200);
     await expect(
