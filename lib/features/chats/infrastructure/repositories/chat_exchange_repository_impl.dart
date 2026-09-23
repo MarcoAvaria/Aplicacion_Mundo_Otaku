@@ -19,6 +19,11 @@ class ChatExchangesRepositoryImpl extends ChatExchangesRepository {
   }
 
   @override
+  Future<void> markChatExchangeAsRead(String id) {
+    return datasource.markChatExchangeAsRead(id);
+  }
+
+  @override
   Future<ChatExchange> getChatExchangeById(String id) {
     return datasource.getChatExchangeById(id);
   }

@@ -1,6 +1,33 @@
-# Notas para migrar a Android 16 (API 36)
+# Notas para migrar a Android 17
 
 **Estado:** notas en preparación, no se ha migrado nada · **Inicio:** 2026-09-21
+· **Objetivo actualizado:** 2026-09-23
+
+> **El objetivo cambió de Android 16 a Android 17.** Marco avisó el 2026-09-23 de
+> que Android ya va en la 17, así que este documento —que se llamaba
+> `MIGRACION_ANDROID_16.md`— pasa a apuntar ahí. La corrección se hace **de a
+> poco**, a medida que se toca cada parte, y no de una sola vez.
+>
+> **Lo medido sigue valiendo, y conviene no volver a medirlo.** Nada de lo
+> comprobado depende de que el destino sea la 16:
+>
+> - La cadena obligada de actualización no cambia: Flutter primero, después AGP 8
+>   y Gradle 8 —que arrastran Java 17 y Kotlin—, y al final el `targetSdk`.
+> - Las cuatro bibliotecas nativas ya están alineadas a 64 KB, que cubre el
+>   requisito de páginas de 16 KB.
+> - Ninguna dependencia bloquea AGP 8: de los 67 paquetes solo 4 traen módulo
+>   Android y los cuatro declaran `namespace`.
+> - El borde a borde obligatorio no rompe nada, comprobado aplicando las reglas
+>   de `targetSdk` 36 sobre un dispositivo real.
+>
+> **Lo que sí queda pendiente de averiguar** es qué exige la 17 por encima de la
+> 16, y con qué número de API se corresponde. **No se puede comprobar con el
+> equipo que hay a mano**: el teléfono de pruebas es un Samsung SM-S938B con
+> Android 16 (SDK 36), así que cualquier afirmación sobre el comportamiento de la
+> 17 tendría que venir de la documentación oficial o de un emulador con esa
+> imagen, no de una medición propia. Mientras eso no se haga, este documento
+> describe el camino hasta la 16 y **ese camino es el tramo común**: la 17 se
+> alcanza siguiéndolo y subiendo un escalón más al final.
 
 Este documento reúne lo que hay que saber antes de intentar la migración, y se va
 alimentando con cada cosa que aparece mientras se trabaja en otras tareas. No es un
@@ -140,6 +167,10 @@ AGP 7.3.1, Kotlin 1.7.10, `compileSdkVersion` 34, Java 1.8 en `sourceCompatibili
 y `jvmTarget`.
 
 ## Verificación en un dispositivo Android 16 real (2026-09-22)
+
+> Sigue siendo la mejor evidencia disponible, aunque el objetivo ahora sea la
+> 17: lo que se comprobó aquí son requisitos que la 17 hereda de la 16, no cosas
+> que dejen de aplicar.
 
 Las dos exigencias que este documento daba por pendientes —«hay que comprobarlo en
 un dispositivo»— se comprobaron en un **Samsung SM-S938B con Android 16 (SDK 36)**,

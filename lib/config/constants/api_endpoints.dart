@@ -20,6 +20,11 @@ abstract final class ApiEndpoints {
 
   static String chatExchangeStatus(String id) => '${chatExchange(id)}/status';
 
+  /// Anota hasta dónde leyó quien hace la petición. No recibe a quién marcar:
+  /// el servidor lo toma del token.
+  static String chatExchangeRead(String id) =>
+      '$chatExchanges/${Uri.encodeComponent(id)}/read';
+
   static String chatExchangesForUser(String userId) =>
       '$chatExchanges/user/${Uri.encodeComponent(userId)}';
 }

@@ -53,6 +53,18 @@ class ChatExchangesDatasourceImpl extends ChatExchangeDatasource {
   }
 
   @override
+  Future<void> markChatExchangeAsRead(String id) async {
+    try {
+      await dio.patch(ApiEndpoints.chatExchangeRead(id));
+    } on DioException catch (_) {
+      // A propósito, en silencio. La marca local ya dejó el contador en cero y
+      // el servidor se pone al día la próxima vez que se abra la conversación.
+      // Interrumpir a alguien porque no se pudo anotar que leyó sería peor que
+      // el problema.
+    }
+  }
+
+  @override
   Future<ChatExchange> getChatExchangeById(String id) async {
     try {
       final response = await dio.get(ApiEndpoints.chatExchange(id));

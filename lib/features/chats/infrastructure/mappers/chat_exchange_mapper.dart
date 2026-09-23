@@ -20,6 +20,7 @@ class ChatExchangeMapper {
       requester1: requester1?['id'] ?? '',
       status: json['status'] ?? '',
       messages: _messagesFrom(json['messages']),
+      lastReadAt: _fechaDe(json['lastReadAt']),
       product1Detail: _productoDe(product1),
       product2Detail: _productoDe(product2),
     );
@@ -39,6 +40,13 @@ class ChatExchangeMapper {
     } catch (_) {
       return null;
     }
+  }
+
+  /// Tolera que la marca falte o venga vacía: un servidor anterior al cambio
+  /// no la envía, y una conversación nunca abierta la manda nula.
+  static DateTime? _fechaDe(dynamic valor) {
+    if (valor == null) return null;
+    return DateTime.tryParse(valor.toString())?.toLocal();
   }
 
   static List<ChatExchangeMessage> _messagesFrom(dynamic rawMessages) {

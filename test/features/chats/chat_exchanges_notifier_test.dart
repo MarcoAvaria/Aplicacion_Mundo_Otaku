@@ -72,6 +72,14 @@ class _ChatExchangesRepository implements ChatExchangesRepository {
   bool failNextStatusUpdate = false;
   final requestedUserIds = <String>[];
 
+  /// Los intercambios que se anunciaron como leídos al servidor.
+  final markedAsRead = <String>[];
+
+  @override
+  Future<void> markChatExchangeAsRead(String id) async {
+    markedAsRead.add(id);
+  }
+
   @override
   Future<List<ChatExchange>> getAllChatExchanges(String id) async {
     requestedUserIds.add(id);
