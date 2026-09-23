@@ -1,6 +1,6 @@
 # Cuánto cuesta abrir el tiempo real (T-036)
 
-**Estado:** evaluación para decidir. Sin commit · **Fecha:** 2026-09-23 · **Rama:** `feature/tiempo-real`
+**Estado:** evaluación hecha y **frente A implementado**. Sin commit · **Fecha:** 2026-09-23 · **Rama:** `feature/tiempo-real`
 
 Marco pidió estimar el costo de T-036 antes de comprometerse, y mencionó además
 que "habría que almacenar las conversaciones y algunos metadatos asociados". Al
@@ -19,6 +19,10 @@ la pantalla y al reanudar la app, y el contador de no leídos— pero nada de es
 tiempo real: hay que provocarlo.
 
 ## Frente A: avisar fuera de la conversación abierta
+
+> **Hecho el 2026-09-23.** La estimación de abajo se cumplió: el trabajo en sí
+> fue corto y **lo caro resultó ser exactamente lo que se había anticipado, la
+> prueba**. Detalle al final de esta sección.
 
 **Costo: bajo.** Más bajo de lo que parecía, por un detalle que conviene tener
 presente: **el socket se conecta al iniciar sesión**, no al entrar al chat
@@ -45,6 +49,36 @@ comprueban permisos.
 Lo que de verdad cuesta aquí no es el código sino **la prueba**: un recorrido
 Playwright de dos sesiones donde la segunda recibe el aviso *sin* abrir la
 conversación. Es factible —ya hay recorridos de dos sesiones— pero alarga CI.
+
+### Cómo quedó, y qué costó de verdad
+
+En el servidor, un `RealtimeNotifierService` en su propio módulo. Esa parte no es
+capricho: el *gateway* ya dependía del servicio de intercambios, así que el
+servicio no podía depender del *gateway* para avisar. Un módulo que no importa a
+ninguno de los dos, y que los dos importan, rompe el ciclo.
+
+Cada persona entra a su sala al autenticar el socket, y el servicio avisa
+**después de confirmar la transacción**: si el aviso saliera antes y la escritura
+fallara, la otra persona vería un cambio que nunca ocurrió. Por esa sala viaja
+solo el identificador del intercambio.
+
+En el cliente, el socket expone los avisos como flujo y se enganchan en el mixin
+que Chats, Enviadas y Recibidas ya compartían, así que un solo punto cubre las
+tres pantallas.
+
+**La prueba costó más que el código, y conviene decir por qué.** El primer
+intento fue colgar la comprobación del recorrido largo de dos sesiones, y ahí se
+tropezó con dos problemas ajenos: la lista de chats cargada en frío aparece vacía
+(quedó como T-041) y la navegación por el menú no resultó fiable desde esa
+pantalla. Se cambió por una **prueba propia y corta**, que prepara el intercambio
+por la API y mide el marco del WebSocket en vez de la interfaz. Medir el marco es
+deliberado: el aviso es lo que esta pieza introduce, y así la prueba no depende de
+cómo cada pantalla decida refrescarse. De paso fija la garantía que importa, que
+por la sala personal **no** viaje el contenido del mensaje.
+
+La lección, que ya había aparecido con T-026: **una comprobación nueva colgada de
+un recorrido largo hereda toda su fragilidad**. Sale más barato un recorrido
+propio y corto.
 
 ## Frente B: normalizar las conversaciones
 
@@ -134,6 +168,45 @@ contenido, solo columnas nuevas con valor por omisión— y dejar el historial d
 transiciones para el frente B, que ya va a tocar el esquema de todos modos. Ese
 historial encaja naturalmente con la tabla de mensajes: ambos son "cosas que
 pasaron en este intercambio, en orden".
+
+## Qué cuesta esto en planes gratuitos
+
+Marco preguntó, con razón, cuánto cuesta esto cuando todo corre en planes
+gratuitos: la API en Render y PostgreSQL en Neon. La respuesta es mejor de lo que
+parece, y conviene entender por qué.
+
+**Empujar no es lo mismo que preguntar.** La alternativa intuitiva a "avisar" es
+"preguntar cada cierto rato", y esa sí sale cara: con un sondeo cada diez
+segundos, una sola persona con la aplicación abierta genera unas 360 consultas
+por hora, y cada una despierta la base. El frente A **no consulta nada**: el
+servidor ya tiene el dato en la mano porque acaba de guardarlo, y emitir el aviso
+no toca la base de datos. Cuesta un mensaje por WebSocket, y solo cuando algo
+pasa de verdad.
+
+Comparado con lo que hay hoy, el frente A **ahorra** trabajo: cada vez que
+alguien tira para refrescar sin que haya nada nuevo, eso sí es una consulta.
+
+**Lo que sí consume es la conexión abierta.** El plan gratuito de Render suspende
+el servicio tras un rato sin tráfico, y un WebSocket abierto cuenta como tráfico:
+mientras alguien tenga la sesión iniciada, el servicio no se suspende. Para una
+demostración eso juega a favor —desaparece el arranque en frío de casi un
+minuto—, pero consume horas de instancia del plan gratuito. Con las dos cuentas
+de demostración no es un problema; conviene tenerlo presente si algún día hay
+muchas sesiones simultáneas.
+
+**El frente B también abarata el funcionamiento**, aunque no lo parezca. Hoy cada
+mensaje reescribe el arreglo `jsonb` completo: mientras más larga la conversación,
+más bytes se escriben por mensaje. Una tabla de mensajes escribe una fila y
+siempre cuesta lo mismo. O sea que B no es solo "más ordenado": en un plan con
+cómputo limitado, es **menos** trabajo por mensaje. Su costo está en la migración,
+no en el día a día.
+
+**Una observación aparte que conviene no perder de vista:** las imágenes de los
+productos se guardan dentro de PostgreSQL (`IMAGE_STORAGE_DRIVER=postgres`). Eso
+simplificó el despliegue, pero el almacenamiento de la base gratuita es el recurso
+más fácil de agotar, y las imágenes pesan mucho más que el texto. Si en algún
+momento aprieta el límite, ese es el primer lugar donde mirar, antes que los
+mensajes.
 
 ## Recomendación
 
