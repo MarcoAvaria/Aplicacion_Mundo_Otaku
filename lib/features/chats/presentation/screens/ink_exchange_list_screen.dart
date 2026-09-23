@@ -88,12 +88,17 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
       // product1 es lo solicitado y product2 lo ofrecido a cambio.
       final theirsId = _isReceived ? exchange.product2 : exchange.product1;
       final minesId = _isReceived ? exchange.product1 : exchange.product2;
-      final theirs = productsById[theirsId];
+      // Se prefiere el producto que vino con el intercambio; el catálogo queda
+      // solo como respaldo. Antes era al revés, y una propuesta no aparecía
+      // hasta que el catálogo hubiera paginado hasta ese producto.
+      final theirs =
+          exchange.productoPorId(theirsId) ?? productsById[theirsId];
       if (theirs == null) {
         hasUnresolvedProduct = true;
         continue;
       }
-      rows.add(_Row(exchange, theirs, productsById[minesId]));
+      rows.add(_Row(exchange, theirs,
+          exchange.productoPorId(minesId) ?? productsById[minesId]));
     }
 
     final waitingForProducts = hasUnresolvedProduct &&

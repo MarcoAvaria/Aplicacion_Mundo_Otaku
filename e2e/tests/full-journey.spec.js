@@ -1297,3 +1297,81 @@ test('avisa de un mensaje a quien no tiene la conversación abierta', async ({
     await Promise.all([contextoEscribe.close(), contextoRecibe.close()]);
   }
 });
+
+test('muestra las conversaciones al abrir la lista en frío', async ({
+  browser,
+}) => {
+  // T-041.
+  //
+  // La lista resolvia el producto de la otra persona buscandolo en el catalogo
+  // paginado de Descubrir. Al abrir la lista directamente por su ruta, ese
+  // catalogo esta vacio, asi que TODAS las filas se descartaban y la pantalla
+  // decia "todavia no tienes intercambios" siendo falso. Le pasaba a cualquiera
+  // que recargara el navegador en esa pantalla o volviera por un enlace.
+  //
+  // Ahora el producto viene dentro del propio intercambio, que es como la API
+  // lo devolvia desde siempre. La prueba lo fija por el lado que se ve: la
+  // tarjeta aparece sin pasar por Descubrir.
+  const runId = `${Date.now()}-${process.pid}`;
+  const password = 'BrowserFria1!';
+  const propietaria = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-fria-a-${runId}@mundo-otaku.test`,
+      fullName: 'Propietaria',
+      password,
+    },
+  });
+  const proponente = await apiRequest('/auth/register', {
+    method: 'POST',
+    body: {
+      email: `browser-fria-b-${runId}@mundo-otaku.test`,
+      fullName: 'Proponente',
+      password,
+    },
+  });
+  const base = {
+    typeOf: 'Otros',
+    tomo: 1,
+    sizeOf: 'Ninguno',
+    gender: 'Ninguno',
+    demographic: 'Shonen',
+    tags: ['lista-fria'],
+    images: [],
+  };
+  const suyo = await apiRequest('/products', {
+    token: propietaria.token,
+    method: 'POST',
+    body: { ...base, title: `Producto propio ${runId}`, description: 'a' },
+  });
+  const ajeno = await apiRequest('/products', {
+    token: proponente.token,
+    method: 'POST',
+    body: { ...base, title: `Producto ajeno ${runId}`, description: 'b' },
+  });
+  const exchange = await apiRequest('/chat-exchanges', {
+    token: proponente.token,
+    method: 'POST',
+    body: { product1: suyo.id, product2: ajeno.id, requester1: ajeno.id },
+  });
+  await apiRequest(`/chat-exchanges/${exchange.id}/status`, {
+    token: propietaria.token,
+    method: 'PATCH',
+    body: { status: 'inProgress' },
+  });
+
+  const context = await browser.newContext();
+  try {
+    await prepareAuthenticatedContext(context, propietaria.token);
+    const page = await context.newPage();
+
+    // Se entra directo a la lista, sin pasar por Descubrir. Ese es el caso.
+    await openFlutterRoute(page, '/chatList');
+    await expect(
+      page.getByLabel(/INTERCAMBIO EN CURSO/).first(),
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByLabel(new RegExp(`Producto ajeno ${runId}`))).toBeVisible();
+  } finally {
+    await context.close();
+  }
+});

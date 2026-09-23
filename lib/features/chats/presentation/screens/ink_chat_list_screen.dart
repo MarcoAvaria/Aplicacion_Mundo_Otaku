@@ -81,7 +81,12 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
 
       final myProductId = isOwner1 ? exchange.product1 : exchange.product2;
       final otherProductId = isOwner1 ? exchange.product2 : exchange.product1;
-      final otherProduct = productsById[otherProductId];
+      // Se prefiere el producto que vino con el intercambio; el catálogo queda
+      // solo como respaldo. Antes era al revés, y por eso una conversación no
+      // aparecía hasta que el catálogo hubiera paginado hasta ese producto, ni
+      // aparecía nunca si nadie visitaba Descubrir.
+      final otherProduct = exchange.productoDeLaOtraPersona(userId) ??
+          productsById[otherProductId];
       if (otherProduct == null) {
         hasUnresolvedProduct = true;
         continue;
@@ -90,7 +95,7 @@ class _ViewState extends ConsumerState<_View> with ExchangeListRefresh {
       rows.add(_ChatRow(
         exchange: exchange,
         theirs: otherProduct,
-        mine: productsById[myProductId],
+        mine: exchange.productoDe(userId) ?? productsById[myProductId],
         myProductId: myProductId,
         otherProductId: otherProductId,
       ));
