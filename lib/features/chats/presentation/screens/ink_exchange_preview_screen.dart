@@ -290,9 +290,12 @@ class _Panel extends StatelessWidget {
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.6,
+                        // `onInk`, no `paper`: esta barra usa `ink` de fondo,
+                        // que es oscuro en los dos modos. `paper` servía en
+                        // claro y en oscuro dejaba el rótulo casi invisible.
                         color: highlighted
                             ? tokens.chipSelectedText
-                            : tokens.paper,
+                            : tokens.onInk,
                       ),
                     ),
                     Text(
@@ -301,9 +304,10 @@ class _Panel extends StatelessWidget {
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.6,
+                        // Mismo caso que el rótulo: va sobre la barra `ink`.
                         color: highlighted
                             ? tokens.chipSelectedText
-                            : tokens.paper,
+                            : tokens.onInk,
                       ),
                     ),
                   ],

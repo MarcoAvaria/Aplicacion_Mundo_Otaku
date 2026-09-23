@@ -9,6 +9,7 @@ class InkTokens {
     required this.paper,
     required this.panel,
     required this.ink,
+    required this.onInk,
     required this.borderWidth,
     required this.text,
     required this.muted,
@@ -25,6 +26,14 @@ class InkTokens {
   final Color paper;
   final Color panel;
   final Color ink;
+
+  /// Color de texto legible **sobre** `ink`.
+  ///
+  /// Hacía falta porque `ink` es oscuro en los dos modos, mientras que `paper`
+  /// —que se estaba usando para esto— se invierte: en claro es casi blanco y
+  /// sirve, pero en oscuro es casi negro y el texto desaparecía sobre la barra.
+  /// Es el mismo par que `accent`/`onAccent`, que ya existía.
+  final Color onInk;
   final double borderWidth;
   final Color text;
   final Color muted;
@@ -45,6 +54,7 @@ class InkTokens {
         paper: Color(0xFF131117),
         panel: Color(0xFF1B1820),
         ink: Color(0xFF2C2833),
+        onInk: Color(0xFFF1EEF5),
         borderWidth: 1.8,
         text: Color(0xFFF1EEF5),
         muted: Color(0xFF9089A0),
@@ -63,6 +73,7 @@ class InkTokens {
       paper: Color(0xFFFDF9FC),
       panel: Color(0xFFFFFFFF),
       ink: Color(0xFF241626),
+      onInk: Color(0xFFFDF9FC),
       borderWidth: 2.5,
       text: Color(0xFF241626),
       muted: Color(0xFF6E5F6C),
