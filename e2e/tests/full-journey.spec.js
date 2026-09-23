@@ -4,7 +4,13 @@ const { backendDirectory } = require('../scripts/environment');
 const { randomBytes, createCipheriv } = require('node:crypto');
 const { test, expect } = require('@playwright/test');
 
-const apiUrl = process.env.E2E_API_URL || 'http://127.0.0.1:3001/api';
+// Por omision, la API se deduce de `E2E_BACKEND_URL`, que es la misma variable
+// que usan la configuracion de Playwright y el arranque del backend. Antes este
+// valor tenia su propia variable y su propio puerto escrito a mano, asi que
+// mover la suite a otro puerto levantaba la API en el sitio nuevo mientras las
+// llamadas directas de las pruebas seguian yendo al viejo.
+const backendUrl = process.env.E2E_BACKEND_URL || 'http://127.0.0.1:3001';
+const apiUrl = process.env.E2E_API_URL || `${backendUrl}/api`;
 const fixtureDirectory = path.resolve(__dirname, '..', '..', 'assets');
 
 async function apiRequest(route, { token, method = 'GET', body } = {}) {
