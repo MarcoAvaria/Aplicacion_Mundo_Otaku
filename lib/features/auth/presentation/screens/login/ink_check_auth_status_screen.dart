@@ -33,8 +33,12 @@ class InkCheckAuthStatusScreen extends ConsumerWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Se lee de arriba abajo: "Intercambia en Mundo Otaku". La
+                // línea chica invita a la acción y el nombre de la marca va
+                // grande. Antes decía "MUNDO OTAKU" y debajo "Cambia", que
+                // leído de corrido sonaba a una orden sin objeto.
                 Text(
-                  'MUNDO OTAKU',
+                  'INTERCAMBIA EN',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w800,
@@ -44,7 +48,7 @@ class InkCheckAuthStatusScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Cambia',
+                  'Mundo Otaku',
                   style: AppFonts.displayStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.w800,
