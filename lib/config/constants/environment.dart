@@ -16,8 +16,16 @@ class Environment {
         : dotenv.env['SOCKET_URL']?.trim();
     if (configuredUrl != null && configuredUrl.isNotEmpty) return configuredUrl;
 
+    // Se construye el origen desde cero en vez de recortar con `replace`.
+    // `Uri.replace(query: null)` **no borra** la consulta: en Dart, pasar
+    // `null` significa "conserva lo que había", así que un `API_URL` con
+    // parámetros dejaba el socket apuntando a `https://servidor?clave=1`.
     final apiUri = Uri.parse(apiUrl);
-    return apiUri.replace(path: '', query: null, fragment: null).toString();
+    return Uri(
+      scheme: apiUri.scheme,
+      host: apiUri.host,
+      port: apiUri.hasPort ? apiUri.port : null,
+    ).toString();
   }
 
   static String _requiredUrl(String name) {
