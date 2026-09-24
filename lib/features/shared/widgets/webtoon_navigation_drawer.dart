@@ -192,7 +192,7 @@ class _Node extends StatelessWidget {
         boxShadow: selected
             ? [
                 BoxShadow(
-                  color: tokens.accent.withOpacity(0.18),
+                  color: tokens.accent.withValues(alpha: 0.18),
                   spreadRadius: 5,
                 ),
               ]
@@ -240,7 +240,7 @@ class _Footer extends ConsumerWidget {
                 ),
                 Switch.adaptive(
                   value: isDark,
-                  activeColor: tokens.accent,
+                  activeThumbColor: tokens.accent,
                   onChanged: (enabled) => ref
                       .read(appThemeModeProvider.notifier)
                       .setDarkMode(enabled),
@@ -384,9 +384,9 @@ class _ThreadTokens {
         text: const Color(0xFFF1EEF5),
         muted: const Color(0xFF9089A0),
         accent: const Color(0xFFFF3FA0),
-        accentWash: const Color(0xFFFF3FA0).withOpacity(0.10),
+        accentWash: const Color(0xFFFF3FA0).withValues(alpha: 0.10),
         divider: const Color(0xFF2C2833),
-        thread: const Color(0xFFFF3FA0).withOpacity(0.45),
+        thread: const Color(0xFFFF3FA0).withValues(alpha: 0.45),
       );
     }
 
@@ -395,9 +395,9 @@ class _ThreadTokens {
       text: const Color(0xFF241626),
       muted: const Color(0xFF6E5F6C),
       accent: const Color(0xFF9A1E74),
-      accentWash: const Color(0xFF9A1E74).withOpacity(0.08),
+      accentWash: const Color(0xFF9A1E74).withValues(alpha: 0.08),
       divider: const Color(0xFFECE1EA),
-      thread: const Color(0xFF9A1E74).withOpacity(0.35),
+      thread: const Color(0xFF9A1E74).withValues(alpha: 0.35),
     );
   }
 }

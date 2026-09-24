@@ -1,16 +1,6 @@
-buildscript {
-    ext.kotlin_version = '1.7.10'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
+// El bloque `buildscript` con `classpath` desapareció: las versiones de AGP y
+// Kotlin ahora viven en `settings.gradle`. Aquí solo quedan los repositorios y
+// el traslado del directorio de compilación fuera de `android/`.
 allprojects {
     repositories {
         google()
@@ -18,14 +8,17 @@ allprojects {
     }
 }
 
-rootProject.buildDir = '../build'
+// `rootProject.buildDir` se retiró en Gradle 9; el reemplazo es `layout.buildDirectory`.
+def newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.layout.buildDirectory.value(newBuildDir.dir(project.name))
 }
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register("clean", Delete) {
-    delete rootProject.buildDir
+    delete rootProject.layout.buildDirectory
 }

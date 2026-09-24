@@ -4,6 +4,8 @@ import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/ink_navigation_drawer.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/webtoon_navigation_drawer.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -34,7 +36,9 @@ void main() {
         expect(datos.label, 'Modo oscuro',
             reason: 'el interruptor llega sin nombre y la etiqueta se queda '
                 'en otro nodo, así que se anuncia el estado pero no de qué');
-        expect(datos.hasFlag(SemanticsFlag.hasToggledState), isTrue,
+        // Antes eran dos banderas (`hasToggledState` e `isToggled`); ahora son
+        // un solo `Tristate`, donde `none` significa "no es conmutable".
+        expect(datos.flagsCollection.isToggled, isNot(Tristate.none),
             reason: 'sin estado conmutable no se puede saber si está activo');
         expect(datos.hasAction(SemanticsAction.tap), isTrue,
             reason: 'sin acción no se puede accionar desde el lector');
@@ -50,7 +54,7 @@ void main() {
         // El modo de partida es `system`, y en las pruebas el sistema está en
         // claro: lo que importa es que el interruptor arranque apagado.
         final nodo = tester.semantics.find(find.byType(Switch));
-        expect(nodo.getSemanticsData().hasFlag(SemanticsFlag.isToggled), isFalse);
+        expect(nodo.getSemanticsData().flagsCollection.isToggled, Tristate.isFalse);
 
         // Se acciona por la vía del lector de pantalla, no con un toque: es
         // justamente el camino que no servía.
@@ -62,8 +66,8 @@ void main() {
           tester.semantics
               .find(find.byType(Switch))
               .getSemanticsData()
-              .hasFlag(SemanticsFlag.isToggled),
-          isTrue,
+              .flagsCollection.isToggled,
+          Tristate.isTrue,
           reason: 'el estado anunciado debe seguir al tema, no quedarse atrás',
         );
 

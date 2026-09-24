@@ -93,15 +93,15 @@ abstract final class EditorialAppTheme {
       primary: primary,
       onPrimary: onPrimary,
       primaryContainer:
-          primary.withOpacity(brightness == Brightness.dark ? 0.16 : 0.10),
+          primary.withValues(alpha: brightness == Brightness.dark ? 0.16 : 0.10),
       onPrimaryContainer: primary,
       secondary: primary,
       onSecondary: onPrimary,
-      secondaryContainer: primary.withOpacity(0.12),
+      secondaryContainer: primary.withValues(alpha: 0.12),
       onSecondaryContainer: primary,
       tertiary: primary,
       onTertiary: onPrimary,
-      tertiaryContainer: primary.withOpacity(0.12),
+      tertiaryContainer: primary.withValues(alpha: 0.12),
       onTertiaryContainer: primary,
       error: brightness == Brightness.dark
           ? const Color(0xFFFFB4AB)
@@ -115,18 +115,16 @@ abstract final class EditorialAppTheme {
       onErrorContainer: brightness == Brightness.dark
           ? const Color(0xFFFFDAD6)
           : const Color(0xFF410002),
-      background: background,
-      onBackground: onSurface,
       surface: surface,
       onSurface: onSurface,
-      surfaceVariant: surface,
+      surfaceContainerHighest: surface,
       onSurfaceVariant: onSurfaceVariant,
       outline: outline,
       outlineVariant: outline,
       shadow: Colors.black,
       scrim: brightness == Brightness.dark
-          ? Colors.black.withOpacity(0.60)
-          : onSurface.withOpacity(0.45),
+          ? Colors.black.withValues(alpha: 0.60)
+          : onSurface.withValues(alpha: 0.45),
       inverseSurface: onSurface,
       onInverseSurface: surface,
       inversePrimary: primary,
@@ -186,11 +184,11 @@ abstract final class EditorialAppTheme {
     );
 
     final primaryButtonStyle = ButtonStyle(
-      minimumSize: const MaterialStatePropertyAll(Size(44, 48)),
-      padding: const MaterialStatePropertyAll(
+      minimumSize: const WidgetStatePropertyAll(Size(44, 48)),
+      padding: const WidgetStatePropertyAll(
         EdgeInsets.symmetric(horizontal: AppSpacing.xl),
       ),
-      shape: MaterialStatePropertyAll(
+      shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(controlRadius),
         ),
@@ -202,6 +200,13 @@ abstract final class EditorialAppTheme {
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
+      // Explícito a propósito. Hasta Flutter 3.16 este valor salía solo de
+      // `colorScheme.background`, que era el fondo de la aplicación. Ese campo
+      // se retiró del `ColorScheme`, así que a partir de Flutter 3.27 el valor
+      // por omisión pasó a ser `surface` y el lienzo se aclaraba sin que nadie
+      // lo pidiera: de #FDF9FC a blanco en claro, y de #131117 a #1B1820 en
+      // oscuro. Fijarlo aquí conserva la paleta tal como estaba.
+      canvasColor: background,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: surface,
@@ -222,7 +227,7 @@ abstract final class EditorialAppTheme {
           statusBarBrightness: brightness,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surface,
         surfaceTintColor: Colors.transparent,
         elevation: 0,

@@ -87,7 +87,7 @@ class _CustomProductFieldState extends State<CustomProductField> {
       //padding: const EdgeInsets.only(bottom: 0, top: 15),
       padding: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-          color: colors.surfaceVariant,
+          color: colors.surfaceContainerHighest,
           borderRadius: BorderRadius.only(
             topLeft: widget.isTopField ? borderRadius : Radius.zero,
             topRight: widget.isTopField ? borderRadius : Radius.zero,
@@ -97,7 +97,7 @@ class _CustomProductFieldState extends State<CustomProductField> {
           boxShadow: [
             if (widget.isBottomField)
               BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 5,
                   offset: const Offset(0, 3))
           ]),

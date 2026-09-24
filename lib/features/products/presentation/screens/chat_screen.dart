@@ -542,7 +542,7 @@ class MessageItem extends StatelessWidget {
                 fontSize: 10.5,
                 fontWeight: FontWeight.w600,
                 color: sentByMe && !isDark
-                    ? tokens.onAccent.withOpacity(0.8)
+                    ? tokens.onAccent.withValues(alpha: 0.8)
                     : tokens.muted,
               ),
             ),

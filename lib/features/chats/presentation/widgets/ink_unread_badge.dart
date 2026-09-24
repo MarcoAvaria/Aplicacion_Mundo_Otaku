@@ -51,7 +51,7 @@ class InkUnreadBadge extends StatelessWidget {
   }
 
   Widget _quiet() {
-    final color = tokens.muted.withOpacity(0.45);
+    final color = tokens.muted.withValues(alpha: 0.45);
 
     return CustomPaint(
       painter: _DashedCirclePainter(color: color),

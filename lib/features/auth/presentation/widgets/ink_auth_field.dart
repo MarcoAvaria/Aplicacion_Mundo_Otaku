@@ -73,11 +73,11 @@ class InkAuthField extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
         label: Text(label.toUpperCase(), semanticsLabel: label),
         labelStyle: labelStyle,
-        floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+        floatingLabelStyle: WidgetStateTextStyle.resolveWith(
           (states) => labelStyle.copyWith(
-            color: states.contains(MaterialState.error)
+            color: states.contains(WidgetState.error)
                 ? tokens.halftone
-                : states.contains(MaterialState.focused)
+                : states.contains(WidgetState.focused)
                     ? tokens.halftone
                     : tokens.muted,
           ),

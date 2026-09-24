@@ -320,7 +320,7 @@ class _Header extends StatelessWidget {
                               angle: -0.017,
                               child: Container(
                                 height: 9,
-                                color: tokens.accent.withOpacity(0.22),
+                                color: tokens.accent.withValues(alpha: 0.22),
                               ),
                             ),
                           ),

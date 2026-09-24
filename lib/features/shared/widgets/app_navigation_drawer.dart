@@ -207,7 +207,7 @@ class _OptionsSubmenu extends StatelessWidget {
         ),
         children: [
           Material(
-            color: colors.surfaceVariant.withOpacity(0.55),
+            color: colors.surfaceContainerHighest.withValues(alpha: 0.55),
             borderRadius: BorderRadius.circular(AppRadius.lightControl),
             child: SwitchListTile.adaptive(
               value: isDarkMode,

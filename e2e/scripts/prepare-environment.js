@@ -32,8 +32,10 @@ if (process.env.E2E_SKIP_FRONTEND_BUILD !== 'true') {
       'build',
       'web',
       '--release',
-      '--web-renderer',
-      'html',
+      // `--web-renderer html` se retiró de Flutter junto con el renderizador
+      // HTML. Ya no hay bandera que pasar: la compilación web usa CanvasKit.
+      // Los recorridos siguen funcionando porque apuntan por rol y nombre
+      // accesible, que Flutter publica igual en el árbol de accesibilidad.
       `--dart-define=API_URL=${backendUrl}/api`,
       `--dart-define=SOCKET_URL=${backendUrl}`,
     ],

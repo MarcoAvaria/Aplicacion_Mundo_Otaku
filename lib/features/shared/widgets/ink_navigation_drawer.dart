@@ -192,7 +192,7 @@ class _ChapterTile extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.1,
                         color: selected
-                            ? foreground.withOpacity(0.75)
+                            ? foreground.withValues(alpha: 0.75)
                             : tokens.accent,
                       ),
                     ),
@@ -260,7 +260,7 @@ class _Footer extends ConsumerWidget {
                   ),
                   Switch.adaptive(
                     value: isDark,
-                    activeColor: tokens.accent,
+                    activeThumbColor: tokens.accent,
                     onChanged: (enabled) => ref
                         .read(appThemeModeProvider.notifier)
                         .setDarkMode(enabled),

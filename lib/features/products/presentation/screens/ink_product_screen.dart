@@ -734,9 +734,9 @@ class _InkTextFieldState extends State<_InkTextField> {
               semanticsLabel: widget.label,
             ),
             labelStyle: labelStyle,
-            floatingLabelStyle: MaterialStateTextStyle.resolveWith(
+            floatingLabelStyle: WidgetStateTextStyle.resolveWith(
               (states) => labelStyle.copyWith(
-                color: states.contains(MaterialState.focused)
+                color: states.contains(WidgetState.focused)
                     ? tokens.halftone
                     : tokens.muted,
               ),

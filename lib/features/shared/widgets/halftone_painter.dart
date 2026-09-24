@@ -16,7 +16,7 @@ class HalftonePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = color.withOpacity(opacity);
+    final paint = Paint()..color = color.withValues(alpha: opacity);
     for (var y = spacing / 2; y < size.height; y += spacing) {
       for (var x = spacing / 2; x < size.width; x += spacing) {
         canvas.drawCircle(Offset(x, y), radius, paint);

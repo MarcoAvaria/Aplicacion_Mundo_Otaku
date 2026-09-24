@@ -73,6 +73,30 @@ async function enableFlutterAccessibility(page) {
   semanticsEnabledPages.add(page);
 }
 
+/**
+ * Localiza algo por su nombre accesible, venga como etiqueta o como texto.
+ *
+ * Hasta Flutter 3.16 la aplicación web se compilaba con el renderizador HTML,
+ * que ponía `aria-label` también en los textos sueltos, así que `getByLabel`
+ * servía para todo. Ese renderizador se retiró de Flutter y ahora la web usa
+ * CanvasKit, donde el árbol de accesibilidad distingue: los campos de
+ * formulario llevan `aria-label`, pero un texto corriente —un mensaje de
+ * error, el estado del chat, una burbuja de conversación— viaja como
+ * contenido del nodo. `getByLabel` deja de encontrarlos y `getByText` sí.
+ *
+ * Aceptar las dos formas mantiene los recorridos legibles y no obliga a
+ * decidir, localizador por localizador, cómo expone Flutter cada cosa.
+ */
+function porNombreAccesible(scope, texto, opciones) {
+  // Se busca dentro de `flutter-view`, no en toda la página. Flutter 3.47
+  // agregó `flt-announcement-host`, una región viva que repite los mensajes
+  // para los lectores de pantalla, y vive fuera de la vista. Sin acotar, cada
+  // mensaje aparecería dos veces y Playwright abortaría por modo estricto.
+  // Además, lo que corresponde comprobar es lo que se ve, no lo que se anuncia.
+  const vista = scope.locator('flutter-view');
+  return vista.getByLabel(texto, opciones).or(vista.getByText(texto, opciones));
+}
+
 async function openFlutterRoute(page, route) {
   await page.goto(`/#${route}`);
   await enableFlutterAccessibility(page);
@@ -338,14 +362,14 @@ async function swipeProductPhotos(page) {
 
 async function login(page, email, password) {
   await openFlutterRoute(page, '/login');
-  await enterFlutterText(page, page.getByLabel('El correo de tu cuenta'), email);
-  await enterFlutterText(page, page.getByLabel('Contraseña'), password);
+  await enterFlutterText(page, porNombreAccesible(page, 'El correo de tu cuenta'), email);
+  await enterFlutterText(page, porNombreAccesible(page, 'Contraseña'), password);
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
   await expect(
     page.getByRole('heading', { name: 'Cambia y descubre' }),
   ).toBeVisible();
   // El snackbar de bienvenida desplaza el botón flotante mientras se anima.
-  await expect(page.getByLabel(
+  await expect(porNombreAccesible(page, 
     '¡Revisa lo que la comunidad tiene para ofrecer! :)',
   )).toBeHidden();
 }
@@ -368,7 +392,7 @@ async function expectOrderedMessages(page, messages) {
   let previousY = -Infinity;
   for (const message of messages) {
     // Flutter combina el texto y la hora en la etiqueta de la burbuja.
-    const locator = page.getByLabel(message);
+    const locator = porNombreAccesible(page, message);
     await expect(locator).toHaveCount(1);
     await expect(locator).toBeVisible();
     const box = await locator.boundingBox();
@@ -445,21 +469,21 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     ]);
 
     await firstPage.getByRole('button', { name: 'Publicar' }).click();
-    await expect(firstPage.getByLabel('Editar producto')).toBeVisible();
+    await expect(porNombreAccesible(firstPage, 'Editar producto')).toBeVisible();
     await enterFlutterText(
       firstPage,
-      firstPage.getByLabel('Nombre'),
+      porNombreAccesible(firstPage, 'Nombre'),
       publishedTitle,
     );
-    await enterFlutterText(firstPage, firstPage.getByLabel('Volumen | Tomo'), '7');
+    await enterFlutterText(firstPage, porNombreAccesible(firstPage, 'Volumen | Tomo'), '7');
     await enterFlutterText(
       firstPage,
-      firstPage.getByLabel('Descripción', { exact: true }),
+      porNombreAccesible(firstPage, 'Descripción', { exact: true }),
       'Publicación creada completamente desde Chromium',
     );
     await enterFlutterText(
       firstPage,
-      firstPage.getByLabel('Tags (Separados por coma)'),
+      porNombreAccesible(firstPage, 'Tags (Separados por coma)'),
       'e2e, navegador',
     );
 
@@ -472,7 +496,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     const firstChooser = await firstChooserPromise;
     await firstChooser.setFiles(path.join(fixtureDirectory, 'Ao_no_Hako_Vol_01.png'));
     await expect(
-      firstPage.getByLabel('Imágenes del producto: 1'),
+      porNombreAccesible(firstPage, 'Imágenes del producto: 1'),
     ).toBeVisible();
 
     const secondChooserPromise = firstPage.waitForEvent('filechooser', {
@@ -484,7 +508,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     const secondChooser = await secondChooserPromise;
     await secondChooser.setFiles(path.join(fixtureDirectory, 'Bleach_Vol_01.jpg'));
     await expect(
-      firstPage.getByLabel('Imágenes del producto: 2'),
+      porNombreAccesible(firstPage, 'Imágenes del producto: 2'),
     ).toBeVisible();
 
     const createResponsePromise = firstPage.waitForResponse(
@@ -498,7 +522,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     expect(createResponse.status()).toBe(201);
     const publishedProduct = await createResponse.json();
     expect(publishedProduct.images).toHaveLength(2);
-    await expect(firstPage.getByLabel('Producto actualizado')).toBeVisible();
+    await expect(porNombreAccesible(firstPage, 'Producto actualizado')).toBeVisible();
 
     const storedProduct = (
       await apiRequest(`/products?term=${encodeURIComponent(publishedTitle)}`)
@@ -524,11 +548,11 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     );
     await openFlutterRoute(secondPage, `/otherproduct/${publishedProduct.id}`);
     await expect(
-      secondPage.getByLabel('No fue posible cargar el producto.'),
+      porNombreAccesible(secondPage, 'No fue posible cargar el producto.'),
     ).toBeVisible();
     blockProductDetail = false;
     await secondPage.getByRole('button', { name: 'Reintentar' }).click();
-    await expect(secondPage.getByLabel(publishedTitle)).toBeVisible();
+    await expect(porNombreAccesible(secondPage, publishedTitle)).toBeVisible();
     await swipeProductPhotos(secondPage);
     await expect(
       secondPage.getByRole('button', { name: 'Guardar producto' }),
@@ -564,7 +588,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     expect(exchangeResponse.status()).toBe(201);
     const exchange = await exchangeResponse.json();
     await expect(
-      secondPage.getByLabel('Propuesta enviada. Te avisaremos cuando respondan.'),
+      porNombreAccesible(secondPage, 'Propuesta enviada. Te avisaremos cuando respondan.'),
     ).toBeVisible();
 
     await openFlutterRoute(firstPage, `/previewreceived/${exchange.id}`);
@@ -591,7 +615,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     );
     expect((await acceptResponsePromise).status()).toBe(200);
     await expect(
-      firstPage.getByLabel('¡Acción completada con éxito!'),
+      porNombreAccesible(firstPage, '¡Acción completada con éxito!'),
     ).toBeVisible();
 
     await Promise.all([
@@ -605,49 +629,49 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
       ),
     ]);
     await Promise.all([
-      expect(firstPage.getByLabel('Chat conectado')).toBeVisible(),
-      expect(secondPage.getByLabel('Chat conectado')).toBeVisible(),
+      expect(porNombreAccesible(firstPage, 'Chat conectado')).toBeVisible(),
+      expect(porNombreAccesible(secondPage, 'Chat conectado')).toBeVisible(),
     ]);
 
     await sendChatMessage(secondPage, firstMessage);
-    await expect(firstPage.getByLabel(firstMessage)).toBeVisible();
+    await expect(porNombreAccesible(firstPage, firstMessage)).toBeVisible();
 
     await secondContext.setOffline(true);
-    await expect(secondPage.getByLabel('Chat sin conexión')).toBeVisible();
+    await expect(porNombreAccesible(secondPage, 'Chat sin conexión')).toBeVisible();
     // Este envio TIENE que fallar y conservar el texto.
     await sendChatMessage(secondPage, reconnectedMessage);
     await expect(
-      secondPage.getByLabel('Sin conexión. El mensaje no se envió.'),
+      porNombreAccesible(secondPage, 'Sin conexión. El mensaje no se envió.'),
     ).toBeVisible();
     await expect(secondPage.getByRole('textbox')).toHaveValue(
       reconnectedMessage,
     );
 
     await secondContext.setOffline(false);
-    await expect(secondPage.getByLabel('Chat conectado')).toBeVisible({
+    await expect(porNombreAccesible(secondPage, 'Chat conectado')).toBeVisible({
       timeout: 30_000,
     });
     await sendChatMessage(secondPage, reconnectedMessage);
-    await expect(firstPage.getByLabel(reconnectedMessage)).toBeVisible();
+    await expect(porNombreAccesible(firstPage, reconnectedMessage)).toBeVisible();
 
     expect(firstPage.url()).toContain(
       `#/chatscreen/${exchange.id}/${publishedProduct.id}/${offeredProduct.id}`,
     );
     await firstPage.reload();
     await enableFlutterAccessibility(firstPage);
-    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible({
+    await expect(porNombreAccesible(firstPage, 'Chat conectado')).toBeVisible({
       timeout: 30_000,
     });
-    await expect(firstPage.getByLabel(firstMessage)).toBeVisible();
-    await expect(firstPage.getByLabel(reconnectedMessage)).toBeVisible();
+    await expect(porNombreAccesible(firstPage, firstMessage)).toBeVisible();
+    await expect(porNombreAccesible(firstPage, reconnectedMessage)).toBeVisible();
 
     await firstPage.reload();
     await enableFlutterAccessibility(firstPage);
-    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible({
+    await expect(porNombreAccesible(firstPage, 'Chat conectado')).toBeVisible({
       timeout: 30_000,
     });
-    await expect(firstPage.getByLabel(firstMessage)).toHaveCount(1);
-    await expect(firstPage.getByLabel(reconnectedMessage)).toHaveCount(1);
+    await expect(porNombreAccesible(firstPage, firstMessage)).toHaveCount(1);
+    await expect(porNombreAccesible(firstPage, reconnectedMessage)).toHaveCount(1);
 
     const expectedMessages = [firstMessage, reconnectedMessage];
     await expectOrderedMessages(firstPage, expectedMessages);
@@ -675,15 +699,15 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await login(firstPage, user1Email, password);
     await openFlutterRoute(firstPage,
       `/chatscreen/${exchange.id}/${publishedProduct.id}/${offeredProduct.id}`);
-    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible();
+    await expect(porNombreAccesible(firstPage, 'Chat conectado')).toBeVisible();
     await expectOrderedMessages(firstPage, expectedMessages);
 
     const oldState = JSON.parse(fs.readFileSync(
       path.join(backendDirectory, '.e2e-artifacts', 'api-state.json'), 'utf8'));
     try {
       expect((await controlTestApi('stop')).pid).toBeNull();
-      await expect(firstPage.getByLabel('Chat sin conexión')).toBeVisible();
-      await expect(secondPage.getByLabel('Chat sin conexión')).toBeVisible();
+      await expect(porNombreAccesible(firstPage, 'Chat sin conexión')).toBeVisible();
+      await expect(porNombreAccesible(secondPage, 'Chat sin conexión')).toBeVisible();
     } finally {
       const newState = await controlTestApi('start');
       expect(newState.pid).not.toBe(oldState.pid);
@@ -692,8 +716,8 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
       try { return (await fetch(`${apiUrl}/health`)).status; }
       catch { return 0; }
     }, { timeout: 60_000 }).toBe(200);
-    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible({ timeout: 60_000 });
-    await expect(secondPage.getByLabel('Chat conectado')).toBeVisible({ timeout: 60_000 });
+    await expect(porNombreAccesible(firstPage, 'Chat conectado')).toBeVisible({ timeout: 60_000 });
+    await expect(porNombreAccesible(secondPage, 'Chat conectado')).toBeVisible({ timeout: 60_000 });
     await expectOrderedMessages(firstPage, expectedMessages);
     await expectOrderedMessages(secondPage, expectedMessages);
     expect((await apiRequest(`/chat-exchanges/${exchange.id}`, {
@@ -706,7 +730,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await expectOrderedMessages(secondPage, expectedMessages);
     await firstPage.reload();
     await enableFlutterAccessibility(firstPage);
-    await expect(firstPage.getByLabel('Chat conectado')).toBeVisible();
+    await expect(porNombreAccesible(firstPage, 'Chat conectado')).toBeVisible();
     await expectOrderedMessages(firstPage, expectedMessages);
 
     const completedResponsePromise = firstPage.waitForResponse(
@@ -718,7 +742,7 @@ test('dos sesiones publican, intercambian, conversan y se reconectan', async ({
     await firstPage
       .getByRole('button', { name: 'Opciones del intercambio' })
       .click();
-    await firstPage.getByLabel('Marcar como completado').click();
+    await porNombreAccesible(firstPage, 'Marcar como completado').click();
     await firstPage.getByRole('button', { name: 'Completar' }).click();
     expect((await completedResponsePromise).status()).toBe(200);
 
@@ -769,8 +793,8 @@ test('el propietario edita, rechaza una imagen inválida y elimina su producto',
 
   try {
     await openFlutterRoute(page, `/product/${product.id}`);
-    await expect(page.getByLabel('Editar producto')).toBeVisible();
-    await enterFlutterText(page, page.getByLabel('Nombre'), editedTitle);
+    await expect(porNombreAccesible(page, 'Editar producto')).toBeVisible();
+    await enterFlutterText(page, porNombreAccesible(page, 'Nombre'), editedTitle);
 
     const editResponsePromise = page.waitForResponse(
       (response) =>
@@ -780,7 +804,7 @@ test('el propietario edita, rechaza una imagen inválida y elimina su producto',
     );
     await page.getByRole('button', { name: 'Guardar producto' }).click();
     expect((await editResponsePromise).status()).toBe(200);
-    await expect(page.getByLabel('Producto actualizado')).toBeVisible();
+    await expect(porNombreAccesible(page, 'Producto actualizado')).toBeVisible();
 
     const storedProduct = await apiRequest(`/products/${product.id}`);
     expect(storedProduct.title).toBe(editedTitle);
@@ -798,9 +822,9 @@ test('el propietario edita, rechaza una imagen inválida y elimina su producto',
       buffer: Buffer.from('esto no es una imagen'),
     });
     await expect(
-      page.getByLabel('El archivo seleccionado no es una imagen válida.'),
+      porNombreAccesible(page, 'El archivo seleccionado no es una imagen válida.'),
     ).toBeVisible();
-    await expect(page.getByLabel('Imágenes del producto: 0')).toBeVisible();
+    await expect(porNombreAccesible(page, 'Imágenes del producto: 0')).toBeVisible();
 
     await page.getByRole('button', { name: 'Eliminar producto' }).click();
     await expect(
@@ -830,14 +854,14 @@ test('informa un error de red sin abandonar la pantalla de acceso', async ({
   await page.route('**/api/auth/login', (route) => route.abort('internetdisconnected'));
   await enterFlutterText(
     page,
-    page.getByLabel('El correo de tu cuenta'),
+    porNombreAccesible(page, 'El correo de tu cuenta'),
     'red-caida@mundo-otaku.test',
   );
-  await enterFlutterText(page, page.getByLabel('Contraseña'), 'NetworkError1!');
+  await enterFlutterText(page, porNombreAccesible(page, 'Contraseña'), 'NetworkError1!');
   await page.getByRole('button', { name: 'Iniciar sesión' }).click();
 
   await expect(
-    page.getByLabel(
+    porNombreAccesible(page, 
       'No fue posible conectar con el servidor. Revisa tu conexión.',
     ),
   ).toBeVisible();
@@ -871,12 +895,12 @@ test('informa fallos de listas, permite reintentar y explica estados vacíos', a
 
     await openFlutterRoute(page, '/productos');
     await expect(
-      page.getByLabel('No fue posible cargar los productos.'),
+      porNombreAccesible(page, 'No fue posible cargar los productos.'),
     ).toBeVisible();
     blockProducts = false;
     await clickFlutterControl(page, page.getByRole('button', { name: 'Reintentar' }));
     await expect(
-      page.getByLabel(/Tu estante está vacío/),
+      porNombreAccesible(page, /Tu estante está vacío/),
     ).toBeVisible();
 
     let blockExchanges = true;
@@ -889,22 +913,22 @@ test('informa fallos de listas, permite reintentar y explica estados vacíos', a
 
     await openFlutterRoute(page, '/requestedList');
     await expect(
-      page.getByLabel('No fue posible cargar los intercambios.'),
+      porNombreAccesible(page, 'No fue posible cargar los intercambios.'),
     ).toBeVisible();
     blockExchanges = false;
     await clickFlutterControl(page, page.getByRole('button', { name: 'Reintentar' }));
     await expect(
-      page.getByLabel('No tienes solicitudes enviadas pendientes.'),
+      porNombreAccesible(page, 'No tienes solicitudes enviadas pendientes.'),
     ).toBeVisible();
 
     await openFlutterRoute(page, '/receivedList');
     await expect(
-      page.getByLabel('No tienes solicitudes recibidas pendientes.'),
+      porNombreAccesible(page, 'No tienes solicitudes recibidas pendientes.'),
     ).toBeVisible();
 
     await openFlutterRoute(page, '/chatList');
     await expect(
-      page.getByLabel(/[Nn]o tienes intercambios aceptados/),
+      porNombreAccesible(page, /[Nn]o tienes intercambios aceptados/),
     ).toBeVisible();
   } finally {
     await context.close();
@@ -946,7 +970,7 @@ test('cierra la sesión cuando el token se revoca durante una edición', async (
 
   try {
     await openFlutterRoute(page, `/product/${product.id}`);
-    await expect(page.getByLabel('Editar producto')).toBeVisible();
+    await expect(porNombreAccesible(page, 'Editar producto')).toBeVisible();
     await apiRequest('/auth/logout', {
       token: user.token,
       method: 'POST',
@@ -963,9 +987,9 @@ test('cierra la sesión cuando el token se revoca durante una edición', async (
     await unauthorizedResponse;
 
     await expect(page).toHaveURL(/#\/login$/);
-    await expect(page.getByLabel('El correo de tu cuenta')).toBeVisible();
+    await expect(porNombreAccesible(page, 'El correo de tu cuenta')).toBeVisible();
     await expect(
-      page.getByLabel('Tu sesión expiró. Inicia sesión nuevamente.'),
+      porNombreAccesible(page, 'Tu sesión expiró. Inicia sesión nuevamente.'),
     ).toBeVisible();
   } finally {
     await context.close();
@@ -1060,7 +1084,7 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
       `/previewrequested/${cancelledExchange.id}`,
     );
     await expect(
-      senderPage.getByLabel('No fue posible cargar la solicitud.'),
+      porNombreAccesible(senderPage, 'No fue posible cargar la solicitud.'),
     ).toBeVisible();
     blockRequestDetail = false;
     await senderPage.getByRole('button', { name: 'Reintentar' }).click();
@@ -1086,7 +1110,7 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     );
     expect((await cancelResponse).status()).toBe(200);
     await expect(
-      senderPage.getByLabel('Se ha cancelado la solicitud'),
+      porNombreAccesible(senderPage, 'Se ha cancelado la solicitud'),
     ).toBeVisible();
     expect(
       (await apiRequest(`/chat-exchanges/${cancelledExchange.id}`, {
@@ -1121,7 +1145,7 @@ test('el remitente cancela y el receptor rechaza solicitudes pendientes', async 
     );
     expect((await rejectResponse).status()).toBe(200);
     await expect(
-      receiverPage.getByLabel('Se ha rechazado la solicitud'),
+      porNombreAccesible(receiverPage, 'Se ha rechazado la solicitud'),
     ).toBeVisible();
     expect(
       (await apiRequest(`/chat-exchanges/${rejectedExchange.id}`, {
@@ -1266,7 +1290,7 @@ test('avisa de un mensaje a quien no tiene la conversación abierta', async ({
       paginaEscribe,
       `/chatscreen/${exchange.id}/${productoDeQuienEscribe.id}/${productoDeQuienRecibe.id}`,
     );
-    await expect(paginaEscribe.getByLabel('Chat conectado')).toBeVisible({
+    await expect(porNombreAccesible(paginaEscribe, 'Chat conectado')).toBeVisible({
       timeout: 60_000,
     });
 
@@ -1368,9 +1392,9 @@ test('muestra las conversaciones al abrir la lista en frío', async ({
     // Se entra directo a la lista, sin pasar por Descubrir. Ese es el caso.
     await openFlutterRoute(page, '/chatList');
     await expect(
-      page.getByLabel(/INTERCAMBIO EN CURSO/).first(),
+      porNombreAccesible(page, /INTERCAMBIO EN CURSO/).first(),
     ).toBeVisible({ timeout: 30_000 });
-    await expect(page.getByLabel(new RegExp(`Producto ajeno ${runId}`))).toBeVisible();
+    await expect(porNombreAccesible(page, new RegExp(`Producto ajeno ${runId}`))).toBeVisible();
   } finally {
     await context.close();
   }

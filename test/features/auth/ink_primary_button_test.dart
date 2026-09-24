@@ -1,6 +1,8 @@
 import 'package:aplicacion_mundo_otaku/features/auth/presentation/widgets/ink_primary_button.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/widgets/ink_tokens.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -43,8 +45,8 @@ void main() {
     final semantica =
         tester.getSemantics(find.byType(InkPrimaryButton)).getSemanticsData();
     expect(semantica.label, etiqueta);
-    expect(semantica.hasFlag(SemanticsFlag.isButton), isTrue);
-    expect(semantica.hasFlag(SemanticsFlag.isEnabled), isTrue);
+    expect(semantica.flagsCollection.isButton, isTrue);
+    expect(semantica.flagsCollection.isEnabled, Tristate.isTrue);
   });
 
   testWidgets('ofrece la acción de pulsar', (tester) async {
@@ -72,7 +74,7 @@ void main() {
 
     final semantica =
         tester.getSemantics(find.byType(InkPrimaryButton)).getSemanticsData();
-    expect(semantica.hasFlag(SemanticsFlag.isEnabled), isFalse);
+    expect(semantica.flagsCollection.isEnabled, Tristate.isFalse);
     expect(semantica.hasAction(SemanticsAction.tap), isFalse);
   });
 }

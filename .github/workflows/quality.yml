@@ -14,7 +14,7 @@ jobs:
       - name: Use Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.16.8
+          flutter-version: 3.47.5
           channel: stable
           cache: true
 
@@ -107,7 +107,7 @@ jobs:
       - name: Use Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.16.8
+          flutter-version: 3.47.5
           channel: stable
           cache: true
 

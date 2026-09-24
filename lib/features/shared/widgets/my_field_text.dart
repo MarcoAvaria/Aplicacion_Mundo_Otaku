@@ -99,7 +99,7 @@ class _MyFieldTextState extends State<MyFieldText> {
                 bottomRight: borderRadius),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.35),
+                  color: Colors.black.withValues(alpha: 0.35),
                   blurRadius: 10,
                   offset: const Offset(0, 5))
             ]),

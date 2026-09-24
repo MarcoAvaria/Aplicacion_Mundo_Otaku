@@ -1,23 +1,12 @@
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
+plugins {
+    id "com.android.application"
+    // El plugin de Flutter va después del de Android, no antes.
+    id "dev.flutter.flutter-gradle-plugin"
 }
 
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
+// Firma de lanzamiento opcional: si no hay `key.properties` completo, la
+// compilación de release se queda sin firmar en vez de fallar. Se conserva tal
+// como estaba; solo cambió el archivo alrededor.
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
@@ -27,25 +16,19 @@ def releaseSigningKeys = ['keyAlias', 'keyPassword', 'storeFile', 'storePassword
 def hasReleaseSigning = keystorePropertiesFile.exists() &&
         releaseSigningKeys.every { keystoreProperties.getProperty(it)?.trim() }
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
 android {
-    namespace "com.marcoavaria.aplicacion_mundo_otaku"
-    compileSdkVersion 34
-    ndkVersion flutter.ndkVersion
+    namespace = "com.marcoavaria.aplicacion_mundo_otaku"
+
+    // Explícitos, no heredados de Flutter. Antes eran `flutter.compileSdkVersion`
+    // y `flutter.targetSdkVersion`, que con Flutter 3.16.8 valían 33: la
+    // aplicación apuntaba a Android 13 y no había forma de cambiarlo desde aquí.
+    compileSdk = 36
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
-        // Sets Java compatibility to Java 8
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = '1.8'
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     sourceSets {
@@ -53,23 +36,21 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.marcoavaria.aplicacion_mundo_otaku"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        multiDexEnabled true
-        targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        applicationId = "com.marcoavaria.aplicacion_mundo_otaku"
+        minSdk = flutter.minSdkVersion
+        targetSdk = 36
+        multiDexEnabled = true
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     signingConfigs {
         if (hasReleaseSigning) {
             release {
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-                storeFile rootProject.file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
+                keyAlias = keystoreProperties['keyAlias']
+                keyPassword = keystoreProperties['keyPassword']
+                storeFile = rootProject.file(keystoreProperties['storeFile'])
+                storePassword = keystoreProperties['storePassword']
             }
         }
     }
@@ -77,20 +58,30 @@ android {
     buildTypes {
         release {
             if (hasReleaseSigning) {
-                signingConfig signingConfigs.release
+                signingConfig = signingConfigs.release
             }
         }
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
 flutter {
-    source '../..'
+    source = '../..'
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    // Flutter 3.16 arrastra beta04, incompatible con las extensiones de ventana de Android 14.
+    // Flutter 3.16 arrastraba androidx.window beta04, incompatible con las
+    // extensiones de ventana de Android 14, y por eso quedó fijado en 1.0.0
+    // (T-016). Con Flutter 3.47 esa razón puede haber desaparecido: conviene
+    // probar a quitar el pin, pero en un cambio propio y comprobándolo en un
+    // aparato real, porque el síntoma era un cierre tras la pantalla de inicio.
     implementation 'androidx.window:window:1.0.0'
     implementation 'androidx.window:window-java:1.0.0'
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    // La 1.2.2 es de la época de AGP 7; AGP 9 pide la línea 2.x.
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
