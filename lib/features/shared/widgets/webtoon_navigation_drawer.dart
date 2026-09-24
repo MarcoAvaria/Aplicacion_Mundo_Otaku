@@ -221,25 +221,32 @@ class _Footer extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Modo oscuro',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: tokens.text,
+          // El nombre y el interruptor tienen que llegar como **un solo nodo**
+          // al lector de pantalla. Sin esto, el interruptor viaja sin nombre y
+          // la palabra "Modo oscuro", al no tener acción propia, se va al nodo
+          // grande de la ruta del menú: se anuncia el estado, pero nunca de qué.
+          MergeSemantics(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Modo oscuro',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: tokens.text,
+                    ),
                   ),
                 ),
-              ),
-              Switch.adaptive(
-                value: isDark,
-                activeColor: tokens.accent,
-                onChanged: (enabled) =>
-                    ref.read(appThemeModeProvider.notifier).setDarkMode(enabled),
-              ),
-            ],
+                Switch.adaptive(
+                  value: isDark,
+                  activeColor: tokens.accent,
+                  onChanged: (enabled) => ref
+                      .read(appThemeModeProvider.notifier)
+                      .setDarkMode(enabled),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 6),
           Text(
