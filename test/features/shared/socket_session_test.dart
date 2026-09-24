@@ -7,8 +7,11 @@ void main() {
 
   test('una sesión nueva no reutiliza el socket ni la autenticación revocados', () {
     // Sin servidor: se inspecciona la conexión creada, antes de recibir eventos.
-    dotenv.testLoad(fileInput: 'API_URL=http://127.0.0.1:1/api\n'
-        'SOCKET_URL=http://127.0.0.1:1');
+    // `testLoad` se retiró en flutter_dotenv 6; `loadFromString` es su
+    // reemplazo y recibe el contenido en `envString`.
+    dotenv.loadFromString(
+        envString: 'API_URL=http://127.0.0.1:1/api\n'
+            'SOCKET_URL=http://127.0.0.1:1');
     final service = SocketService.instance;
     addTearDown(service.disconnect);
 
