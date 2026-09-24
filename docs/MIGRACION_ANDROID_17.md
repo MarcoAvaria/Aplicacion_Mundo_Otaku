@@ -1,5 +1,16 @@
 # Notas para migrar a Android 17
 
+> **2026-09-24 — este documento pasó a ser el anexo técnico de un plan.**
+> El plan de trabajo, con sus cinco etapas y sus puertas de salida, vive ahora en
+> [`PLAN_MODERNIZACION.md`](PLAN_MODERNIZACION.md). **Este archivo no se
+> reemplaza ni se reescribe:** todo lo que midió sigue valiendo y el plan lo cita
+> en vez de repetirlo. Los hallazgos técnicos nuevos se siguen anotando aquí.
+>
+> Dos preguntas que este documento dejaba abiertas ya tienen respuesta, obtenida
+> de la documentación oficial el 2026-09-24: **Android 17 es API 37** (disponible
+> desde el 2026-06-16), y **no exige un `targetSdk` mínimo para instalar ni para
+> ejecutar**, así que la actualización del teléfono no impone una fecha límite.
+
 **Estado:** notas en preparación, no se ha migrado nada · **Inicio:** 2026-09-21
 · **Objetivo actualizado:** 2026-09-23
 
