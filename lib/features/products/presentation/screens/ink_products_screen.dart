@@ -12,23 +12,33 @@ import 'package:go_router/go_router.dart';
 ///
 /// Conserva el comportamiento de `ProductsScreen`: pagina sobre el mismo
 /// proveedor y muestra solo los productos propios.
-class InkProductsScreen extends ConsumerWidget {
+class InkProductsScreen extends StatefulWidget {
   static const String name = 'ink_products_screen';
 
   const InkProductsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
+  State<InkProductsScreen> createState() => _InkProductsScreenState();
+}
+
+class _InkProductsScreenState extends State<InkProductsScreen> {
+  /// La llave vive en el estado y no en `build`. Si se creara en cada
+  /// reconstrucción, Flutter no podría emparejar el elemento y destruiría el
+  /// `Scaffold`: se cerraría el menú y se perdería cualquier `SnackBar` u hoja
+  /// inferior abierta.
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
     final tokens = InkTokens.of(context);
 
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       backgroundColor: tokens.paper,
-      drawer: StyledNavigationDrawer(scaffoldKey: scaffoldKey),
+      drawer: StyledNavigationDrawer(scaffoldKey: _scaffoldKey),
       body: SafeArea(
         bottom: false,
-        child: _ProductsView(scaffoldKey: scaffoldKey, tokens: tokens),
+        child: _ProductsView(scaffoldKey: _scaffoldKey, tokens: tokens),
       ),
       floatingActionButton: InkHardButton(
         tokens: tokens,

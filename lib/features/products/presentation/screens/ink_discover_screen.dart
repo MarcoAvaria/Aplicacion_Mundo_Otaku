@@ -15,23 +15,33 @@ import '../delegates/product_search_delegate.dart';
 ///
 /// Conserva el comportamiento de `DiscoverScreen` (paginación, búsqueda y
 /// exclusión de los productos propios) y cambia solo la presentación.
-class InkDiscoverScreen extends ConsumerWidget {
+class InkDiscoverScreen extends StatefulWidget {
   static const String name = 'ink_discover_screen';
 
   const InkDiscoverScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
+  State<InkDiscoverScreen> createState() => _InkDiscoverScreenState();
+}
+
+class _InkDiscoverScreenState extends State<InkDiscoverScreen> {
+  /// La llave vive en el estado y no en `build`. Si se creara en cada
+  /// reconstrucción, Flutter no podría emparejar el elemento y destruiría el
+  /// `Scaffold`: se cerraría el menú y se perdería cualquier `SnackBar` u hoja
+  /// inferior abierta.
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
     final tokens = InkTokens.of(context);
 
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       backgroundColor: tokens.paper,
-      drawer: StyledNavigationDrawer(scaffoldKey: scaffoldKey),
+      drawer: StyledNavigationDrawer(scaffoldKey: _scaffoldKey),
       body: SafeArea(
         bottom: false,
-        child: _DiscoverView(scaffoldKey: scaffoldKey, tokens: tokens),
+        child: _DiscoverView(scaffoldKey: _scaffoldKey, tokens: tokens),
       ),
       floatingActionButton: InkHardButton(
         tokens: tokens,

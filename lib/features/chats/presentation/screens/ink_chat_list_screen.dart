@@ -18,25 +18,35 @@ import 'exchange_list_support.dart';
 ///
 /// Conserva el comportamiento de `ChatListScreen`: solo los intercambios en
 /// curso y la misma navegación al chat con los tres identificadores.
-class InkChatListScreen extends ConsumerWidget {
+class InkChatListScreen extends StatefulWidget {
   static const String name = 'ink_chat_list_screen';
 
   const InkChatListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
+  State<InkChatListScreen> createState() => _InkChatListScreenState();
+}
+
+class _InkChatListScreenState extends State<InkChatListScreen> {
+  /// La llave vive en el estado y no en `build`. Si se creara en cada
+  /// reconstrucción, Flutter no podría emparejar el elemento y destruiría el
+  /// `Scaffold`: se cerraría el menú y se perdería cualquier `SnackBar` u hoja
+  /// inferior abierta.
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
     final tokens = InkTokens.of(context);
 
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       backgroundColor: tokens.paper,
-      drawer: StyledNavigationDrawer(scaffoldKey: scaffoldKey),
+      drawer: StyledNavigationDrawer(scaffoldKey: _scaffoldKey),
       body: SafeArea(
         bottom: false,
         child: _View(
           tokens: tokens,
-          onOpenMenu: () => scaffoldKey.currentState?.openDrawer(),
+          onOpenMenu: () => _scaffoldKey.currentState?.openDrawer(),
         ),
       ),
     );

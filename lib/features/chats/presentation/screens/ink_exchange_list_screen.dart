@@ -21,26 +21,36 @@ enum ExchangeInbox { received, sent }
 /// Bandeja de solicitudes en la dirección "Tinta y Neón".
 ///
 /// Cada fila es una doble página: lo que entregas y lo que recibes.
-class InkExchangeListScreen extends ConsumerWidget {
+class InkExchangeListScreen extends StatefulWidget {
   const InkExchangeListScreen({super.key, required this.inbox});
 
   final ExchangeInbox inbox;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scaffoldKey = GlobalKey<ScaffoldState>();
+  State<InkExchangeListScreen> createState() => _InkExchangeListScreenState();
+}
+
+class _InkExchangeListScreenState extends State<InkExchangeListScreen> {
+  /// La llave vive en el estado y no en `build`. Si se creara en cada
+  /// reconstrucción, Flutter no podría emparejar el elemento y destruiría el
+  /// `Scaffold`: se cerraría el menú y se perdería cualquier `SnackBar` u hoja
+  /// inferior abierta.
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
     final tokens = InkTokens.of(context);
 
     return Scaffold(
-      key: scaffoldKey,
+      key: _scaffoldKey,
       backgroundColor: tokens.paper,
-      drawer: StyledNavigationDrawer(scaffoldKey: scaffoldKey),
+      drawer: StyledNavigationDrawer(scaffoldKey: _scaffoldKey),
       body: SafeArea(
         bottom: false,
         child: _View(
-          inbox: inbox,
+          inbox: widget.inbox,
           tokens: tokens,
-          onOpenMenu: () => scaffoldKey.currentState?.openDrawer(),
+          onOpenMenu: () => _scaffoldKey.currentState?.openDrawer(),
         ),
       ),
     );
