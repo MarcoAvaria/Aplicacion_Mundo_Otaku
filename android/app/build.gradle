@@ -75,13 +75,6 @@ flutter {
 }
 
 dependencies {
-    // Flutter 3.16 arrastraba androidx.window beta04, incompatible con las
-    // extensiones de ventana de Android 14, y por eso quedó fijado en 1.0.0
-    // (T-016). Con Flutter 3.47 esa razón puede haber desaparecido: conviene
-    // probar a quitar el pin, pero en un cambio propio y comprobándolo en un
-    // aparato real, porque el síntoma era un cierre tras la pantalla de inicio.
-    implementation 'androidx.window:window:1.0.0'
-    implementation 'androidx.window:window-java:1.0.0'
     // La 1.2.2 es de la época de AGP 7; AGP 9 pide la línea 2.x.
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
