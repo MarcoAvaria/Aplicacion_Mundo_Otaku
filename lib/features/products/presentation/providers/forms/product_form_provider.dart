@@ -28,7 +28,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
           id: product.id,
           title: Title.dirty(product.title),
           typeOf: product.typeOf,
-          tomo: Tomo.dirty(product.tomo),
+          tomo: _tomoPara(product.tomo, product.typeOf),
           sizeOf: product.sizeOf,
           gender: product.gender,
           demographic: product.demographic,
@@ -71,10 +71,11 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   void _touchedEverything() {
     state = state.copyWith(
-      isFormValid: Formz.validate([
-        Title.dirty(state.title.value),
-        Tomo.dirty(state.tomo.value),
-      ]),
+      isFormValid: _esValido(
+        state.title.value,
+        state.tomo.value,
+        state.typeOf,
+      ),
     );
   }
 
@@ -84,24 +85,33 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   void onTitleChanged(String value) {
     state = state.copyWith(
-        title: Title.dirty(value),
-        isFormValid: Formz.validate([
-          Title.dirty(value),
-          Tomo.dirty(state.tomo.value),
-        ]));
+      title: Title.dirty(value),
+      isFormValid: _esValido(value, state.tomo.value, state.typeOf),
+    );
   }
 
   void onTypeChanged(String typeOf) {
-    state = state.copyWith(typeOf: typeOf);
+    // Cambiar de tipo cambia la regla del tomo: pasar a Manga lo vuelve
+    // obligatorio, y salir de Manga lo libera. Si aquí solo se guardara el
+    // tipo, la entrada del tomo conservaría la regla anterior y el formulario
+    // quedaría bloqueado —o desbloqueado— por el motivo equivocado.
+    state = state.copyWith(
+      typeOf: typeOf,
+      tomo: _tomoPara(state.tomo.value, typeOf),
+      isFormValid: _esValido(state.title.value, state.tomo.value, typeOf),
+    );
   }
 
   void onStockChanged(int value) {
+    // Antes validaba con `state.tomo.value`, que aquí todavía es el valor
+    // **anterior**: `state` no se ha reasignado cuando se evalúan los
+    // argumentos de `copyWith`. La validez iba una edición atrasada. No se
+    // notaba mientras el 0 era válido; con el tomo obligatorio sí se nota,
+    // porque escribir un tomo correcto no habría desbloqueado el formulario.
     state = state.copyWith(
-        tomo: Tomo.dirty(value),
-        isFormValid: Formz.validate([
-          Title.dirty(state.title.value),
-          Tomo.dirty(state.tomo.value),
-        ]));
+      tomo: _tomoPara(value, state.typeOf),
+      isFormValid: _esValido(state.title.value, value, state.typeOf),
+    );
   }
 
   void onSizeChanged(String sizeOf) {
@@ -123,6 +133,16 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
   void onTagsChanged(String tags) {
     state = state.copyWith(tags: tags);
   }
+
+  /// El tomo solo es obligatorio cuando el producto es un manga.
+  ///
+  /// Para Ropa, Taza y Otros el tomo no significa nada y el 0 quiere decir
+  /// "no aplica": las fichas ocultan la etiqueta con `if (product.tomo > 0)`.
+  static Tomo _tomoPara(int valor, String typeOf) =>
+      Tomo.dirty(valor, esManga: typeOf == 'Manga');
+
+  static bool _esValido(String titulo, int tomo, String typeOf) =>
+      Formz.validate([Title.dirty(titulo), _tomoPara(tomo, typeOf)]);
 }
 
 class ProductFormState {
