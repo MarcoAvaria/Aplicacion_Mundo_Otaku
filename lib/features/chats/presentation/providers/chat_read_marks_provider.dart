@@ -5,17 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:aplicacion_mundo_otaku/features/chats/domain/entities/chat_exchange.dart';
+import 'package:aplicacion_mundo_otaku/features/chats/presentation/providers/chat_exchanges_repository_provider.dart';
 
 typedef ReadMarksLoader = Future<String?> Function();
 typedef ReadMarksSaver = Future<void> Function(String value);
 
-/// Hasta qué momento leyó cada cuenta cada intercambio, en este dispositivo.
+/// Avisa al servidor de que esta conversación quedó leída.
+typedef ReadMarksPublisher = Future<void> Function(String exchangeId);
+
+/// Marca local de lectura, que ahora **acompaña** a la del servidor.
 ///
-/// La API no lleva registro de lectura por persona, así que el contador de
-/// mensajes nuevos se calcula en el cliente: se recuerda la fecha del último
-/// mensaje visto en cada conversación y se cuentan los posteriores que escribió
-/// la otra persona. Como es local, los contadores parten de cero al reinstalar
-/// la aplicación o al entrar desde otro dispositivo.
+/// Cuando se escribió, la API no llevaba registro de lectura por persona y esta
+/// marca era la única que había; por eso los contadores partían de cero al
+/// reinstalar o al entrar desde otro dispositivo. Desde que el servidor lleva la
+/// suya, esa limitación desapareció y esta se queda por un motivo distinto: dar
+/// respuesta inmediata al salir de un chat, sin esperar a que la petición vaya y
+/// vuelva. El contador usa la más avanzada de las dos.
 ///
 /// Sigue el mismo patrón inyectable de `AppThemeModeNotifier`: el almacenamiento
 /// entra por parámetro para poder probar la lógica sin el plugin.
@@ -28,6 +33,9 @@ final chatReadMarksProvider =
       key: ChatReadMarksNotifier.storageKey,
       value: value,
     ),
+    publishMark: (exchangeId) => ref
+        .read(chatExchangesRepositoryProvider)
+        .markChatExchangeAsRead(exchangeId),
   );
   unawaited(notifier.restore());
   return notifier;
@@ -37,7 +45,9 @@ class ChatReadMarksNotifier extends StateNotifier<Map<String, DateTime>> {
   ChatReadMarksNotifier({
     required ReadMarksLoader loadMarks,
     required ReadMarksSaver saveMarks,
-  })  : _loadMarks = loadMarks,
+    ReadMarksPublisher? publishMark,
+  })  : _publishMark = publishMark,
+        _loadMarks = loadMarks,
         _saveMarks = saveMarks,
         super(const {});
 
@@ -46,6 +56,7 @@ class ChatReadMarksNotifier extends StateNotifier<Map<String, DateTime>> {
   static String _keyFor(String userId, String exchangeId) =>
       '$userId|$exchangeId';
 
+  final ReadMarksPublisher? _publishMark;
   final ReadMarksLoader _loadMarks;
   final ReadMarksSaver _saveMarks;
 
@@ -70,11 +81,21 @@ class ChatReadMarksNotifier extends StateNotifier<Map<String, DateTime>> {
   }
 
   /// Cuántos mensajes de la otra persona llegaron después de la última lectura.
+  /// Cuántos mensajes nuevos tiene esta conversación para esta cuenta.
+  ///
+  /// Se toma **la más avanzada** entre la marca que trae el servidor y la que
+  /// este dispositivo anotó. No es redundancia: la del servidor sigue a la
+  /// persona entre dispositivos, y la local da respuesta inmediata al salir de
+  /// un chat, sin esperar a que la petición vaya y vuelva. Quedarse solo con
+  /// una perdería una de las dos cosas.
   int unreadCountFor({
     required ChatExchange exchange,
     required String currentUserId,
   }) {
-    final mark = state[_keyFor(currentUserId, exchange.id)];
+    final mark = _masAvanzada(
+      exchange.lastReadAt,
+      state[_keyFor(currentUserId, exchange.id)],
+    );
 
     return exchange.messages.where((message) {
       if (message.sendBy == currentUserId) return false;
@@ -87,6 +108,12 @@ class ChatReadMarksNotifier extends StateNotifier<Map<String, DateTime>> {
 
       return timestamp.isAfter(mark);
     }).length;
+  }
+
+  static DateTime? _masAvanzada(DateTime? unaFecha, DateTime? otraFecha) {
+    if (unaFecha == null) return otraFecha;
+    if (otraFecha == null) return unaFecha;
+    return unaFecha.isAfter(otraFecha) ? unaFecha : otraFecha;
   }
 
   /// Deja el intercambio al día hasta su mensaje más reciente.
@@ -125,6 +152,12 @@ class ChatReadMarksNotifier extends StateNotifier<Map<String, DateTime>> {
 
     state = {...state, key: mark};
     await _persist();
+
+    // Y se le avisa al servidor, que es quien hace que esto siga a la persona a
+    // otro dispositivo. Va después de guardar en local y sin esperar respuesta
+    // para nada visible: el contador ya está en cero en pantalla.
+    final publicar = _publishMark;
+    if (publicar != null) unawaited(publicar(exchangeId));
   }
 
   /// Olvida todas las marcas: la sesión que viene empieza limpia.

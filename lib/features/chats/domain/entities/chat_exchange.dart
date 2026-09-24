@@ -22,6 +22,14 @@ class ChatExchange {
   /// si nadie visitaba Descubrir. Guardarlos aquí quita esa dependencia.
   final Product? product1Detail;
   final Product? product2Detail;
+  /// Hasta cuándo leyó esta conversación quien pidió los datos.
+  ///
+  /// Viene del servidor, que lleva una marca por persona y conversación. Es
+  /// `null` si nunca la abrió. Sustituye a la marca local que T-035 tuvo que
+  /// usar cuando el servidor no tenía dónde anotarla, y por eso ahora los no
+  /// leídos siguen a la persona entre dispositivos.
+  final DateTime? lastReadAt;
+
   ChatExchange({
     required this.id,
     required this.owner1,
@@ -33,6 +41,7 @@ class ChatExchange {
     required this.status,
     this.product1Detail,
     this.product2Detail,
+    this.lastReadAt,
   });
 
   /// El producto con ese identificador, si la API lo trajo con el intercambio.

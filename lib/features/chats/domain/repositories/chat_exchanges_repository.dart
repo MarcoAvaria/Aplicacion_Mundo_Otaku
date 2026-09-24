@@ -7,6 +7,8 @@ abstract class ChatExchangesRepository {
   Future<ChatExchange> getChatExchangeById(String id);
 
   Future<ChatExchange> changeChatExchangeStatus(String id, String status);
+
+  Future<void> markChatExchangeAsRead(String id);
   Future<List<ChatExchange>> getAllChatExchanges(String id);
 
   Future<ChatExchange> createChatExchange(
