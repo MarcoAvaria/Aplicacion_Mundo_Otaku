@@ -41,7 +41,9 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
     if (!state.isValid) return;
 
     try {
-      await loginUserCallback(state.email.value, state.password.value);
+      // Normalizado (sin espacios y en minúsculas), que es como lo guarda la
+      // API: así un correo pegado con un espacio al final también entra.
+      await loginUserCallback(state.email.normalizado, state.password.value);
       state = state.copyWith(isPosting: false);
     } catch (e) {
       state = state.copyWith(isPosting: false, errorMessage: e.toString());

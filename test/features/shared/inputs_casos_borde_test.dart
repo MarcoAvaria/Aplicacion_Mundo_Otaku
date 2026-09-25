@@ -13,88 +13,112 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('Email', () {
+    // Casos contrastados con `isEmail` de validator.js 13.15.35, que es lo que
+    // usa la API por debajo de `@IsEmail()`. El veredicto de cada fila **no se
+    // escribió a mano**: se obtuvo ejecutando validator.js sobre la misma
+    // lista. Si algún día la API y el formulario discrepan, esta tabla falla.
+    const segunLaApi = <(String, bool)>[
+      ('usuario1@mundo-otaku.demo', true),
+      ('marco@gmail.com', true),
+      ('a@b.co', true),
+      ('Marco.Avaria@Gmail.COM', true),
+      ('marco+compras@gmail.com', true),
+      ('con_guion_bajo@dominio.org', true),
+      ('numeros123@dominio456.net', true),
+      ('o\'brien@dominio.cl', true),
+      ('x!#\$%&*=?^{|}~@dominio.cl', true),
+      ('marco@sub.dominio.co.uk', true),
+      ('marco@dominio.museum', true),
+      ('marco@dominio.online', true),
+      ('marco@dominio.photography', true),
+      ('jos\u{E9}@dominio.cl', true),
+      ('marco@m\u{FC}nchen.de', true),
+      ('marco@xn--mnchen-3ya.de', true),
+      ('\u{F1}and\u{FA}@dominio.cl', true),
+      ('sin-arroba.cl', false),
+      ('@sin-parte-local.cl', false),
+      ('sin-dominio@', false),
+      ('sin-punto@dominio', false),
+      ('dos@@arrobas.cl', false),
+      ('a@b@c.cl', false),
+      ('espacio en@medio.cl', false),
+      ('marco..avaria@gmail.com', false),
+      ('.marco@gmail.com', false),
+      ('marco.@gmail.com', false),
+      ('marco@localhost', false),
+      ('marco@-dominio.com', false),
+      ('marco@dominio-.com', false),
+      ('marco@dominio..com', false),
+      ('marco@.dominio.com', false),
+      ('marco@dominio.c', false),
+      ('marco@dominio.123', false),
+      ('marco@dominio_x.cl', false),
+      ('marco@[127.0.0.1]', false),
+      ('marco@127.0.0.1', false),
+      ('marco@\u{FF44}\u{FF4F}\u{FF4D}\u{FF49}\u{FF4E}\u{FF49}\u{FF4F}.com', false),
+      ('marco@dominio.com.', false),
+      ('\u{1F600}@dominio.cl', false),
+      ('marco@dominio.\u{1F600}', false),
+      ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@x.com', true),
+      ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@x.com', false),
+      ('marco@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com', true),
+      ('marco@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com', false),
+      ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com', false),
+      ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co', false),
+      ('\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}@x.com', true),
+      ('\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}\u{E9}@x.com', false),
+    ];
+
+    test('acepta y rechaza exactamente lo mismo que la API', () {
+      for (final (correo, valido) in segunLaApi) {
+        expect(
+          Email.dirty(correo).isValid,
+          valido,
+          reason: 'validator.js dice ${valido ? "válido" : "inválido"}: $correo',
+        );
+      }
+    });
+
+    test('diferencia deliberada: sin partes locales entre comillas', () {
+      // validator.js las acepta; aquí se rechazan a propósito (ver `Email`).
+      expect(const Email.dirty('"marco avaria"@gmail.com').isValid, isFalse);
+    });
+
+    test('diferencia deliberada: sin espacios Unicode dentro del dominio', () {
+      expect(const Email.dirty('marco@do\u2003minio.cl').isValid, isFalse);
+    });
+
     test('en estado inicial no muestra error', () {
       const campo = Email.pure();
       expect(campo.errorMessage, isNull);
       expect(campo.isPure, isTrue);
     });
 
-    test('acepta las formas corrientes', () {
-      for (final valor in [
-        'usuario1@mundo-otaku.demo',
-        'marco@gmail.com',
-        'a@b.co',
-        'con.punto@dominio.cl',
-        'con-guion@sub.dominio.cl',
-        'MAYUSCULAS@DOMINIO.COM',
-        'con_guion_bajo@dominio.org',
-        'numeros123@dominio456.net',
-      ]) {
-        expect(
-          Email.dirty(valor).isValid,
-          isTrue,
-          reason: '"$valor" debería aceptarse',
-        );
-      }
-    });
-
-    test('rechaza lo que no es un correo', () {
-      for (final valor in [
-        'sin-arroba.cl',
-        '@sin-parte-local.cl',
-        'sin-dominio@',
-        'sin-punto@dominio',
-        'dos@@arrobas.cl',
-        'espacio en@medio.cl',
-      ]) {
-        final campo = Email.dirty(valor);
-        expect(campo.isValid, isFalse, reason: '"$valor" debería rechazarse');
-        expect(campo.errorMessage, 'No tiene formato de correo electrónico');
-      }
-    });
-
-    test('vacío y solo espacios dan el error de campo requerido, no el de '
-        'formato', () {
+    test('vacío o solo espacios da "campo requerido", no el de formato', () {
       for (final valor in ['', '   ', '\n', '\t']) {
         expect(Email.dirty(valor).errorMessage, 'El campo es requerido');
       }
     });
 
-    test('LIMITACIÓN: los espacios alrededor no se recortan', () {
-      // El validador recorta para decidir si está vacío, pero la expresión
-      // regular corre sobre el valor **sin recortar**. Un correo copiado y
-      // pegado con un espacio al final se rechaza por formato, y el mensaje no
-      // ayuda a entender por qué. Vale la pena saberlo antes de que un usuario
-      // lo reporte como "la app no me deja entrar".
-      expect(const Email.dirty(' marco@gmail.com').isValid, isFalse);
-      expect(const Email.dirty('marco@gmail.com ').isValid, isFalse);
-      expect(const Email.dirty('marco@gmail.com').isValid, isTrue);
+    test('un correo mal formado da el mensaje de formato', () {
+      expect(
+        const Email.dirty('marco..avaria@gmail.com').errorMessage,
+        'No tiene formato de correo electrónico',
+      );
     });
 
-    test('LIMITACIÓN: el dominio de primer nivel solo admite de 2 a 4 letras',
-        () {
-      // La expresión regular termina en `[\w-]{2,4}`. Los dominios largos
-      // existen y son válidos: quien tenga uno no puede registrarse.
-      expect(const Email.dirty('marco@dominio.com').isValid, isTrue);
-      expect(const Email.dirty('marco@dominio.info').isValid, isTrue);
-      expect(const Email.dirty('marco@dominio.museum').isValid, isFalse);
-      expect(const Email.dirty('marco@dominio.online').isValid, isFalse);
-      // Y uno de una sola letra tampoco pasa, que sí es correcto.
-      expect(const Email.dirty('marco@dominio.c').isValid, isFalse);
+    test('los espacios alrededor no invalidan el correo', () {
+      // Antes se rechazaba un correo pegado con un espacio al final, con un
+      // mensaje que no explicaba por qué.
+      expect(const Email.dirty(' marco@gmail.com').isValid, isTrue);
+      expect(const Email.dirty('marco@gmail.com  ').isValid, isTrue);
     });
 
-    test('LIMITACIÓN: no admite las direcciones con etiqueta (usuario+etiqueta)',
-        () {
-      // Gmail y otros permiten `marco+compras@gmail.com`. El `+` no está en el
-      // juego de caracteres aceptado, así que se rechaza.
-      expect(const Email.dirty('marco+compras@gmail.com').isValid, isFalse);
-    });
-
-    test('LIMITACIÓN: acepta puntos consecutivos, que no son válidos', () {
-      // Al revés que las anteriores: esta es permisiva de más. No deja entrar a
-      // nadie que no deba, porque el servidor valida aparte, pero explica por
-      // qué un correo mal escrito llega hasta la API.
-      expect(const Email.dirty('marco..avaria@gmail.com').isValid, isTrue);
+    test('se envía sin espacios y en minúsculas, como lo guarda la API', () {
+      expect(
+        const Email.dirty('  Marco.Avaria@Gmail.COM ').normalizado,
+        'marco.avaria@gmail.com',
+      );
     });
   });
 

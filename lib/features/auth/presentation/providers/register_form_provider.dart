@@ -53,7 +53,7 @@ class RegisterFormNotifier extends StateNotifier<RegisterFormState> {
     state = state.copyWith(isPosting: true);
     try {
       await registerUserCallback(
-        state.email.value,
+        state.email.normalizado,
         state.password.value,
         state.fullName.value,
       );
