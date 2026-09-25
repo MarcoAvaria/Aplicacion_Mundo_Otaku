@@ -360,10 +360,13 @@ class _FormView extends ConsumerWidget {
                 label: 'Volumen | Tomo',
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: false),
-                initialValue: formState.tomo.value.toString(),
+                // El texto va tal cual: vacío y "0" son cosas distintas
+                // (ver `Tomo`). Antes se convertía aquí con
+                // `int.tryParse(value) ?? -1`, y un campo vacío terminaba
+                // mostrando "el tomo no puede ser negativo".
+                initialValue: formState.tomo.value,
                 errorMessage: formState.tomo.errorMessage,
-                onChanged: (value) =>
-                    notifier.onStockChanged(int.tryParse(value) ?? -1),
+                onChanged: notifier.onStockChanged,
               ),
             ),
             _SelectBox(

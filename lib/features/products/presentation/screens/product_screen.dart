@@ -264,7 +264,7 @@ class _ProductInformation extends ConsumerWidget {
             initialValue: productForm.tomo.value.toString(),
             onChanged: (value) => ref
                 .read(productFormProvider(product).notifier)
-                .onStockChanged(int.tryParse(value) ?? -1),
+                .onStockChanged(value),
             errorMessage: productForm.tomo.errorMessage,
           ),
           const SizedBox(height: 15),

@@ -114,7 +114,7 @@ class InkDiscoverCard extends StatelessWidget {
   }
 
   static String? _flagLabel(Product product) {
-    if (product.tomo > 0) return 'TOMO ${product.tomo}';
+    if (product.muestraTomo) return 'TOMO ${product.tomo}';
     final type = product.typeOf.trim();
     return type.isEmpty ? null : type.toUpperCase();
   }

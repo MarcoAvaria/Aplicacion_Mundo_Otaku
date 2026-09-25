@@ -354,7 +354,7 @@ class _Facts extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final facts = <String>[
-      if (product.tomo > 0) 'Tomo ${product.tomo}',
+      if (product.muestraTomo) 'Tomo ${product.tomo}',
       for (final value in [product.demographic, product.gender])
         if (value.trim().isNotEmpty && value.trim().toLowerCase() != 'ninguno')
           productOptionLabel(value.trim()),

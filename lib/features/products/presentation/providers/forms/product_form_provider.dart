@@ -28,7 +28,14 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
           id: product.id,
           title: Title.dirty(product.title),
           typeOf: product.typeOf,
-          tomo: _tomoPara(product.tomo, product.typeOf),
+          // Un producto nuevo arranca con el tomo **vacío**, no en 0: si
+          // arrancara en 0, un manga se podría publicar sin que nadie haya
+          // escrito su tomo, y quedaría como "Tomo 0", que ahora es un tomo
+          // real. Uno existente muestra el número que ya tiene.
+          tomo: _tomoPara(
+            product.id == 'new' ? '' : product.tomo.toString(),
+            product.typeOf,
+          ),
           sizeOf: product.sizeOf,
           gender: product.gender,
           demographic: product.demographic,
@@ -49,7 +56,9 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
       //'price': state.price.value,
       'description': state.description,
       'typeOf': state.typeOf,
-      'tomo': state.tomo.value,
+      // Vacío solo puede llegar aquí si el producto no es un manga, porque
+      // en un manga es un error de validación; ahí 0 significa "no aplica".
+      'tomo': state.tomo.numero ?? 0,
       'sizeOf': state.sizeOf,
       'gender': state.gender,
       'demographic': state.demographic,
@@ -102,7 +111,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     );
   }
 
-  void onStockChanged(int value) {
+  void onStockChanged(String value) {
     // Antes validaba con `state.tomo.value`, que aquí todavía es el valor
     // **anterior**: `state` no se ha reasignado cuando se evalúan los
     // argumentos de `copyWith`. La validez iba una edición atrasada. No se
@@ -136,12 +145,12 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
   /// El tomo solo es obligatorio cuando el producto es un manga.
   ///
-  /// Para Ropa, Taza y Otros el tomo no significa nada y el 0 quiere decir
-  /// "no aplica": las fichas ocultan la etiqueta con `if (product.tomo > 0)`.
-  static Tomo _tomoPara(int valor, String typeOf) =>
-      Tomo.dirty(valor, esManga: typeOf == 'Manga');
+  /// Para Ropa, Taza y Otros puede quedar vacío, y entonces se guarda 0, que
+  /// para ellos significa "no aplica" (ver `Product.muestraTomo`).
+  static Tomo _tomoPara(String texto, String typeOf) =>
+      Tomo.dirty(texto, esManga: typeOf == 'Manga');
 
-  static bool _esValido(String titulo, int tomo, String typeOf) =>
+  static bool _esValido(String titulo, String tomo, String typeOf) =>
       Formz.validate([Title.dirty(titulo), _tomoPara(tomo, typeOf)]);
 }
 
@@ -169,8 +178,7 @@ class ProductFormState {
     this.sizeOf = 'Ninguno',
     this.gender = 'Ninguno',
     this.demographic = 'Shonen',
-    //this.tomo = const Tomo.dirty(0),
-    this.tomo = const Tomo.dirty(0),
+    this.tomo = const Tomo.dirty(''),
     this.description = '',
     this.tags = '',
     this.images = const [],

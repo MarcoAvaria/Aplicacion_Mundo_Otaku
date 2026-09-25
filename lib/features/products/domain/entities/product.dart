@@ -28,4 +28,12 @@ class Product {
     required this.images,
     this.user,
   });
+
+  /// Si la ficha debe mostrar el número de tomo.
+  ///
+  /// En un manga, siempre: **el tomo 0 existe** (precuelas que salen ya
+  /// avanzada la serie) y tiene que verse. En Ropa, Taza y Otros el 0
+  /// significa "no aplica", así que solo se muestra si tiene un número
+  /// mayor, como una novela ligera publicada como "Otros".
+  bool get muestraTomo => typeOf == 'Manga' || tomo > 0;
 }

@@ -137,74 +137,100 @@ void main() {
   });
 
   group('Tomo', () {
-    // Un tomo es el número de volumen de un manga o manhwa, igual que el de un
-    // libro: el mínimo es 1, porque no existe el tomo cero. Pero el catálogo
-    // tiene además Ropa, Taza y Otros, donde el tomo no significa nada y el 0
-    // quiere decir "no aplica" —las fichas ocultan la etiqueta con
-    // `if (product.tomo > 0)`—. Por eso la obligación depende del tipo.
+    // El tomo es el número de volumen de un manga o manhwa, y **el tomo 0
+    // existe**: hay obras que, ya avanzada la serie, publican un tomo 0 con una
+    // historia previa a la principal. La entrada guarda el texto escrito para
+    // distinguir "0" de "vacío", que con un entero eran lo mismo.
 
-    test('el estado inicial es cero y no muestra error', () {
+    test('el estado inicial está vacío y no muestra error', () {
       const campo = Tomo.pure();
-      expect(campo.value, 0);
+      expect(campo.value, '');
+      expect(campo.numero, isNull);
       expect(campo.errorMessage, isNull);
     });
 
-    test('un manga sin tomo no es válido', () {
-      const campo = Tomo.dirty(0, esManga: true);
-      expect(campo.isValid, isFalse);
-      expect(campo.errorMessage, 'Un manga necesita su número de tomo, desde el 1');
+    test('el tomo 0 de un manga es válido', () {
+      const campo = Tomo.dirty('0', esManga: true);
+      expect(campo.isValid, isTrue);
+      expect(campo.numero, 0);
+      expect(campo.errorMessage, isNull);
     });
 
-    test('un manga acepta desde el 1 en adelante', () {
-      for (final valor in [1, 2, 23, 9999]) {
+    test('un manga acepta cualquier número desde el 0', () {
+      for (final texto in ['0', '1', '23', '999', '2147483647']) {
         expect(
-          const Tomo.pure(esManga: true).validator(valor),
-          isNull,
-          reason: 'el tomo $valor de un manga debería aceptarse',
+          Tomo.dirty(texto, esManga: true).isValid,
+          isTrue,
+          reason: 'el tomo "$texto" de un manga debería aceptarse',
         );
       }
     });
 
-    test('lo que no es manga puede quedarse en cero, sin error', () {
-      // Una taza o una polera no tienen volumen. Obligarlas a declarar
-      // "Tomo 1" haría aparecer esa etiqueta en su ficha, mintiendo.
-      const campo = Tomo.dirty(0);
-      expect(campo.isValid, isTrue);
-      expect(campo.errorMessage, isNull);
+    test('un manga con el campo vacío no es válido', () {
+      for (final texto in ['', '   ']) {
+        final campo = Tomo.dirty(texto, esManga: true);
+        expect(campo.isValid, isFalse, reason: '"$texto"');
+        expect(
+          campo.errorMessage,
+          'Un manga necesita su número de tomo (puede ser 0)',
+        );
+      }
     });
 
-    test('lo que no es manga también puede llevar un número, si tiene sentido',
-        () {
+    test('lo que no es manga puede quedar vacío, sin error', () {
+      // Una taza o una polera no tienen volumen; al guardarse queda en 0,
+      // que para ellos significa "no aplica".
+      const campo = Tomo.dirty('');
+      expect(campo.isValid, isTrue);
+      expect(campo.numero, isNull);
+    });
+
+    test('lo que no es manga también puede llevar un número', () {
       // Una novela ligera publicada como "Otros" sí tiene volumen.
-      expect(const Tomo.dirty(3).isValid, isTrue);
+      expect(const Tomo.dirty('3').isValid, isTrue);
+      expect(const Tomo.dirty('0').isValid, isTrue);
+    });
+
+    test('los espacios alrededor no importan', () {
+      expect(const Tomo.dirty(' 12 ', esManga: true).isValid, isTrue);
+      expect(const Tomo.dirty(' 12 ', esManga: true).numero, 12);
     });
 
     test('ningún tipo admite tomos negativos', () {
-      for (final valor in [-1, -2, -9999]) {
+      for (final texto in ['-1', '-2', '-9999']) {
         for (final esManga in [true, false]) {
-          final campo = Tomo.dirty(valor, esManga: esManga);
-          expect(
-            campo.isValid,
-            isFalse,
-            reason: 'tomo $valor con esManga=$esManga',
-          );
+          final campo = Tomo.dirty(texto, esManga: esManga);
+          expect(campo.isValid, isFalse, reason: '"$texto" esManga=$esManga');
           expect(campo.errorMessage, 'El tomo no puede ser negativo');
         }
       }
     });
 
-    test('el -1 ya no choca con un valor centinela', () {
-      // Antes el validador usaba `int.tryParse(value.toString()) ?? -1` y
-      // comprobaba `== -1` para detectar un valor no numérico. El campo ya era
-      // un `int`, así que esa rama era inalcanzable, y el -1 legítimo chocaba
-      // con el centinela: se reportaba como "No tiene formato de número". La
-      // comprobación se retiró; ahora -1 y -2 dan el mismo mensaje, que es el
-      // correcto.
+    test('lo que no es un número entero se rechaza con su propio mensaje', () {
+      // Antes el campo convertía todo lo ilegible en -1, y el mensaje decía
+      // "no puede ser negativo" aunque nadie hubiera escrito un signo menos.
+      for (final texto in ['1.5', 'abc', '3a', '1,5', '½', '٣']) {
+        for (final esManga in [true, false]) {
+          final campo = Tomo.dirty(texto, esManga: esManga);
+          expect(campo.isValid, isFalse, reason: '"$texto" esManga=$esManga');
+          expect(campo.errorMessage, 'Escribe solo el número del tomo');
+        }
+      }
+    });
+
+    test('un número que no cabe en la base se rechaza antes de enviarlo', () {
+      // La columna `tomo` es un `int` de PostgreSQL: 2147483647 como máximo.
+      expect(const Tomo.dirty('2147483647').isValid, isTrue);
+      for (final texto in ['2147483648', '99999999999999999999999']) {
+        final campo = Tomo.dirty(texto, esManga: true);
+        expect(campo.isValid, isFalse, reason: texto);
+        expect(campo.errorMessage, 'Ese número de tomo es demasiado grande');
+      }
+      // Y uno negativo enorme sigue siendo, ante todo, negativo.
       expect(
-        const Tomo.dirty(-1).errorMessage,
-        const Tomo.dirty(-2).errorMessage,
+        const Tomo.dirty('-99999999999999999999999').errorMessage,
+        'El tomo no puede ser negativo',
       );
-      expect(const Tomo.dirty(-1).errorMessage, 'El tomo no puede ser negativo');
     });
   });
 

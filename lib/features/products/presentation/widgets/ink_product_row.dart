@@ -132,7 +132,7 @@ class InkProductRow extends StatelessWidget {
 
   static String? _details(Product product) {
     final parts = <String>[];
-    if (product.tomo > 0) parts.add('Tomo ${product.tomo}');
+    if (product.muestraTomo) parts.add('Tomo ${product.tomo}');
     for (final value in [product.demographic, product.gender]) {
       final clean = value.trim();
       if (clean.isEmpty || clean.toLowerCase() == 'ninguno') continue;
