@@ -1,15 +1,11 @@
-import 'package:aplicacion_mundo_otaku/features/shared/widgets/chat/chat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Environment.initEnvironment();
-
-  Get.put(ChatController());
 
   runApp(const ProviderScope(
     child: MainApp(),

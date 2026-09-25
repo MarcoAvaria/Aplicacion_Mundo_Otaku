@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:aplicacion_mundo_otaku/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 
 import '../../../auth/presentation/providers/providers.dart';
 import '../../../chats/presentation/providers/chat_exchange_provider.dart';
@@ -283,7 +282,13 @@ class _ChatView extends ConsumerStatefulWidget {
 }
 
 class _ChatViewState extends ConsumerState<_ChatView> {
-  final chatController = Get.find<ChatController>();
+  /// Los mensajes de esta conversación, y de ninguna otra.
+  ///
+  /// Antes vivían en un `ChatController` de GetX creado una sola vez al
+  /// arrancar la app: la lista sobrevivía a la pantalla, y los mensajes de la
+  /// última conversación seguían en memoria hasta que se abría otra y
+  /// `initState` los borraba. Ahora nacen y mueren con la pantalla.
+  final List<Message> _messages = [];
   final socketService = SocketService.instance;
   final inputController = TextEditingController();
   late final String currentUserId;
@@ -295,7 +300,6 @@ class _ChatViewState extends ConsumerState<_ChatView> {
   void initState() {
     super.initState();
     currentUserId = ref.read(authProvider).user?.id ?? '';
-    chatController.clearMessages();
     socketService.socket.on('chat-history', _onHistory);
     socketService.socket.on('new-message', _onMessage);
     socketService.socket.on('chat-error', _onChatError);
@@ -312,7 +316,13 @@ class _ChatViewState extends ConsumerState<_ChatView> {
         .whereType<Map>()
         .map((item) => Message.fromJson(Map<String, dynamic>.from(item)))
         .toList();
-    chatController.replaceMessages(parsed);
+    // Un evento no debería llegar con la pantalla cerrada, porque `dispose`
+    // da de baja los manejadores; si llegara, `setState` lanzaría un error.
+    if (mounted) {
+      setState(() => _messages
+        ..clear()
+        ..addAll(parsed));
+    }
     _markReadUpTo(parsed.isEmpty ? null : parsed.last.timestamp);
     _completePendingHistory();
   }
@@ -320,7 +330,8 @@ class _ChatViewState extends ConsumerState<_ChatView> {
   void _onMessage(dynamic data) {
     if (data is! Map) return;
     final message = Message.fromJson(Map<String, dynamic>.from(data));
-    chatController.addMessage(message);
+    if (!mounted) return;
+    setState(() => _messages.add(message));
     // Estando dentro de la conversación, lo que llega ya está leído.
     _markReadUpTo(message.timestamp);
   }
@@ -421,24 +432,22 @@ class _ChatViewState extends ConsumerState<_ChatView> {
                   onRefresh: _refreshHistory,
                   color: tokens.halftone,
                   backgroundColor: tokens.panel,
-                  child: Obx(
-                    () => ListView.builder(
-                      // El historial tiene que poder arrastrarse aunque
-                      // quepa entero, o el gesto de refrescar no existe.
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      itemCount: chatController.chatMessages.length,
-                      itemBuilder: (context, index) {
-                        final message = chatController.chatMessages[index];
-                        return MessageItem(
-                          sentByMe: currentUserId == message.sendBy,
-                          message: message.message,
-                          timestamp: message.timestamp,
-                        );
-                      },
+                  child: ListView.builder(
+                    // El historial tiene que poder arrastrarse aunque
+                    // quepa entero, o el gesto de refrescar no existe.
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
                     ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return MessageItem(
+                        sentByMe: currentUserId == message.sendBy,
+                        message: message.message,
+                        timestamp: message.timestamp,
+                      );
+                    },
                   ),
                 );
               },

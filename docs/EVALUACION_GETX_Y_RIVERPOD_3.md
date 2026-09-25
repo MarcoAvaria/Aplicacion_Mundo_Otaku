@@ -11,6 +11,17 @@ Todo lo que aparece aquí se midió sobre el código de `mejora/modernizacion`
 
 ## 1. GetX
 
+> **Hecho el 2026-09-24**, a la espera de revisión para commitear. La lista de
+> mensajes pasó a ser estado de `_ChatViewState`, cada `setState` comprueba
+> `mounted`, y se retiraron `chat_controller.dart`, `Get.put`, la exportación
+> del barril y la dependencia `get`. Hay una prueba de widget nueva del chat
+> —`test/features/chats/chat_screen_mensajes_test.dart`, 7 casos— que hace de
+> servidor despachando eventos al socket con `emitEvent`; se comprobó rompiendo
+> el código de cuatro formas que cada rotura la atrapa la prueba que
+> corresponde. Matriz completa en verde, Playwright 8 de 8, y en el teléfono la
+> conversación real muestra sus cuatro mensajes en orden, idénticos al volver a
+> entrar.
+
 ### Qué hace hoy, exactamente
 
 GetX se usa para **una sola cosa**: guardar la lista de mensajes del chat.

@@ -17,4 +17,3 @@ export 'image_provider_for_path.dart';
 export 'list_status_view.dart';
 export 'custom_product_field.dart';
 export 'chat/message.dart';
-export 'chat/chat_controller.dart';
