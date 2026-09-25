@@ -3,7 +3,7 @@ import 'package:aplicacion_mundo_otaku/features/auth/domain/domain.dart';
 import 'package:aplicacion_mundo_otaku/features/auth/infrastructure/infraestructure.dart';
 import 'package:aplicacion_mundo_otaku/features/shared/shared.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {

@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:aplicacion_mundo_otaku/features/products/domain/domain.dart';
 
 import 'package:aplicacion_mundo_otaku/features/products/presentation/providers/providers.dart';
