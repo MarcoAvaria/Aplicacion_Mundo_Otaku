@@ -195,6 +195,24 @@ void main() {
     expect(find.text('mensaje de la conversación anterior'), findsNothing);
   });
 
+  testWidgets('cerrar la sesión con el chat abierto no revienta al desmontarlo',
+      (tester) async {
+    // T-058. Es el orden real de `AuthNotifier._clearLocalSession`: primero
+    // destruye el socket y recién después marca la sesión como cerrada, que es
+    // lo que hace que el router desmonte el chat. Pasa cuando el token caduca
+    // o se revoca con la conversación abierta (`expireSession`, ante un 401).
+    await _montarChat(tester);
+
+    SocketService.instance.disconnect();
+    await tester.pumpWidget(const SizedBox());
+
+    expect(
+      tester.takeException(),
+      isNull,
+      reason: 'dispose del chat pidió `socket` cuando ya no existía',
+    );
+  });
+
   testWidgets('un evento que llega después de cerrar la pantalla no revienta',
       (tester) async {
     // `dispose` da de baja los manejadores; y aunque uno se escapara, cada

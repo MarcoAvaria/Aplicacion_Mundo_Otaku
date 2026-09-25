@@ -47,6 +47,20 @@ void main() {
       expect(() => servicio.leaveChat(_chat), returnsNormally);
     });
 
+    test('dar de baja un manejador sin socket no revienta (T-058)', () {
+      // Es lo que hace el `dispose` del chat cuando la sesión se cerró con la
+      // conversación abierta: el socket ya se destruyó.
+      final servicio = _servicioListo();
+      void manejador(dynamic _) {}
+
+      expect(() => servicio.off('new-message', manejador), returnsNormally);
+
+      servicio.initialize(token: 'token-abc');
+      servicio.socket.on('new-message', manejador);
+      servicio.disconnect();
+      expect(() => servicio.off('new-message', manejador), returnsNormally);
+    });
+
     test('desconectar dos veces seguidas no revienta', () {
       final servicio = _servicioListo();
       expect(servicio.disconnect, returnsNormally);

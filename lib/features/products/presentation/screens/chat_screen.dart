@@ -391,9 +391,11 @@ class _ChatViewState extends ConsumerState<_ChatView> {
   void dispose() {
     _completePendingHistory();
     socketService.leaveChat(widget.conversacionId);
-    socketService.socket.off('chat-history', _onHistory);
-    socketService.socket.off('new-message', _onMessage);
-    socketService.socket.off('chat-error', _onChatError);
+    // Con `off` del servicio y no `socket.off`: si la sesión se cerró con el
+    // chat abierto, el socket ya no existe y `socket` lanzaría (T-058).
+    socketService.off('chat-history', _onHistory);
+    socketService.off('new-message', _onMessage);
+    socketService.off('chat-error', _onChatError);
     inputController.dispose();
     super.dispose();
   }

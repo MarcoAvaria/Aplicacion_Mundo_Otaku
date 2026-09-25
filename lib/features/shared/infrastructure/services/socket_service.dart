@@ -126,6 +126,19 @@ class SocketService with ChangeNotifier {
     _socket?.emit('leave-chat', {'chatExchangeId': chatExchangeId});
   }
 
+  /// Da de baja un manejador de eventos, si todavía hay socket.
+  ///
+  /// Existe por T-058. Al cerrar la sesión, `AuthNotifier` destruye el socket
+  /// **antes** de marcar la sesión como cerrada, y es eso último lo que hace
+  /// que el router desmonte las pantallas. Una pantalla que en su `dispose`
+  /// pedía `socket` se encontraba con que ya no existía: `StateError`, y el
+  /// resto de su `dispose` —incluido liberar sus controladores— no corría.
+  /// Si el socket ya no está no hay nada que dar de baja: al destruirlo,
+  /// `disconnect` se llevó sus manejadores.
+  void off(String event, dynamic Function(dynamic) handler) {
+    _socket?.off(event, handler);
+  }
+
   bool sendMessage(String content, String chatExchangeId) {
     final message = content.trim();
     if (message.isEmpty || !isChatReady(chatExchangeId)) return false;
